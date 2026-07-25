@@ -27,8 +27,14 @@
   a{ color:inherit; text-decoration:none; }
   .wrap{ max-width:480px; margin:0 auto; width:100%; padding:0 20px; }
 
-  .back{ padding:24px 0 16px; }
+  .back{ padding:24px 0 16px; display:flex; justify-content:space-between; align-items:center; }
   .back button{ background:none; border:none; color:var(--text-secondary); cursor:pointer; padding:0; display:flex; }
+  #langToggle{
+    background:none; border:0.5px solid rgba(255,255,255,0.15); color:var(--text-secondary);
+    border-radius:16px; padding:6px 12px; font-size:12px; font-weight:600;
+    cursor:pointer; display:flex; align-items:center; gap:4px;
+  }
+  #langToggle .cur{ color:var(--text); }
 
   .profile-head{ display:flex; flex-direction:column; align-items:center; text-align:center; padding:0 0 20px; }
   .avatar-lg{ width:76px; height:76px; border-radius:50%; background:#3b5f8f; margin-bottom:14px; }
@@ -70,35 +76,87 @@
     <button onclick="location.href='tutors.html'" aria-label="뒤로가기">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
     </button>
+    <button id="langToggle" aria-label="언어 전환">
+      <span class="cur" id="langCur">한국어</span> / <span id="langOther">EN</span>
+    </button>
   </div>
 
   <div class="profile-head">
     <div class="avatar-lg"></div>
     <p class="name">지은</p>
-    <p class="role">전 항공사 승무원 · 비즈니스 한국어 전문</p>
-    <div class="meta"><span class="star">★</span> 4.9 <span class="dim">· 후기 132개 · 수업 840회</span></div>
+    <p class="role" data-i18n="profile.role">전 항공사 승무원 · 비즈니스 한국어 전문</p>
+    <div class="meta"><span class="star">★</span> 4.9 <span class="dim" data-i18n="profile.meta">· 후기 132개 · 수업 840회</span></div>
   </div>
 
   <div class="section">
-    <p class="intro">10년간 승무원으로 일하며 40개국 승객을 응대했습니다. 비즈니스 미팅, 이메일, 전화 응대 상황극 위주로 수업합니다.</p>
+    <p class="intro" data-i18n="profile.intro">10년간 승무원으로 일하며 40개국 승객을 응대했습니다. 비즈니스 미팅, 이메일, 전화 응대 상황극 위주로 수업합니다.</p>
   </div>
 
   <div class="tags">
-    <span class="tag highlight">비즈니스 회화</span>
-    <span class="tag">중급~고급</span>
-    <span class="tag">영어 가능</span>
+    <span class="tag highlight" data-i18n="profile.tag1">비즈니스 회화</span>
+    <span class="tag" data-i18n="profile.tag2">중급~고급</span>
+    <span class="tag" data-i18n="profile.tag3">영어 가능</span>
   </div>
 
   <div class="review-card">
-    <p class="author">M.T. · 홍콩</p>
-    <p class="body">비즈니스 미팅 준비할 때마다 도움 많이 받았어요. 실제 상황처럼 연습시켜주셔서 좋았습니다.</p>
+    <p class="author">M.T. · <span data-i18n="review.hk">홍콩</span></p>
+    <p class="body" data-i18n="review.body">비즈니스 미팅 준비할 때마다 도움 많이 받았어요. 실제 상황처럼 연습시켜주셔서 좋았습니다.</p>
   </div>
 </div>
 
 <div class="booking-bar">
-  <span class="price">₩28,000<span class="unit">/회</span></span>
-  <button onclick="location.href='booking.html?tutor=jieun'">수업 예약하기</button>
+  <span class="price">₩28,000<span class="unit" data-i18n="unit.perLesson">/회</span></span>
+  <button data-i18n="profile.book" onclick="location.href='booking.html?tutor=jieun'">수업 예약하기</button>
 </div>
+
+<script>
+const TRANSLATIONS = {
+  ko: {
+    "profile.role": "전 항공사 승무원 · 비즈니스 한국어 전문",
+    "profile.meta": "· 후기 132개 · 수업 840회",
+    "profile.intro": "10년간 승무원으로 일하며 40개국 승객을 응대했습니다. 비즈니스 미팅, 이메일, 전화 응대 상황극 위주로 수업합니다.",
+    "profile.tag1": "비즈니스 회화", "profile.tag2": "중급~고급", "profile.tag3": "영어 가능",
+    "review.hk": "홍콩",
+    "review.body": "비즈니스 미팅 준비할 때마다 도움 많이 받았어요. 실제 상황처럼 연습시켜주셔서 좋았습니다.",
+    "unit.perLesson": "/회",
+    "profile.book": "수업 예약하기"
+  },
+  en: {
+    "profile.role": "Former flight attendant · Business Korean specialist",
+    "profile.meta": "· 132 reviews · 840 lessons",
+    "profile.intro": "10 years as a flight attendant serving passengers from 40 countries. Lessons focus on business meetings, email, and phone-call role-play.",
+    "profile.tag1": "Business conversation", "profile.tag2": "Intermediate–Advanced", "profile.tag3": "English OK",
+    "review.hk": "Hong Kong",
+    "review.body": "This helped so much every time I prepped for a business meeting. Practicing real scenarios made a huge difference.",
+    "unit.perLesson": "/lesson",
+    "profile.book": "Book a lesson"
+  }
+};
+
+function applyLang(lang){
+  document.documentElement.lang = lang;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    const dict = TRANSLATIONS[lang] || TRANSLATIONS.ko;
+    if(dict[key] !== undefined){
+      el.innerHTML = dict[key];
+    }
+  });
+  document.getElementById('langCur').textContent = (lang === 'ko') ? '한국어' : 'English';
+  document.getElementById('langOther').textContent = (lang === 'ko') ? 'EN' : '한글';
+  localStorage.setItem('malmun_lang', lang);
+}
+
+(function initLang(){
+  const saved = localStorage.getItem('malmun_lang') || 'ko';
+  applyLang(saved);
+})();
+
+document.getElementById('langToggle').addEventListener('click', () => {
+  const current = localStorage.getItem('malmun_lang') || 'ko';
+  applyLang(current === 'ko' ? 'en' : 'ko');
+});
+</script>
 
 </body>
 </html>
