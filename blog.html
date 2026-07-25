@@ -27,6 +27,13 @@
   .header{ display:flex; justify-content:space-between; align-items:center; padding:24px 0 16px; }
   .header .title{ font-size:17px; font-weight:600; margin:0; }
   .header button{ background:none; border:none; color:var(--text-secondary); cursor:pointer; padding:0; display:flex; }
+  .header .right{ display:flex; align-items:center; gap:10px; }
+  #langToggle{
+    background:none; border:0.5px solid rgba(255,255,255,0.15); color:var(--text-secondary);
+    border-radius:16px; padding:6px 12px; font-size:12px; font-weight:600;
+    cursor:pointer; display:flex; align-items:center; gap:4px;
+  }
+  #langToggle .cur{ color:var(--text); }
 
   .chips{ display:flex; gap:8px; overflow-x:auto; padding:0 0 16px; margin:0 -20px; padding-left:20px; padding-right:20px; scrollbar-width:none; }
   .chips::-webkit-scrollbar{ display:none; }
@@ -41,55 +48,154 @@
   .post-tag{ font-size:11px; color:var(--accent); margin:0 0 8px; }
   .post-title{ font-size:14px; font-weight:600; line-height:1.4; margin:0 0 6px; }
   .post-meta{ font-size:12px; color:var(--text-muted); margin:0; }
+
+  body{ padding-bottom:76px; }
+  .bottom-nav{
+    position:fixed; bottom:0; left:0; right:0; z-index:20;
+    background:rgba(20,22,27,0.92); backdrop-filter:blur(10px);
+    border-top:0.5px solid var(--card-border);
+    display:flex; padding:8px 8px calc(8px + env(safe-area-inset-bottom));
+  }
+  .nav-item{
+    flex:1; display:flex; flex-direction:column; align-items:center; gap:4px;
+    padding:6px 0; color:var(--text-muted); background:none; border:none; cursor:pointer;
+  }
+  .nav-item.active{ color:var(--accent); }
+  .nav-item span{ font-size:11px; }
 </style>
 </head>
 <body>
 
 <div class="wrap">
   <div class="header">
-    <p class="title">커뮤니티</p>
-    <button aria-label="검색">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-    </button>
+    <p class="title" data-i18n="blog.title">커뮤니티</p>
+    <div class="right">
+      <button id="langToggle" aria-label="언어 전환">
+        <span class="cur" id="langCur">한국어</span> / <span id="langOther">EN</span>
+      </button>
+      <button aria-label="검색">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      </button>
+    </div>
   </div>
 
   <div class="chips">
-    <button class="chip active" data-cat="all">전체</button>
-    <button class="chip" data-cat="story">한국 이주 이야기</button>
-    <button class="chip" data-cat="tips">학습 팁</button>
-    <button class="chip" data-cat="interview">튜터 인터뷰</button>
+    <button class="chip active" data-cat="all" data-i18n="blog.cat.all">전체</button>
+    <button class="chip" data-cat="story" data-i18n="blog.cat.story">한국 이주 이야기</button>
+    <button class="chip" data-cat="tips" data-i18n="blog.cat.tips">학습 팁</button>
+    <button class="chip" data-cat="interview" data-i18n="blog.cat.interview">튜터 인터뷰</button>
   </div>
 
   <div class="post-list">
     <button class="post-card" onclick="location.href='article.html?id=why-korea'">
-      <p class="post-tag">한국 이주 이야기</p>
-      <p class="post-title">외국인 전문직들이 한국을 선택하는 이유</p>
-      <p class="post-meta">읽는 시간 4분</p>
+      <p class="post-tag" data-i18n="blog.cat.story">한국 이주 이야기</p>
+      <p class="post-title" data-i18n="blog.post1.title">외국인 전문직들이 한국을 선택하는 이유</p>
+      <p class="post-meta" data-i18n="blog.post1.meta">읽는 시간 4분</p>
     </button>
 
     <button class="post-card" onclick="location.href='article.html?id=honorifics'">
-      <p class="post-tag">학습 팁</p>
-      <p class="post-title">비즈니스 한국어, 존댓말부터 넘어야 하는 이유</p>
-      <p class="post-meta">읽는 시간 3분</p>
+      <p class="post-tag" data-i18n="blog.cat.tips">학습 팁</p>
+      <p class="post-title" data-i18n="blog.post2.title">비즈니스 한국어, 존댓말부터 넘어야 하는 이유</p>
+      <p class="post-meta" data-i18n="blog.post2.meta">읽는 시간 3분</p>
     </button>
 
     <button class="post-card" onclick="location.href='article.html?id=tutor-jieun'">
-      <p class="post-tag">튜터 인터뷰</p>
-      <p class="post-title">지은 튜터가 말하는 좋은 학습자의 태도</p>
-      <p class="post-meta">읽는 시간 5분</p>
+      <p class="post-tag" data-i18n="blog.cat.interview">튜터 인터뷰</p>
+      <p class="post-title" data-i18n="blog.post3.title">지은 튜터가 말하는 좋은 학습자의 태도</p>
+      <p class="post-meta" data-i18n="blog.post3.meta">읽는 시간 5분</p>
     </button>
   </div>
 </div>
 
+<nav class="bottom-nav">
+  <button class="nav-item" onclick="location.href='index.html'">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M9 22V12h6v10"/></svg>
+    <span data-i18n="nav.home">홈</span>
+  </button>
+  <button class="nav-item" onclick="location.href='tutors.html'">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+    <span data-i18n="nav.tutors">튜터</span>
+  </button>
+  <button class="nav-item" onclick="location.href='curriculum.html'">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+    <span data-i18n="nav.curriculum">커리큘럼</span>
+  </button>
+  <button class="nav-item active" onclick="location.href='blog.html'">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+    <span data-i18n="nav.community">커뮤니티</span>
+  </button>
+  <button class="nav-item" onclick="location.href='mypage.html'">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <span data-i18n="nav.mypage">마이페이지</span>
+  </button>
+</nav>
+
 <script>
-  const chips = document.querySelectorAll('.chip');
-  chips.forEach(chip => {
-    chip.addEventListener('click', () => {
-      chips.forEach(c => c.classList.remove('active'));
-      chip.classList.add('active');
-      // 실제 서비스에서는 chip.dataset.cat 값으로 글 목록 필터링
-    });
+const TRANSLATIONS = {
+  ko: {
+    "blog.title": "커뮤니티",
+    "blog.cat.all": "전체",
+    "blog.cat.story": "한국 이주 이야기",
+    "blog.cat.tips": "학습 팁",
+    "blog.cat.interview": "튜터 인터뷰",
+    "blog.post1.title": "외국인 전문직들이 한국을 선택하는 이유",
+    "blog.post1.meta": "읽는 시간 4분",
+    "blog.post2.title": "비즈니스 한국어, 존댓말부터 넘어야 하는 이유",
+    "blog.post2.meta": "읽는 시간 3분",
+    "blog.post3.title": "지은 튜터가 말하는 좋은 학습자의 태도",
+    "blog.post3.meta": "읽는 시간 5분",
+    "nav.home": "홈", "nav.tutors": "튜터", "nav.curriculum": "커리큘럼",
+    "nav.community": "커뮤니티", "nav.mypage": "마이페이지"
+  },
+  en: {
+    "blog.title": "Community",
+    "blog.cat.all": "All",
+    "blog.cat.story": "Life in Korea",
+    "blog.cat.tips": "Learning tips",
+    "blog.cat.interview": "Tutor interviews",
+    "blog.post1.title": "Why foreign professionals choose Korea",
+    "blog.post1.meta": "4 min read",
+    "blog.post2.title": "Why business Korean starts with honorifics",
+    "blog.post2.meta": "3 min read",
+    "blog.post3.title": "Tutor Jieun on what makes a great learner",
+    "blog.post3.meta": "5 min read",
+    "nav.home": "Home", "nav.tutors": "Tutors", "nav.curriculum": "Curriculum",
+    "nav.community": "Community", "nav.mypage": "My page"
+  }
+};
+
+function applyLang(lang){
+  document.documentElement.lang = lang;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    const dict = TRANSLATIONS[lang] || TRANSLATIONS.ko;
+    if(dict[key] !== undefined){
+      el.innerHTML = dict[key];
+    }
   });
+  document.getElementById('langCur').textContent = (lang === 'ko') ? '한국어' : 'English';
+  document.getElementById('langOther').textContent = (lang === 'ko') ? 'EN' : '한글';
+  localStorage.setItem('malmun_lang', lang);
+}
+
+(function initLang(){
+  const saved = localStorage.getItem('malmun_lang') || 'ko';
+  applyLang(saved);
+})();
+
+document.getElementById('langToggle').addEventListener('click', () => {
+  const current = localStorage.getItem('malmun_lang') || 'ko';
+  applyLang(current === 'ko' ? 'en' : 'ko');
+});
+
+const chips = document.querySelectorAll('.chip');
+chips.forEach(chip => {
+  chip.addEventListener('click', () => {
+    chips.forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    // 실제 서비스에서는 chip.dataset.cat 값으로 글 목록 필터링
+  });
+});
 </script>
 
 </body>
