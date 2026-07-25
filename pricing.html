@@ -25,8 +25,14 @@
   a{ color:inherit; text-decoration:none; }
   .wrap{ max-width:480px; margin:0 auto; padding:0 20px 40px; }
 
-  .topbar{ padding:24px 0 20px; }
+  .topbar{ padding:24px 0 20px; display:flex; align-items:center; justify-content:space-between; }
   .topbar button{ background:none; border:none; color:var(--text-secondary); cursor:pointer; padding:0; display:flex; }
+  #langToggle{
+    background:none; border:0.5px solid rgba(255,255,255,0.15); color:var(--text-secondary);
+    border-radius:16px; padding:6px 12px; font-size:12px; font-weight:600;
+    cursor:pointer; display:flex; align-items:center; gap:4px;
+  }
+  #langToggle .cur{ color:var(--text); }
 
   .header{ padding:0 0 20px; }
   .header .title{ font-size:17px; font-weight:600; margin:0 0 6px; }
@@ -57,38 +63,100 @@
     <button onclick="location.href='mypage.html'" aria-label="뒤로가기">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
     </button>
+    <button id="langToggle" aria-label="언어 전환">
+      <span class="cur" id="langCur">한국어</span> / <span id="langOther">EN</span>
+    </button>
   </div>
 
   <div class="header">
-    <p class="title">요금제·패키지</p>
-    <p class="sub">묶어서 예약하면 회당 가격이 낮아져요</p>
+    <p class="title" data-i18n="pricing.h.title">요금제·패키지</p>
+    <p class="sub" data-i18n="pricing.h.sub">묶어서 예약하면 회당 가격이 낮아져요</p>
   </div>
 
   <div class="cards">
     <button class="price-card" onclick="alert('단건 결제 흐름으로 이동합니다.')">
-      <p class="name">단건 수업</p>
-      <p class="sub">부담 없이 한 번만</p>
-      <p class="amount">₩28,000<span class="unit"> /회</span></p>
+      <p class="name" data-i18n="pricing.single.name">단건 수업</p>
+      <p class="sub" data-i18n="pricing.single.sub">부담 없이 한 번만</p>
+      <p class="amount">₩28,000<span class="unit" data-i18n="pricing.single.unit"> /회</span></p>
     </button>
 
     <button class="price-card featured" onclick="alert('4회 패키지 결제 흐름으로 이동합니다.')">
-      <div class="badge">가장 많이 선택</div>
-      <p class="name">4회 패키지</p>
-      <p class="sub">한 달 기준 · 회당 12% 할인</p>
-      <p class="amount">₩98,560<span class="unit"> · 회당 ₩24,640</span></p>
+      <div class="badge" data-i18n="pricing.popular">가장 많이 선택</div>
+      <p class="name" data-i18n="pricing.pack4.name">4회 패키지</p>
+      <p class="sub" data-i18n="pricing.pack4.sub">한 달 기준 · 회당 12% 할인</p>
+      <p class="amount">₩98,560<span class="unit" data-i18n="pricing.pack4.unit"> · 회당 ₩24,640</span></p>
     </button>
 
     <button class="price-card" onclick="alert('12회 패키지 결제 흐름으로 이동합니다.')">
-      <p class="name">12회 패키지</p>
-      <p class="sub">3개월 기준 · 회당 20% 할인</p>
-      <p class="amount">₩268,800<span class="unit"> · 회당 ₩22,400</span></p>
+      <p class="name" data-i18n="pricing.pack12.name">12회 패키지</p>
+      <p class="sub" data-i18n="pricing.pack12.sub">3개월 기준 · 회당 20% 할인</p>
+      <p class="amount">₩268,800<span class="unit" data-i18n="pricing.pack12.unit"> · 회당 ₩22,400</span></p>
     </button>
   </div>
 
   <div class="note">
-    <p>패키지는 90일 내 자유롭게 사용, 미사용분은 환불 가능</p>
+    <p data-i18n="pricing.note">패키지는 90일 내 자유롭게 사용, 미사용분은 환불 가능</p>
   </div>
 </div>
+
+<script>
+const TRANSLATIONS = {
+  ko: {
+    "pricing.h.title": "요금제·패키지",
+    "pricing.h.sub": "묶어서 예약하면 회당 가격이 낮아져요",
+    "pricing.single.name": "단건 수업",
+    "pricing.single.sub": "부담 없이 한 번만",
+    "pricing.single.unit": " /회",
+    "pricing.popular": "가장 많이 선택",
+    "pricing.pack4.name": "4회 패키지",
+    "pricing.pack4.sub": "한 달 기준 · 회당 12% 할인",
+    "pricing.pack4.unit": " · 회당 ₩24,640",
+    "pricing.pack12.name": "12회 패키지",
+    "pricing.pack12.sub": "3개월 기준 · 회당 20% 할인",
+    "pricing.pack12.unit": " · 회당 ₩22,400",
+    "pricing.note": "패키지는 90일 내 자유롭게 사용, 미사용분은 환불 가능"
+  },
+  en: {
+    "pricing.h.title": "Pricing & packages",
+    "pricing.h.sub": "Bundle lessons for a lower rate per lesson",
+    "pricing.single.name": "Single lesson",
+    "pricing.single.sub": "No commitment, just one lesson",
+    "pricing.single.unit": " /lesson",
+    "pricing.popular": "Most popular",
+    "pricing.pack4.name": "4-lesson pack",
+    "pricing.pack4.sub": "1 month · 12% off per lesson",
+    "pricing.pack4.unit": " · ₩24,640/lesson",
+    "pricing.pack12.name": "12-lesson pack",
+    "pricing.pack12.sub": "3 months · 20% off per lesson",
+    "pricing.pack12.unit": " · ₩22,400/lesson",
+    "pricing.note": "Use your package freely within 90 days — unused lessons are refundable"
+  }
+};
+
+function applyLang(lang){
+  document.documentElement.lang = lang;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    const dict = TRANSLATIONS[lang] || TRANSLATIONS.ko;
+    if(dict[key] !== undefined){
+      el.innerHTML = dict[key];
+    }
+  });
+  document.getElementById('langCur').textContent = (lang === 'ko') ? '한국어' : 'English';
+  document.getElementById('langOther').textContent = (lang === 'ko') ? 'EN' : '한글';
+  localStorage.setItem('malmun_lang', lang);
+}
+
+(function initLang(){
+  const saved = localStorage.getItem('malmun_lang') || 'ko';
+  applyLang(saved);
+})();
+
+document.getElementById('langToggle').addEventListener('click', () => {
+  const current = localStorage.getItem('malmun_lang') || 'ko';
+  applyLang(current === 'ko' ? 'en' : 'ko');
+});
+</script>
 
 </body>
 </html>
