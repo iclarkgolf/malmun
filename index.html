@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>말문 | 한국이 궁금하다면, 말부터.</title>
+<title>말문 | Malmun</title>
 <style>
   :root{
     --bg: #0f1115;
@@ -34,15 +34,24 @@
     display:flex; align-items:center; justify-content:space-between;
     padding:20px 20px 16px;
     position:sticky; top:0; background:rgba(15,17,21,0.85); backdrop-filter:blur(8px);
-    z-index:10;
+    z-index:10; gap:12px;
   }
-  header .logo{ font-size:16px; font-weight:600; letter-spacing:-0.01em; }
+  header .logo{ font-size:16px; font-weight:600; letter-spacing:-0.01em; flex-shrink:0; }
   header .logo span{ color:var(--accent); }
-  header button{
+  header .right{ display:flex; align-items:center; gap:10px; }
+
+  #langToggle{
+    background:none; border:0.5px solid var(--card-border); color:var(--text-secondary);
+    border-radius:16px; padding:6px 12px; font-size:12px; font-weight:600;
+    cursor:pointer; display:flex; align-items:center; gap:4px;
+  }
+  #langToggle .cur{ color:var(--text); }
+
+  header .menu-btn{
     background:none; border:none; color:var(--text-secondary);
     width:32px; height:32px; border-radius:50%;
     display:flex; align-items:center; justify-content:center;
-    cursor:pointer;
+    cursor:pointer; flex-shrink:0;
   }
 
   .hero{ padding:24px 20px 32px; }
@@ -144,112 +153,131 @@
   @media (max-width:400px){
     h1{ font-size:26px; }
   }
+
+  body{ padding-bottom:76px; }
+  .bottom-nav{
+    position:fixed; bottom:0; left:0; right:0; z-index:20;
+    background:rgba(20,22,27,0.92); backdrop-filter:blur(10px);
+    border-top:0.5px solid var(--card-border);
+    display:flex; padding:8px 8px calc(8px + env(safe-area-inset-bottom));
+  }
+  .nav-item{
+    flex:1; display:flex; flex-direction:column; align-items:center; gap:4px;
+    padding:6px 0; color:var(--text-muted); background:none; border:none; cursor:pointer;
+  }
+  .nav-item.active{ color:var(--accent); }
+  .nav-item span{ font-size:11px; }
 </style>
 </head>
 <body>
 
 <header>
   <div class="logo"><span>i</span>말문</div>
-  <button aria-label="메뉴 열기">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-  </button>
+  <div class="right">
+    <button id="langToggle" aria-label="언어 전환">
+      <span class="cur" id="langCur">한국어</span> / <span id="langOther">EN</span>
+    </button>
+    <button class="menu-btn" aria-label="메뉴 열기">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </div>
 </header>
 
 <div class="wrap">
 
   <section class="hero" style="border-top:none; padding-top:8px;">
-    <p class="eyebrow">1:1 한국어 튜터 매칭</p>
-    <h1>한국이 궁금하다면,<br>말부터 트세요.</h1>
-    <p>레벨테스트로 시작해서<br>검증된 튜터와 1:1로 배우는 한국어</p>
-    <button class="btn btn-primary" onclick="location.href='level-test.html'">무료 레벨테스트 시작</button>
-    <a href="tutors.html"><button class="btn btn-secondary">튜터 둘러보기</button></a>
+    <p class="eyebrow" data-i18n="hero.eyebrow">1:1 한국어 튜터 매칭</p>
+    <h1 data-i18n="hero.title">한국이 궁금하다면,<br>말부터 트세요.</h1>
+    <p data-i18n="hero.sub">레벨테스트로 시작해서<br>검증된 튜터와 1:1로 배우는 한국어</p>
+    <button class="btn btn-primary" data-i18n="hero.cta1" onclick="location.href='level-test.html'">무료 레벨테스트 시작</button>
+    <a href="tutors.html"><button class="btn btn-secondary" data-i18n="hero.cta2">튜터 둘러보기</button></a>
   </section>
 
   <div class="trust" style="border-top:none;">
-    <div><p class="num">4.9</p><p class="label">평균 평점</p></div>
-    <div><p class="num">검증된</p><p class="label">전문직 튜터</p></div>
-    <div><p class="num">4단계</p><p class="label">커리큘럼</p></div>
+    <div><p class="num">4.9</p><p class="label" data-i18n="trust.rating">평균 평점</p></div>
+    <div><p class="num" data-i18n="trust.verified">검증된</p><p class="label" data-i18n="trust.pro">전문직 튜터</p></div>
+    <div><p class="num" data-i18n="trust.stages">4단계</p><p class="label" data-i18n="trust.curriculum">커리큘럼</p></div>
   </div>
 
   <section>
-    <p class="section-eyebrow">추천 튜터</p>
-    <p class="section-title">지금 가장 인기 있는 튜터</p>
+    <p class="section-eyebrow" data-i18n="tutors.eyebrow">추천 튜터</p>
+    <p class="section-title" data-i18n="tutors.title">지금 가장 인기 있는 튜터</p>
     <div class="tutor-scroll">
       <div class="tutor-card">
         <div class="tutor-avatar" style="background:#3b5f8f;"></div>
         <p class="tutor-name">지은</p>
-        <p class="tutor-desc">전 항공사 승무원 · 비즈니스 한국어</p>
-        <div class="tutor-meta"><span class="star">★</span> 4.9 · 후기 132개</div>
-        <p class="tutor-price">₩28,000/회</p>
+        <p class="tutor-desc" data-i18n="tutor.jieun.desc">전 항공사 승무원 · 비즈니스 한국어</p>
+        <div class="tutor-meta"><span class="star">★</span> 4.9 · <span data-i18n="tutor.jieun.reviews">후기 132개</span></div>
+        <p class="tutor-price">₩28,000<span data-i18n="unit.perLesson">/회</span></p>
       </div>
       <div class="tutor-card">
         <div class="tutor-avatar" style="background:#6a4f8f;"></div>
         <p class="tutor-name">현우</p>
-        <p class="tutor-desc">前 한국어교원 · TOPIK 전문</p>
-        <div class="tutor-meta"><span class="star">★</span> 5.0 · 후기 89개</div>
-        <p class="tutor-price">₩24,000/회</p>
+        <p class="tutor-desc" data-i18n="tutor.hyunwoo.desc">前 한국어교원 · TOPIK 전문</p>
+        <div class="tutor-meta"><span class="star">★</span> 5.0 · <span data-i18n="tutor.hyunwoo.reviews">후기 89개</span></div>
+        <p class="tutor-price">₩24,000<span data-i18n="unit.perLesson">/회</span></p>
       </div>
       <div class="tutor-card">
         <div class="tutor-avatar" style="background:#8f4f5f;"></div>
         <p class="tutor-name">수진</p>
-        <p class="tutor-desc">대학원생 · 일상 회화 전문</p>
-        <div class="tutor-meta"><span class="star">★</span> 4.8 · 후기 61개</div>
-        <p class="tutor-price">₩22,000/회</p>
+        <p class="tutor-desc" data-i18n="tutor.soojin.desc">대학원생 · 일상 회화 전문</p>
+        <div class="tutor-meta"><span class="star">★</span> 4.8 · <span data-i18n="tutor.soojin.reviews">후기 61개</span></div>
+        <p class="tutor-price">₩22,000<span data-i18n="unit.perLesson">/회</span></p>
       </div>
     </div>
   </section>
 
   <section>
-    <p class="section-eyebrow">성장 경로</p>
-    <p class="section-title">초급부터 비즈니스 레벨까지</p>
+    <p class="section-eyebrow" data-i18n="curriculum.eyebrow">성장 경로</p>
+    <p class="section-title" data-i18n="curriculum.title">초급부터 비즈니스 레벨까지</p>
     <div class="curriculum-steps">
       <div class="step">
         <div class="step-num">1</div>
-        <div><p class="step-title">초급 · 생존 회화</p><p class="step-desc">인사, 주문, 길찾기 등 기본 문형</p></div>
+        <div><p class="step-title" data-i18n="curriculum.s1.title">초급 · 생존 회화</p><p class="step-desc" data-i18n="curriculum.s1.desc">인사, 주문, 길찾기 등 기본 문형</p></div>
       </div>
       <div class="step active">
         <div class="step-num">2</div>
-        <div><p class="step-title">중급 · 일상 심화</p><p class="step-desc">자유로운 대화, 감정 표현</p></div>
+        <div><p class="step-title" data-i18n="curriculum.s2.title">중급 · 일상 심화</p><p class="step-desc" data-i18n="curriculum.s2.desc">자유로운 대화, 감정 표현</p></div>
       </div>
       <div class="step">
         <div class="step-num">3</div>
-        <div><p class="step-title">고급 · 비즈니스 회화</p><p class="step-desc">미팅, 이메일, 전화 응대</p></div>
+        <div><p class="step-title" data-i18n="curriculum.s3.title">고급 · 비즈니스 회화</p><p class="step-desc" data-i18n="curriculum.s3.desc">미팅, 이메일, 전화 응대</p></div>
       </div>
       <div class="step">
         <div class="step-num">4</div>
-        <div><p class="step-title">심화 · 시사·뉴스</p><p class="step-desc">뉴스 읽기, 원어민 수준 뉘앙스</p></div>
+        <div><p class="step-title" data-i18n="curriculum.s4.title">심화 · 시사·뉴스</p><p class="step-desc" data-i18n="curriculum.s4.desc">뉴스 읽기, 원어민 수준 뉘앙스</p></div>
       </div>
     </div>
   </section>
 
   <section>
-    <p class="section-eyebrow">후기</p>
-    <p class="section-title">먼저 경험한 사람들</p>
+    <p class="section-eyebrow" data-i18n="review.eyebrow">후기</p>
+    <p class="section-title" data-i18n="review.title">먼저 경험한 사람들</p>
     <div class="review-card">
-      <p class="review-author">M.T. · 홍콩</p>
-      <p class="review-body">비즈니스 미팅 준비할 때마다 도움 많이 받았어요. 실제 상황처럼 연습시켜주셔서 좋았습니다.</p>
+      <p class="review-author">M.T. · <span data-i18n="review.hk">홍콩</span></p>
+      <p class="review-body" data-i18n="review.body">비즈니스 미팅 준비할 때마다 도움 많이 받았어요. 실제 상황처럼 연습시켜주셔서 좋았습니다.</p>
     </div>
   </section>
 
   <section>
-    <p class="section-eyebrow">요금제</p>
-    <p class="section-title">묶어서 예약하면 더 저렴해요</p>
+    <p class="section-eyebrow" data-i18n="pricing.eyebrow">요금제</p>
+    <p class="section-title" data-i18n="pricing.title">묶어서 예약하면 더 저렴해요</p>
     <div class="pricing-cards">
       <div class="price-card">
-        <p class="price-name">단건 수업</p>
-        <p class="price-sub">부담 없이 한 번만</p>
-        <p class="price-amount">₩28,000<span class="unit"> /회</span></p>
+        <p class="price-name" data-i18n="pricing.single.name">단건 수업</p>
+        <p class="price-sub" data-i18n="pricing.single.sub">부담 없이 한 번만</p>
+        <p class="price-amount">₩28,000<span class="unit" data-i18n="unit.perLesson"> /회</span></p>
       </div>
       <div class="price-card featured">
-        <div class="badge">가장 많이 선택</div>
-        <p class="price-name">4회 패키지</p>
-        <p class="price-sub">한 달 기준 · 회당 12% 할인</p>
-        <p class="price-amount">₩98,560<span class="unit"> · 회당 ₩24,640</span></p>
+        <div class="badge" data-i18n="pricing.popular">가장 많이 선택</div>
+        <p class="price-name" data-i18n="pricing.pack4.name">4회 패키지</p>
+        <p class="price-sub" data-i18n="pricing.pack4.sub">한 달 기준 · 회당 12% 할인</p>
+        <p class="price-amount">₩98,560<span class="unit" data-i18n="pricing.pack4.unit"> · 회당 ₩24,640</span></p>
       </div>
       <div class="price-card">
-        <p class="price-name">12회 패키지</p>
-        <p class="price-sub">3개월 기준 · 회당 20% 할인</p>
-        <p class="price-amount">₩268,800<span class="unit"> · 회당 ₩22,400</span></p>
+        <p class="price-name" data-i18n="pricing.pack12.name">12회 패키지</p>
+        <p class="price-sub" data-i18n="pricing.pack12.sub">3개월 기준 · 회당 20% 할인</p>
+        <p class="price-amount">₩268,800<span class="unit" data-i18n="pricing.pack12.unit"> · 회당 ₩22,400</span></p>
       </div>
     </div>
   </section>
@@ -260,6 +288,159 @@
   <p>ⓒ 2026 말문 (Malmun)</p>
   <p>malmunkorean.com</p>
 </footer>
+
+<nav class="bottom-nav">
+  <button class="nav-item active" onclick="location.href='index.html'">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M9 22V12h6v10"/></svg>
+    <span data-i18n="nav.home">홈</span>
+  </button>
+  <button class="nav-item" onclick="location.href='tutors.html'">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+    <span data-i18n="nav.tutors">튜터</span>
+  </button>
+  <button class="nav-item" onclick="location.href='curriculum.html'">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+    <span data-i18n="nav.curriculum">커리큘럼</span>
+  </button>
+  <button class="nav-item" onclick="location.href='blog.html'">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+    <span data-i18n="nav.community">커뮤니티</span>
+  </button>
+  <button class="nav-item" onclick="location.href='mypage.html'">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <span data-i18n="nav.mypage">마이페이지</span>
+  </button>
+</nav>
+
+<script>
+/* =========================================================
+   말문 공통 다국어(i18n) 스크립트
+   — 다른 페이지에도 이 <script> 블록 그대로 복사해서 쓰고,
+     TRANSLATIONS 객체에 그 페이지의 키만 추가하면 됩니다.
+   ========================================================= */
+const TRANSLATIONS = {
+  ko: {
+    "hero.eyebrow": "1:1 한국어 튜터 매칭",
+    "hero.title": "한국이 궁금하다면,<br>말부터 트세요.",
+    "hero.sub": "레벨테스트로 시작해서<br>검증된 튜터와 1:1로 배우는 한국어",
+    "hero.cta1": "무료 레벨테스트 시작",
+    "hero.cta2": "튜터 둘러보기",
+    "trust.rating": "평균 평점",
+    "trust.verified": "검증된",
+    "trust.pro": "전문직 튜터",
+    "trust.stages": "4단계",
+    "trust.curriculum": "커리큘럼",
+    "tutors.eyebrow": "추천 튜터",
+    "tutors.title": "지금 가장 인기 있는 튜터",
+    "tutor.jieun.desc": "전 항공사 승무원 · 비즈니스 한국어",
+    "tutor.jieun.reviews": "후기 132개",
+    "tutor.hyunwoo.desc": "前 한국어교원 · TOPIK 전문",
+    "tutor.hyunwoo.reviews": "후기 89개",
+    "tutor.soojin.desc": "대학원생 · 일상 회화 전문",
+    "tutor.soojin.reviews": "후기 61개",
+    "unit.perLesson": "/회",
+    "curriculum.eyebrow": "성장 경로",
+    "curriculum.title": "초급부터 비즈니스 레벨까지",
+    "curriculum.s1.title": "초급 · 생존 회화",
+    "curriculum.s1.desc": "인사, 주문, 길찾기 등 기본 문형",
+    "curriculum.s2.title": "중급 · 일상 심화",
+    "curriculum.s2.desc": "자유로운 대화, 감정 표현",
+    "curriculum.s3.title": "고급 · 비즈니스 회화",
+    "curriculum.s3.desc": "미팅, 이메일, 전화 응대",
+    "curriculum.s4.title": "심화 · 시사·뉴스",
+    "curriculum.s4.desc": "뉴스 읽기, 원어민 수준 뉘앙스",
+    "review.eyebrow": "후기",
+    "review.title": "먼저 경험한 사람들",
+    "review.hk": "홍콩",
+    "review.body": "비즈니스 미팅 준비할 때마다 도움 많이 받았어요. 실제 상황처럼 연습시켜주셔서 좋았습니다.",
+    "pricing.eyebrow": "요금제",
+    "pricing.title": "묶어서 예약하면 더 저렴해요",
+    "pricing.single.name": "단건 수업",
+    "pricing.single.sub": "부담 없이 한 번만",
+    "pricing.popular": "가장 많이 선택",
+    "pricing.pack4.name": "4회 패키지",
+    "pricing.pack4.sub": "한 달 기준 · 회당 12% 할인",
+    "pricing.pack4.unit": " · 회당 ₩24,640",
+    "pricing.pack12.name": "12회 패키지",
+    "pricing.pack12.sub": "3개월 기준 · 회당 20% 할인",
+    "pricing.pack12.unit": " · 회당 ₩22,400",
+    "nav.home": "홈", "nav.tutors": "튜터", "nav.curriculum": "커리큘럼",
+    "nav.community": "커뮤니티", "nav.mypage": "마이페이지"
+  },
+  en: {
+    "hero.eyebrow": "1:1 Korean tutor matching",
+    "hero.title": "Curious about Korea?<br>Start with the words.",
+    "hero.sub": "Start with a level test,<br>then learn 1:1 with a verified tutor",
+    "hero.cta1": "Start free level test",
+    "hero.cta2": "Browse tutors",
+    "trust.rating": "avg. rating",
+    "trust.verified": "Verified",
+    "trust.pro": "professional tutors",
+    "trust.stages": "4 stages",
+    "trust.curriculum": "curriculum",
+    "tutors.eyebrow": "Featured tutors",
+    "tutors.title": "Most popular tutors right now",
+    "tutor.jieun.desc": "Former flight attendant · Business Korean",
+    "tutor.jieun.reviews": "132 reviews",
+    "tutor.hyunwoo.desc": "Former Korean language teacher · TOPIK specialist",
+    "tutor.hyunwoo.reviews": "89 reviews",
+    "tutor.soojin.desc": "Grad student · Everyday conversation specialist",
+    "tutor.soojin.reviews": "61 reviews",
+    "unit.perLesson": "/lesson",
+    "curriculum.eyebrow": "Growth path",
+    "curriculum.title": "From beginner to business level",
+    "curriculum.s1.title": "Beginner · Survival Korean",
+    "curriculum.s1.desc": "Greetings, ordering, directions, and basic patterns",
+    "curriculum.s2.title": "Intermediate · Everyday depth",
+    "curriculum.s2.desc": "Free conversation, expressing emotion",
+    "curriculum.s3.title": "Advanced · Business Korean",
+    "curriculum.s3.desc": "Meetings, email, phone calls",
+    "curriculum.s4.title": "Advanced+ · Current affairs",
+    "curriculum.s4.desc": "Reading news, native-level nuance",
+    "review.eyebrow": "Reviews",
+    "review.title": "People who came before you",
+    "review.hk": "Hong Kong",
+    "review.body": "This helped so much every time I prepped for a business meeting. Practicing real scenarios made a huge difference.",
+    "pricing.eyebrow": "Pricing",
+    "pricing.title": "Bundle lessons for a lower rate",
+    "pricing.single.name": "Single lesson",
+    "pricing.single.sub": "No commitment, just one lesson",
+    "pricing.popular": "Most popular",
+    "pricing.pack4.name": "4-lesson pack",
+    "pricing.pack4.sub": "1 month · 12% off per lesson",
+    "pricing.pack4.unit": " · ₩24,640/lesson",
+    "pricing.pack12.name": "12-lesson pack",
+    "pricing.pack12.sub": "3 months · 20% off per lesson",
+    "pricing.pack12.unit": " · ₩22,400/lesson",
+    "nav.home": "Home", "nav.tutors": "Tutors", "nav.curriculum": "Curriculum",
+    "nav.community": "Community", "nav.mypage": "My page"
+  }
+};
+
+function applyLang(lang){
+  document.documentElement.lang = lang;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    const dict = TRANSLATIONS[lang] || TRANSLATIONS.ko;
+    if(dict[key] !== undefined){
+      el.innerHTML = dict[key];
+    }
+  });
+  document.getElementById('langCur').textContent = (lang === 'ko') ? '한국어' : 'English';
+  document.getElementById('langOther').textContent = (lang === 'ko') ? 'EN' : '한글';
+  localStorage.setItem('malmun_lang', lang);
+}
+
+(function initLang(){
+  const saved = localStorage.getItem('malmun_lang') || 'ko';
+  applyLang(saved);
+})();
+
+document.getElementById('langToggle').addEventListener('click', () => {
+  const current = localStorage.getItem('malmun_lang') || 'ko';
+  applyLang(current === 'ko' ? 'en' : 'ko');
+});
+</script>
 
 </body>
 </html>
