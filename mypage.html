@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>마이페이지 | 말문</title>
+<style>
+  :root{
+    --bg: #0f1115;
+    --card: rgba(255,255,255,0.04);
+    --card-border: rgba(255,255,255,0.10);
+    --text: #f5f4f0;
+    --text-secondary: #c2c0b6;
+    --text-muted: #7a7871;
+    --accent: #e0993a;
+    --accent-text: #1a1206;
+    --accent-soft: rgba(224,153,58,0.08);
+  }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{ color:inherit; text-decoration:none; }
+  .wrap{ max-width:480px; margin:0 auto; padding:24px 20px 40px; }
+
+  .profile-row{ display:flex; align-items:center; gap:12px; padding:0 0 20px; }
+  .avatar{ width:44px; height:44px; border-radius:50%; background:var(--accent); display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:600; color:var(--accent-text); }
+  .profile-row .name{ font-size:15px; font-weight:600; margin:0; }
+  .profile-row .sub{ font-size:12px; color:var(--text-muted); margin:2px 0 0; }
+
+  .next-lesson{
+    background:var(--accent-soft); border:0.5px solid rgba(224,153,58,0.3);
+    border-radius:14px; padding:16px; margin-bottom:20px; cursor:pointer; border-width:0.5px; width:100%; text-align:left;
+  }
+  .next-lesson .tag{ font-size:11px; color:var(--accent); margin:0 0 8px; }
+  .next-lesson .row{ display:flex; justify-content:space-between; align-items:center; }
+  .next-lesson .lesson-name{ font-size:14px; margin:0 0 3px; }
+  .next-lesson .lesson-time{ font-size:12px; color:#c2a06a; margin:0; }
+
+  .stats{ display:flex; gap:10px; margin-bottom:20px; }
+  .stat-card{ flex:1; background:var(--card); border-radius:12px; padding:14px; text-align:center; }
+  .stat-card .num{ font-size:20px; font-weight:600; margin:0; }
+  .stat-card .label{ font-size:11px; color:var(--text-muted); margin:4px 0 0; }
+
+  .menu-item{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:14px 0; border-bottom:0.5px solid var(--card-border);
+    cursor:pointer; background:none; border-left:none; border-right:none; border-top:none; width:100%; text-align:left; color:var(--text);
+  }
+  .menu-item span{ font-size:13px; color:#e5e4dd; }
+  .menu-item:last-child{ border-bottom:none; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="profile-row">
+    <div class="avatar">M</div>
+    <div>
+      <p class="name">Maria</p>
+      <p class="sub">중급 2단계 · 8회 수업 완료</p>
+    </div>
+  </div>
+
+  <button class="next-lesson" onclick="alert('예약된 수업 상세/입장 화면으로 이동합니다.')">
+    <p class="tag">다음 수업</p>
+    <div class="row">
+      <div>
+        <p class="lesson-name">지은 튜터 · 비즈니스 회화</p>
+        <p class="lesson-time">수 19:00 · 50분</p>
+      </div>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e0993a" stroke-width="2"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+    </div>
+  </button>
+
+  <p style="font-size:12px;color:var(--text-muted);margin:0 0 10px;">이번 달 학습 현황</p>
+  <div class="stats">
+    <div class="stat-card"><p class="num">6</p><p class="label">완료한 수업</p></div>
+    <div class="stat-card"><p class="num">62%</p><p class="label">3단계 진도율</p></div>
+  </div>
+
+  <button class="menu-item" onclick="alert('수업 내역/후기작성 화면으로 이동합니다.')">
+    <span>수업 내역</span>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7a7871" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+  </button>
+  <button class="menu-item" onclick="location.href='pricing.html'">
+    <span>요금제·패키지</span>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7a7871" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+  </button>
+  <button class="menu-item" onclick="alert('결제 수단 관리 화면으로 이동합니다.')">
+    <span>결제 수단</span>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7a7871" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+  </button>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3단계 비즈니스 회화 | 말문</title>
+<style>
+  :root{
+    --bg: #0f1115;
+    --card: rgba(255,255,255,0.04);
+    --card-border: rgba(255,255,255,0.10);
+    --text: #f5f4f0;
+    --text-secondary: #c2c0b6;
+    --text-muted: #7a7871;
+    --accent: #e0993a;
+    --accent-text: #1a1206;
+  }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh; display:flex; flex-direction:column;
+  }
+  a{ color:inherit; text-decoration:none; }
+  .wrap{ max-width:480px; margin:0 auto; width:100%; padding:0 20px; flex:1; display:flex; flex-direction:column; }
+
+  .topbar{ padding:24px 0 16px; }
+  .topbar button{ background:none; border:none; color:var(--text-secondary); cursor:pointer; padding:0; display:flex; }
+
+  .header{ padding:0 0 20px; }
+  .header .tag{ font-size:12px; font-weight:600; color:var(--accent); margin:0 0 8px; }
+  .header .title{ font-size:18px; font-weight:600; margin:0 0 8px; }
+  .header .desc{ font-size:13px; color:var(--text-secondary); line-height:1.5; margin:0; }
+
+  .count{ font-size:12px; color:var(--text-muted); margin:0 0 10px; }
+
+  .module{
+    display:flex; justify-content:space-between; align-items:center;
+    background:var(--card); border-radius:12px; padding:14px; margin-bottom:10px;
+    cursor:pointer; border:none; width:100%; text-align:left; color:var(--text);
+  }
+  .module.locked{ background:rgba(255,255,255,0.02); border:0.5px dashed var(--card-border); cursor:default; }
+  .module .m-title{ font-size:13px; margin:0 0 3px; }
+  .module.locked .m-title{ color:var(--text-muted); }
+  .module .m-sub{ font-size:11px; color:var(--text-muted); margin:0; }
+  .module.locked .m-sub{ color:#5a5852; }
+
+  .bottom{ padding:16px 0 32px; }
+  .btn-primary{
+    display:block; width:100%; text-align:center; padding:15px; border-radius:12px;
+    font-size:15px; font-weight:600; cursor:pointer; border:none;
+    background:var(--accent); color:var(--accent-text);
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="topbar">
+    <button onclick="location.href='curriculum.html'" aria-label="뒤로가기">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    </button>
+  </div>
+
+  <div class="header">
+    <p class="tag">3단계 · 고급</p>
+    <p class="title">비즈니스 회화</p>
+    <p class="desc">회의, 이메일, 협상 등 실제 업무 상황에서 자신 있게 한국어를 쓰는 단계</p>
+  </div>
+
+  <p class="count">6개 모듈 · 총 24강</p>
+
+  <button class="module" onclick="alert('모듈 1(회의) 상세 강의로 이동합니다.')">
+    <div>
+      <p class="m-title">1. 회의에서 의견 말하기</p>
+      <p class="m-sub">4강 · 존댓말 협상 표현</p>
+    </div>
+  </button>
+
+  <button class="module" onclick="alert('모듈 2(이메일) 상세 강의로 이동합니다.')">
+    <div>
+      <p class="m-title">2. 비즈니스 이메일 작성</p>
+      <p class="m-sub">4강 · 격식체, 요청·거절 표현</p>
+    </div>
+  </button>
+
+  <button class="module" onclick="alert('모듈 3(전화 응대) 상세 강의로 이동합니다.')">
+    <div>
+      <p class="m-title">3. 전화·화상 응대</p>
+      <p class="m-sub">4강 · 약속 조율, 문제 상황 대처</p>
+    </div>
+  </button>
+
+  <button class="module" onclick="alert('모듈 4(협상) 상세 강의로 이동합니다.')">
+    <div>
+      <p class="m-title">4. 협상과 설득</p>
+      <p class="m-sub">4강 · 완곡어법, 대안 제시</p>
+    </div>
+  </button>
+
+  <div class="module locked">
+    <div>
+      <p class="m-title">5. 발표와 보고</p>
+      <p class="m-sub">4강 · 잠금 — 4단계 진입 시 해제</p>
+    </div>
+  </div>
+
+  <div class="module locked">
+    <div>
+      <p class="m-title">6. 네트워킹과 스몰토크</p>
+      <p class="m-sub">4강 · 잠금 — 4단계 진입 시 해제</p>
+    </div>
+  </div>
+
+  <div class="bottom">
+    <button class="btn-primary" onclick="location.href='tutors.html'">이 단계 전문 튜터 매칭받기</button>
+  </div>
+</div>
+
+</body>
+</html>

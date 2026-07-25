@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>요금제·패키지 | 말문</title>
+<style>
+  :root{
+    --bg: #0f1115;
+    --card: rgba(255,255,255,0.04);
+    --card-border: rgba(255,255,255,0.10);
+    --text: #f5f4f0;
+    --text-secondary: #c2c0b6;
+    --text-muted: #7a7871;
+    --accent: #e0993a;
+    --accent-text: #1a1206;
+    --accent-soft: rgba(224,153,58,0.06);
+  }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{ color:inherit; text-decoration:none; }
+  .wrap{ max-width:480px; margin:0 auto; padding:0 20px 40px; }
+
+  .topbar{ padding:24px 0 20px; }
+  .topbar button{ background:none; border:none; color:var(--text-secondary); cursor:pointer; padding:0; display:flex; }
+
+  .header{ padding:0 0 20px; }
+  .header .title{ font-size:17px; font-weight:600; margin:0 0 6px; }
+  .header .sub{ font-size:13px; color:var(--text-muted); margin:0; }
+
+  .cards{ display:flex; flex-direction:column; gap:12px; }
+  .price-card{
+    border:0.5px solid rgba(255,255,255,0.15); border-radius:14px; padding:16px;
+    background:none; text-align:left; width:100%; color:var(--text); cursor:pointer;
+  }
+  .price-card.featured{ border:2px solid var(--accent); background:var(--accent-soft); position:relative; }
+  .badge{ position:absolute; top:-10px; left:16px; background:var(--accent); color:var(--accent-text); font-size:11px; font-weight:600; padding:3px 10px; border-radius:8px; }
+  .price-card .name{ font-size:14px; font-weight:600; margin:8px 0 4px; }
+  .price-card.featured .name{ color:#f0c98a; margin-top:8px; }
+  .price-card .sub{ font-size:12px; color:var(--text-muted); margin:0 0 10px; }
+  .price-card.featured .sub{ color:#c2a06a; }
+  .price-card .amount{ font-size:18px; font-weight:600; }
+  .price-card .unit{ font-size:12px; color:var(--text-muted); font-weight:400; }
+
+  .note{ border:0.5px dashed rgba(255,255,255,0.12); border-radius:14px; padding:14px; margin-top:12px; }
+  .note p{ font-size:12px; color:var(--text-muted); line-height:1.5; margin:0; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="topbar">
+    <button onclick="location.href='mypage.html'" aria-label="뒤로가기">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    </button>
+  </div>
+
+  <div class="header">
+    <p class="title">요금제·패키지</p>
+    <p class="sub">묶어서 예약하면 회당 가격이 낮아져요</p>
+  </div>
+
+  <div class="cards">
+    <button class="price-card" onclick="alert('단건 결제 흐름으로 이동합니다.')">
+      <p class="name">단건 수업</p>
+      <p class="sub">부담 없이 한 번만</p>
+      <p class="amount">₩28,000<span class="unit"> /회</span></p>
+    </button>
+
+    <button class="price-card featured" onclick="alert('4회 패키지 결제 흐름으로 이동합니다.')">
+      <div class="badge">가장 많이 선택</div>
+      <p class="name">4회 패키지</p>
+      <p class="sub">한 달 기준 · 회당 12% 할인</p>
+      <p class="amount">₩98,560<span class="unit"> · 회당 ₩24,640</span></p>
+    </button>
+
+    <button class="price-card" onclick="alert('12회 패키지 결제 흐름으로 이동합니다.')">
+      <p class="name">12회 패키지</p>
+      <p class="sub">3개월 기준 · 회당 20% 할인</p>
+      <p class="amount">₩268,800<span class="unit"> · 회당 ₩22,400</span></p>
+    </button>
+  </div>
+
+  <div class="note">
+    <p>패키지는 90일 내 자유롭게 사용, 미사용분은 환불 가능</p>
+  </div>
+</div>
+
+</body>
+</html>
