@@ -86,11 +86,21 @@
 
   .booked-note{ font-size:11px; color:var(--text-muted); margin-top:8px; }
 
-  .card-actions{ display:flex; justify-content:space-between; align-items:center; margin-top:16px; }
+  .card-actions{ display:flex; justify-content:space-between; align-items:center; margin-top:16px; flex-wrap:wrap; gap:10px; }
+  .view-links{ display:flex; gap:6px; flex-wrap:wrap; }
+  .view-link{
+    font-size:11px; padding:7px 10px; border-radius:8px; border:1px solid var(--card-border);
+    color:var(--text-secondary); background:#fff; cursor:pointer;
+  }
+  .view-link:hover{ border-color:var(--accent); color:var(--accent-text); }
   .save-btn{
     padding:10px 18px; border:none; border-radius:10px; background:var(--accent);
     color:var(--accent-text); font-weight:600; font-size:13px; cursor:pointer;
+    transition:background 0.2s, transform 0.15s;
   }
+  .save-btn.saving{ background:#d8d4c8; color:#5F5E5A; cursor:wait; }
+  .save-btn.saved{ background:#3FA34D; color:#fff; }
+  .save-btn.save-error{ background:var(--danger); color:#fff; }
   .delete-btn{
     padding:10px 14px; border:none; border-radius:10px; background:none;
     color:var(--danger); font-weight:600; font-size:13px; cursor:pointer;
@@ -342,6 +352,11 @@ function renderCard(id, data){
         <button class="save-btn">저장</button>
         <span class="status"></span>
       </div>
+      <div class="view-links">
+        <a class="view-link" href="tutors.html" target="_blank">목록 보기</a>
+        <a class="view-link" href="tutor-profile.html?id=${id}" target="_blank">프로필 보기</a>
+        <a class="view-link" href="booking.html?tutor=${id}" target="_blank">예약 페이지 보기</a>
+      </div>
       <button class="delete-btn">카드 삭제</button>
     </div>
   `;
@@ -397,7 +412,13 @@ function escapeHtml(s){
 
 async function saveCard(id, el){
   const statusEl = el.querySelector('.status');
-  statusEl.textContent = '저장 중...';
+  const btnEl = el.querySelector('.save-btn');
+  const originalLabel = '저장';
+  btnEl.disabled = true;
+  btnEl.classList.remove('saved', 'save-error');
+  btnEl.classList.add('saving');
+  btnEl.textContent = '저장 중...';
+  statusEl.textContent = '';
 
   const availability = {};
   DAYS.forEach(d => {
@@ -445,11 +466,23 @@ async function saveCard(id, el){
   try{
     await db.collection('tutors').doc(id).set(data, { merge: true });
     tutorsCache[id] = data;
-    statusEl.textContent = '저장 완료';
-    setTimeout(() => statusEl.textContent = '', 2000);
+    btnEl.classList.remove('saving');
+    btnEl.classList.add('saved');
+    btnEl.textContent = '✓ 저장 완료';
+    btnEl.style.transform = 'scale(1.06)';
+    setTimeout(() => { btnEl.style.transform = 'scale(1)'; }, 150);
+    setTimeout(() => {
+      btnEl.classList.remove('saved');
+      btnEl.textContent = originalLabel;
+      btnEl.disabled = false;
+    }, 2200);
   }catch(err){
     console.error(err);
-    statusEl.textContent = '저장 실패: ' + err.message;
+    btnEl.classList.remove('saving');
+    btnEl.classList.add('save-error');
+    btnEl.textContent = '저장 실패';
+    btnEl.disabled = false;
+    statusEl.textContent = err.message + ' (이 메시지를 그대로 캡처해서 보내주세요)';
   }
 }
 
