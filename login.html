@@ -241,7 +241,8 @@ document.getElementById('langToggle').addEventListener('click', () => {
 
 function afterLogin(){
   if(next === 'booking'){
-    location.href = 'booking.html';
+    const tutor = params.get('tutor');
+    location.href = tutor ? ('booking.html?tutor=' + tutor) : 'booking.html';
   } else {
     location.href = 'mypage.html';
   }
