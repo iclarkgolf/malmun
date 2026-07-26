@@ -6,15 +6,15 @@
 <title>지은 튜터 | 말문</title>
 <style>
   :root{
-    --bg: #0f1115;
-    --card: rgba(255,255,255,0.04);
-    --card-border: rgba(255,255,255,0.10);
-    --text: #f5f4f0;
-    --text-secondary: #c2c0b6;
-    --text-muted: #7a7871;
-    --accent: #e0993a;
-    --accent-text: #1a1206;
-    --accent-soft: rgba(224,153,58,0.12);
+    --bg: #FFF9F0;
+    --card: #FFFFFF;
+    --card-border: #E8E4D8;
+    --text: #2C2C2A;
+    --text-secondary: #5F5E5A;
+    --text-muted: #8A8880;
+    --accent: #EF9F27;
+    --accent-text: #412402;
+    --accent-soft: #FFF3E0;
   }
   *{ box-sizing:border-box; }
   body{
@@ -30,7 +30,7 @@
   .back{ padding:24px 0 16px; display:flex; justify-content:space-between; align-items:center; }
   .back button{ background:none; border:none; color:var(--text-secondary); cursor:pointer; padding:0; display:flex; }
   #langToggle{
-    background:none; border:0.5px solid rgba(255,255,255,0.15); color:var(--text-secondary);
+    background:none; border:1px solid var(--card-border); color:var(--text-secondary);
     border-radius:16px; padding:6px 12px; font-size:12px; font-weight:600;
     cursor:pointer; display:flex; align-items:center; gap:4px;
   }
@@ -40,7 +40,7 @@
   .avatar-lg{ width:76px; height:76px; border-radius:50%; background:#3b5f8f; margin-bottom:14px; }
   .profile-head .name{ font-size:18px; font-weight:600; margin:0 0 4px; }
   .profile-head .role{ font-size:13px; color:var(--text-muted); margin:0 0 10px; }
-  .profile-head .meta{ font-size:13px; color:#e5e4dd; display:flex; align-items:center; gap:6px; }
+  .profile-head .meta{ font-size:13px; color:var(--text); display:flex; align-items:center; gap:6px; }
   .profile-head .meta .star{ color:var(--accent); }
   .profile-head .meta .dim{ font-size:12px; color:var(--text-muted); }
 
@@ -48,20 +48,20 @@
   .section p.intro{ font-size:13px; color:var(--text-secondary); line-height:1.6; margin:0; }
 
   .tags{ display:flex; gap:8px; flex-wrap:wrap; padding:0 0 20px; }
-  .tag{ font-size:12px; padding:6px 12px; border-radius:16px; background:rgba(255,255,255,0.06); color:var(--text-secondary); }
-  .tag.highlight{ background:var(--accent-soft); color:#f0c98a; }
+  .tag{ font-size:12px; padding:6px 12px; border-radius:16px; background:var(--card); border:1px solid var(--card-border); color:var(--text-secondary); }
+  .tag.highlight{ background:var(--accent-soft); border-color:var(--accent); color:var(--accent-text); }
 
-  .review-card{ background:var(--card); border-radius:12px; padding:14px; margin-bottom:20px; }
+  .review-card{ background:var(--card); border:1px solid var(--card-border); border-radius:12px; padding:14px; margin-bottom:20px; }
   .review-card .author{ font-size:12px; color:var(--text-muted); margin:0 0 6px; }
-  .review-card .body{ font-size:13px; color:#e5e4dd; line-height:1.5; margin:0; }
+  .review-card .body{ font-size:13px; color:var(--text); line-height:1.5; margin:0; }
 
   .booking-bar{
     position:fixed; bottom:0; left:0; right:0;
-    background:#14161b; border-top:0.5px solid var(--card-border);
+    background:#fff; border-top:1px solid var(--card-border);
     padding:14px 20px calc(14px + env(safe-area-inset-bottom));
     display:flex; align-items:center; gap:12px;
   }
-  .booking-bar .price{ font-size:16px; font-weight:600; white-space:nowrap; }
+  .booking-bar .price{ font-size:16px; font-weight:600; white-space:nowrap; color:var(--text); }
   .booking-bar .price .unit{ font-size:12px; color:var(--text-muted); font-weight:400; }
   .booking-bar button{
     flex:1; background:var(--accent); color:var(--accent-text);
@@ -82,69 +82,145 @@
   </div>
 
   <div class="profile-head">
-    <div class="avatar-lg"></div>
-    <p class="name">지은</p>
-    <p class="role" data-i18n="profile.role">전 항공사 승무원 · 비즈니스 한국어 전문</p>
-    <div class="meta"><span class="star">★</span> 4.9 <span class="dim" data-i18n="profile.meta">· 후기 132개 · 수업 840회</span></div>
+    <div class="avatar-lg" id="avatarLg"></div>
+    <p class="name" id="tutorName">지은</p>
+    <p class="role" id="tutorRole">전 항공사 승무원 · 비즈니스 한국어 전문</p>
+    <div class="meta"><span class="star">★</span> <span id="tutorRating">4.9</span> <span class="dim" id="tutorMeta">· 후기 132개 · 수업 840회</span></div>
   </div>
 
   <div class="section">
-    <p class="intro" data-i18n="profile.intro">10년간 승무원으로 일하며 40개국 승객을 응대했습니다. 비즈니스 미팅, 이메일, 전화 응대 상황극 위주로 수업합니다.</p>
+    <p class="intro" id="tutorIntro">10년간 승무원으로 일하며 40개국 승객을 응대했습니다. 비즈니스 미팅, 이메일, 전화 응대 상황극 위주로 수업합니다.</p>
   </div>
 
-  <div class="tags">
-    <span class="tag highlight" data-i18n="profile.tag1">비즈니스 회화</span>
-    <span class="tag" data-i18n="profile.tag2">중급~고급</span>
-    <span class="tag" data-i18n="profile.tag3">영어 가능</span>
+  <div class="tags" id="tutorTags">
+    <span class="tag highlight" id="tag1">비즈니스 회화</span>
+    <span class="tag" id="tag2">중급~고급</span>
+    <span class="tag" id="tag3">영어 가능</span>
   </div>
 
   <div class="review-card">
-    <p class="author">M.T. · <span data-i18n="review.hk">홍콩</span></p>
-    <p class="body" data-i18n="review.body">비즈니스 미팅 준비할 때마다 도움 많이 받았어요. 실제 상황처럼 연습시켜주셔서 좋았습니다.</p>
+    <p class="author"><span id="reviewAuthor">M.T.</span> · <span data-i18n="review.hk" id="reviewLoc">홍콩</span></p>
+    <p class="body" id="reviewBody">비즈니스 미팅 준비할 때마다 도움 많이 받았어요. 실제 상황처럼 연습시켜주셔서 좋았습니다.</p>
   </div>
 </div>
 
 <div class="booking-bar">
-  <span class="price">₩28,000<span class="unit" data-i18n="unit.perLesson">/회</span></span>
-  <button data-i18n="profile.book" onclick="location.href='booking.html?tutor=jieun'">수업 예약하기</button>
+  <span class="price"><span id="tutorPrice">₩28,000</span><span class="unit" data-i18n="unit.perLesson">/회</span></span>
+  <button data-i18n="profile.book" onclick="location.href='booking.html?tutor=' + currentTutorId">수업 예약하기</button>
 </div>
 
 <script>
-const TRANSLATIONS = {
-  ko: {
-    "profile.role": "전 항공사 승무원 · 비즈니스 한국어 전문",
-    "profile.meta": "· 후기 132개 · 수업 840회",
-    "profile.intro": "10년간 승무원으로 일하며 40개국 승객을 응대했습니다. 비즈니스 미팅, 이메일, 전화 응대 상황극 위주로 수업합니다.",
-    "profile.tag1": "비즈니스 회화", "profile.tag2": "중급~고급", "profile.tag3": "영어 가능",
-    "review.hk": "홍콩",
-    "review.body": "비즈니스 미팅 준비할 때마다 도움 많이 받았어요. 실제 상황처럼 연습시켜주셔서 좋았습니다.",
-    "unit.perLesson": "/회",
-    "profile.book": "수업 예약하기"
+const TUTORS = {
+  jieun: {
+    avatarColor: '#3b5f8f',
+    price: '₩28,000',
+    ko: {
+      name: '지은', role: '전 항공사 승무원 · 비즈니스 한국어 전문',
+      rating: '4.9', meta: '· 후기 132개 · 수업 840회',
+      intro: '10년간 승무원으로 일하며 40개국 승객을 응대했습니다. 비즈니스 미팅, 이메일, 전화 응대 상황극 위주로 수업합니다.',
+      tags: ['비즈니스 회화', '중급~고급', '영어 가능'],
+      reviewAuthor: 'M.T.', reviewLoc: '홍콩',
+      reviewBody: '비즈니스 미팅 준비할 때마다 도움 많이 받았어요. 실제 상황처럼 연습시켜주셔서 좋았습니다.'
+    },
+    en: {
+      name: 'Jieun', role: 'Former flight attendant · Business Korean specialist',
+      rating: '4.9', meta: '· 132 reviews · 840 lessons',
+      intro: '10 years as a flight attendant serving passengers from 40 countries. Lessons focus on business meetings, email, and phone-call role-play.',
+      tags: ['Business conversation', 'Intermediate–Advanced', 'English OK'],
+      reviewAuthor: 'M.T.', reviewLoc: 'Hong Kong',
+      reviewBody: 'This helped so much every time I prepped for a business meeting. Practicing real scenarios made a huge difference.'
+    }
   },
-  en: {
-    "profile.role": "Former flight attendant · Business Korean specialist",
-    "profile.meta": "· 132 reviews · 840 lessons",
-    "profile.intro": "10 years as a flight attendant serving passengers from 40 countries. Lessons focus on business meetings, email, and phone-call role-play.",
-    "profile.tag1": "Business conversation", "profile.tag2": "Intermediate–Advanced", "profile.tag3": "English OK",
-    "review.hk": "Hong Kong",
-    "review.body": "This helped so much every time I prepped for a business meeting. Practicing real scenarios made a huge difference.",
-    "unit.perLesson": "/lesson",
-    "profile.book": "Book a lesson"
+  hyunwoo: {
+    avatarColor: '#6a4f8f',
+    price: '₩24,000',
+    ko: {
+      name: '현우', role: '前 한국어교원 · TOPIK 전문',
+      rating: '5.0', meta: '· 후기 89개 · 수업 512회',
+      intro: '한국어교원 자격증을 갖고 대학 부설 어학당에서 5년간 가르쳤습니다. TOPIK 문법·어휘를 체계적으로 잡아드립니다.',
+      tags: ['TOPIK 대비', '초급~고급', '문법 특화'],
+      reviewAuthor: 'S.L.', reviewLoc: '싱가포르',
+      reviewBody: '문법 설명이 정말 체계적이에요. TOPIK 4급 목표로 준비 중인데 확실히 늘고 있어요.'
+    },
+    en: {
+      name: 'Hyunwoo', role: 'Former Korean language teacher · TOPIK specialist',
+      rating: '5.0', meta: '· 89 reviews · 512 lessons',
+      intro: 'Certified Korean language teacher with 5 years at a university language institute. Builds a systematic foundation in TOPIK grammar and vocabulary.',
+      tags: ['TOPIK prep', 'Beginner–Advanced', 'Grammar focus'],
+      reviewAuthor: 'S.L.', reviewLoc: 'Singapore',
+      reviewBody: 'His grammar explanations are so systematic. I am aiming for TOPIK level 4 and I can really feel the progress.'
+    }
+  },
+  soojin: {
+    avatarColor: '#8f4f5f',
+    price: '₩22,000',
+    ko: {
+      name: '수진', role: '대학원생 · 일상 회화 전문',
+      rating: '4.8', meta: '· 후기 61개 · 수업 203회',
+      intro: '언어교육 전공 대학원생으로, 편안한 분위기에서 자연스러운 일상 표현과 감정 표현 중심으로 수업합니다.',
+      tags: ['일상 회화', '초급~중급', '감정 표현'],
+      reviewAuthor: 'A.K.', reviewLoc: '자카르타',
+      reviewBody: '편하게 대화하듯 수업해주셔서 부담 없이 배우고 있어요. 표현이 자연스러워졌다는 말을 들었어요.'
+    },
+    en: {
+      name: 'Soojin', role: 'Graduate student · Everyday conversation specialist',
+      rating: '4.8', meta: '· 61 reviews · 203 lessons',
+      intro: 'A graduate student in language education, teaching natural everyday expressions and emotional nuance in a relaxed atmosphere.',
+      tags: ['Everyday conversation', 'Beginner–Intermediate', 'Expressing emotion'],
+      reviewAuthor: 'A.K.', reviewLoc: 'Jakarta',
+      reviewBody: 'Lessons feel like a relaxed chat, so there is no pressure. People have told me my Korean sounds much more natural now.'
+    }
   }
 };
+
+const urlParams = new URLSearchParams(window.location.search);
+const currentTutorId = TUTORS[urlParams.get('id')] ? urlParams.get('id') : (TUTORS[urlParams.get('tutor')] ? urlParams.get('tutor') : 'jieun');
+
+const TRANSLATIONS = {
+  ko: {
+    "unit.perLesson": "/회",
+    "profile.book": "수업 예약하기",
+    "review.hk": "홍콩"
+  },
+  en: {
+    "unit.perLesson": "/lesson",
+    "profile.book": "Book a lesson",
+    "review.hk": "Hong Kong"
+  }
+};
+
+function renderTutor(lang){
+  const t = TUTORS[currentTutorId];
+  const d = t[lang] || t.ko;
+  document.title = `${d.name} 튜터 | 말문`;
+  document.getElementById('avatarLg').style.background = t.avatarColor;
+  document.getElementById('tutorName').textContent = d.name;
+  document.getElementById('tutorRole').textContent = d.role;
+  document.getElementById('tutorRating').textContent = d.rating;
+  document.getElementById('tutorMeta').textContent = d.meta;
+  document.getElementById('tutorIntro').textContent = d.intro;
+  document.getElementById('tag1').textContent = d.tags[0];
+  document.getElementById('tag2').textContent = d.tags[1];
+  document.getElementById('tag3').textContent = d.tags[2];
+  document.getElementById('reviewAuthor').textContent = d.reviewAuthor;
+  document.getElementById('reviewLoc').textContent = d.reviewLoc;
+  document.getElementById('reviewBody').textContent = d.reviewBody;
+  document.getElementById('tutorPrice').textContent = t.price;
+}
 
 function applyLang(lang){
   document.documentElement.lang = lang;
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
     const dict = TRANSLATIONS[lang] || TRANSLATIONS.ko;
-    if(dict[key] !== undefined){
+    if(dict[key] !== undefined && el.id !== 'reviewLoc'){
       el.innerHTML = dict[key];
     }
   });
   document.getElementById('langCur').textContent = (lang === 'ko') ? '한국어' : 'English';
   document.getElementById('langOther').textContent = (lang === 'ko') ? 'EN' : '한글';
   localStorage.setItem('malmun_lang', lang);
+  renderTutor(lang);
 }
 
 (function initLang(){
