@@ -362,28 +362,7 @@
   <section>
     <p class="section-eyebrow" data-i18n="tutors.eyebrow">추천 튜터</p>
     <p class="section-title" data-i18n="tutors.title">지금 가장 인기 있는 튜터</p>
-    <div class="tutor-scroll">
-      <div class="tutor-card">
-        <div class="tutor-avatar" style="background:#3b5f8f;"></div>
-        <p class="tutor-name">지은</p>
-        <p class="tutor-desc" data-i18n="tutor.jieun.desc">전 항공사 승무원 · 비즈니스 한국어</p>
-        <div class="tutor-meta"><span class="star">★</span> 4.9 · <span data-i18n="tutor.jieun.reviews">후기 132개</span></div>
-        <p class="tutor-price">₩28,000<span data-i18n="unit.perLesson">/회</span></p>
-      </div>
-      <div class="tutor-card">
-        <div class="tutor-avatar" style="background:#6a4f8f;"></div>
-        <p class="tutor-name">현우</p>
-        <p class="tutor-desc" data-i18n="tutor.hyunwoo.desc">前 한국어교원 · TOPIK 전문</p>
-        <div class="tutor-meta"><span class="star">★</span> 5.0 · <span data-i18n="tutor.hyunwoo.reviews">후기 89개</span></div>
-        <p class="tutor-price">₩24,000<span data-i18n="unit.perLesson">/회</span></p>
-      </div>
-      <div class="tutor-card">
-        <div class="tutor-avatar" style="background:#8f4f5f;"></div>
-        <p class="tutor-name">수진</p>
-        <p class="tutor-desc" data-i18n="tutor.soojin.desc">대학원생 · 일상 회화 전문</p>
-        <div class="tutor-meta"><span class="star">★</span> 4.8 · <span data-i18n="tutor.soojin.reviews">후기 61개</span></div>
-        <p class="tutor-price">₩22,000<span data-i18n="unit.perLesson">/회</span></p>
-      </div>
+    <div class="tutor-scroll" id="tutorScrollDynamic">
     </div>
   </section>
 
@@ -641,12 +620,40 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
+// 홈 화면 "추천 튜터" 섹션에 몇 명까지 보여줄지 - 튜터가 늘어나면 이 숫자만 바꾸면 됩니다.
+// (가로 스크롤 방식이라 모바일에서는 숫자를 늘려도 레이아웃이 깨지지 않습니다)
+const HOMEPAGE_FEATURED_TUTOR_COUNT = 3;
+
 db.collection('tutors').get().then(snap => {
   const count = snap.size;
   const el = document.getElementById('tutorCountNumDesktop');
   if(el) countUpText(el, count, (n) => n + '명');
+
+  const docs = snap.docs.map(d => ({ id: d.id, data: d.data() }));
+  docs.sort((a, b) => (parseFloat(b.data.ko && b.data.ko.rating) || 0) - (parseFloat(a.data.ko && a.data.ko.rating) || 0));
+  const top = docs.slice(0, HOMEPAGE_FEATURED_TUTOR_COUNT);
+  const scrollEl = document.getElementById('tutorScrollDynamic');
+  if(scrollEl){
+    if(top.length === 0){
+      scrollEl.innerHTML = '<p style="font-size:13px; color:var(--text-muted); padding:8px 0;">곧 튜터를 만나보실 수 있어요.</p>';
+    }else{
+      scrollEl.innerHTML = top.map(({ id, data }) => {
+        const d = data.ko || {};
+        const avatarStyle = data.avatarImage ? `background:url('${data.avatarImage}') center/cover;` : `background:${data.avatarColor || '#3b5f8f'};`;
+        return `
+          <div class="tutor-card" style="cursor:pointer;" onclick="location.href='tutor-profile.html?id=${id}'">
+            <div class="tutor-avatar" style="${avatarStyle}"></div>
+            <p class="tutor-name">${d.name || ''}</p>
+            <p class="tutor-desc">${d.role || ''}</p>
+            <div class="tutor-meta"><span class="star">★</span> ${d.rating || '5.0'} · 후기 ${d.reviewCount || 0}개</div>
+            <p class="tutor-price">₩${Number(data.price || 0).toLocaleString('en-US')}<span>/회</span></p>
+          </div>
+        `;
+      }).join('');
+    }
+  }
 }).catch(err => {
-  console.error('튜터 수 불러오기 실패:', err);
+  console.error('튜터 정보 불러오기 실패:', err);
 });
 
 function countUp(el, target, decimals, duration){
