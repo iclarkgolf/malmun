@@ -95,25 +95,34 @@
     <div class="avatar" id="avatarInitial">M</div>
     <div>
       <p class="name" id="userName">Maria</p>
-      <p class="sub" data-i18n="mypage.level">중급 2단계 · 8회 수업 완료</p>
+      <p class="sub" id="userLevelLine">-</p>
     </div>
   </div>
 
-  <button class="next-lesson" onclick="alert('예약된 수업 상세/입장 화면으로 이동합니다.')">
+  <button class="next-lesson" id="nextLessonCard" style="display:none;" onclick="alert('예약된 수업 상세/입장 화면으로 이동합니다.')">
     <p class="tag" data-i18n="mypage.nextLesson">다음 수업</p>
     <div class="row">
       <div>
-        <p class="lesson-name" data-i18n="mypage.lessonName">지은 튜터 · 비즈니스 회화</p>
-        <p class="lesson-time" data-i18n="mypage.lessonTime">수 19:00 · 50분</p>
+        <p class="lesson-name" id="nextLessonName"></p>
+        <p class="lesson-time" id="nextLessonTime"></p>
       </div>
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e0993a" stroke-width="2"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+    </div>
+  </button>
+  <button class="next-lesson" id="noLessonCard" onclick="location.href='tutors.html'">
+    <p class="tag" data-i18n="mypage.nextLesson">다음 수업</p>
+    <div class="row">
+      <div>
+        <p class="lesson-name" data-i18n="mypage.noLesson">예약된 수업이 없어요</p>
+        <p class="lesson-time" data-i18n="mypage.noLessonSub">튜터 보러가기 →</p>
+      </div>
     </div>
   </button>
 
   <p style="font-size:12px;color:var(--text-muted);margin:0 0 10px;" data-i18n="mypage.monthly">이번 달 학습 현황</p>
   <div class="stats">
-    <div class="stat-card"><p class="num">6</p><p class="label" data-i18n="mypage.completed">완료한 수업</p></div>
-    <div class="stat-card"><p class="num">62%</p><p class="label" data-i18n="mypage.progress">3단계 진도율</p></div>
+    <div class="stat-card"><p class="num" id="statLessonCount">0</p><p class="label" data-i18n="mypage.completed">예약한 수업</p></div>
+    <div class="stat-card"><p class="num" id="statProgress">0%</p><p class="label" id="statProgressLabel">진도율</p></div>
   </div>
 
   <p style="font-size:12px;color:var(--text-muted);margin:0 0 10px;" data-i18n="mypage.historyTitle">나의 학습 히스토리</p>
@@ -209,9 +218,46 @@ function renderHistoryEntry(entry){
 async function loadHistory(uid){
   try{
     const snapshot = await db.collection('users').doc(uid).collection('history')
-      .orderBy('createdAt', 'desc').limit(20).get();
+      .orderBy('createdAt', 'desc').limit(50).get();
     const container = document.getElementById('historyTimeline');
-    if(snapshot.empty) return;
+
+    const entries = snapshot.docs.map(doc => doc.data());
+
+    // ── 등급: 가장 최근 레벨테스트 기록에서 가져옴 (진짜 데이터) ──
+    const latestLevelTest = entries.find(e => e.type === 'level_test');
+    const levelLine = document.getElementById('userLevelLine');
+    if(latestLevelTest){
+      levelLine.textContent = `${latestLevelTest.level} ${latestLevelTest.stage}`;
+    }else{
+      levelLine.textContent = '레벨테스트를 먼저 진행해보세요';
+    }
+
+    // ── 예약한 수업 수: 실제 예약(booking) 기록 개수 ──
+    const bookings = entries.filter(e => e.type === 'booking');
+    document.getElementById('statLessonCount').textContent = bookings.length;
+
+    // ── 다음 수업: 가장 최근 예약 기록을 그대로 사용 (진짜 데이터) ──
+    if(bookings.length > 0){
+      const latest = bookings[0];
+      document.getElementById('nextLessonName').textContent = latest.text || '예약된 수업';
+      document.getElementById('nextLessonTime').textContent = latest.sub || '';
+      document.getElementById('nextLessonCard').style.display = 'block';
+      document.getElementById('noLessonCard').style.display = 'none';
+    }else{
+      document.getElementById('nextLessonCard').style.display = 'none';
+      document.getElementById('noLessonCard').style.display = 'block';
+    }
+
+    // ── 진도율: 아직 실제 커리큘럼 진행 추적 시스템이 없어서, 예약한 수업 수를 기반으로
+    // 임시 계산합니다. 커리큘럼 진행 추적을 만들면 이 계산식만 실제 값으로 바꾸면 됩니다.
+    const progressPct = Math.min(100, bookings.length * 15);
+    document.getElementById('statProgress').textContent = progressPct + '%';
+    const stageNum = latestLevelTest ? latestLevelTest.stage : '';
+    document.getElementById('statProgressLabel').textContent = stageNum ? `${stageNum} 진도율` : '진도율';
+
+    if(snapshot.empty){
+      return;
+    }
     container.innerHTML = '';
     snapshot.forEach(doc => {
       container.appendChild(renderHistoryEntry(doc.data()));
@@ -241,13 +287,11 @@ function handleLogout(){
 <script>
 const TRANSLATIONS = {
   ko: {
-    "mypage.level": "중급 2단계 · 8회 수업 완료",
     "mypage.nextLesson": "다음 수업",
-    "mypage.lessonName": "지은 튜터 · 비즈니스 회화",
-    "mypage.lessonTime": "수 19:00 · 50분",
+    "mypage.noLesson": "예약된 수업이 없어요",
+    "mypage.noLessonSub": "튜터 보러가기 →",
     "mypage.monthly": "이번 달 학습 현황",
-    "mypage.completed": "완료한 수업",
-    "mypage.progress": "3단계 진도율",
+    "mypage.completed": "예약한 수업",
     "mypage.history": "수업 내역",
     "mypage.historyTitle": "나의 학습 히스토리",
     "mypage.historyEmpty": "아직 기록이 없어요. 레벨테스트나 수업을 완료하면 여기 쌓입니다.",
@@ -258,13 +302,11 @@ const TRANSLATIONS = {
     "nav.community": "커뮤니티", "nav.mypage": "마이페이지"
   },
   en: {
-    "mypage.level": "Intermediate stage 2 · 8 lessons completed",
     "mypage.nextLesson": "Next lesson",
-    "mypage.lessonName": "Tutor Jieun · Business Korean",
-    "mypage.lessonTime": "Wed 7:00 PM · 50 min",
+    "mypage.noLesson": "No upcoming lesson",
+    "mypage.noLessonSub": "Browse tutors →",
     "mypage.monthly": "This month's progress",
-    "mypage.completed": "Lessons completed",
-    "mypage.progress": "Stage 3 progress",
+    "mypage.completed": "Lessons booked",
     "mypage.history": "Lesson history",
     "mypage.historyTitle": "My learning history",
     "mypage.historyEmpty": "No entries yet. Complete a level test or lesson to start building your history.",
