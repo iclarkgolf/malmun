@@ -53,10 +53,11 @@
   .info{ flex:1; }
   .info-top{ display:flex; justify-content:space-between; align-items:baseline; }
   .name{ font-size:14px; font-weight:600; margin:0; }
-  .price{ font-size:13px; color:var(--coral); font-weight:600; margin:0; }
+  .price{ font-size:13px; color:var(--coral); font-weight:600; margin:0; white-space:nowrap; }
   .desc{ font-size:12px; color:var(--text-muted); margin:4px 0 6px; }
   .meta{ font-size:12px; color:var(--text-secondary); display:flex; align-items:center; gap:4px; }
   .meta .star{ color:var(--accent); }
+  .empty{ text-align:center; color:var(--text-muted); font-size:13px; padding:40px 0; }
 
   body{ padding-bottom:76px; }
   .bottom-nav{
@@ -86,7 +87,7 @@
   <div class="header">
     <div>
       <p class="sub" data-i18n="tutors.level">내 등급: 중급 2단계</p>
-      <p class="title" data-i18n="tutors.count">튜터 24명이 매칭됐어요</p>
+      <p class="title" id="tutorCountTitle" data-i18n="tutors.count">튜터를 불러오는 중...</p>
     </div>
     <button id="langToggle" aria-label="언어 전환">
       <span class="cur" id="langCur">한국어</span> / <span id="langOther">EN</span>
@@ -100,33 +101,8 @@
     <button class="chip" data-filter="biz" data-i18n="tutors.f.biz">비즈니스</button>
   </div>
 
-  <div class="tutor-list">
-    <button class="tutor-card" onclick="location.href='tutor-profile.html?id=jieun'">
-      <div class="avatar" style="background:#3b5f8f;"></div>
-      <div class="info">
-        <div class="info-top"><p class="name">지은</p><p class="price">₩28,000<span data-i18n="unit.perLesson">/회</span></p></div>
-        <p class="desc" data-i18n="tutor.jieun.desc">전 항공사 승무원 · 비즈니스 한국어</p>
-        <div class="meta"><span class="star">★</span> 4.9 · <span data-i18n="tutor.jieun.reviews">후기 132개</span></div>
-      </div>
-    </button>
-
-    <button class="tutor-card" onclick="location.href='tutor-profile.html?id=hyunwoo'">
-      <div class="avatar" style="background:#6a4f8f;"></div>
-      <div class="info">
-        <div class="info-top"><p class="name">현우</p><p class="price">₩24,000<span data-i18n="unit.perLesson">/회</span></p></div>
-        <p class="desc" data-i18n="tutor.hyunwoo.desc">前 한국어교원 · TOPIK 전문</p>
-        <div class="meta"><span class="star">★</span> 5.0 · <span data-i18n="tutor.hyunwoo.reviews">후기 89개</span></div>
-      </div>
-    </button>
-
-    <button class="tutor-card" onclick="location.href='tutor-profile.html?id=soojin'">
-      <div class="avatar" style="background:#8f4f5f;"></div>
-      <div class="info">
-        <div class="info-top"><p class="name">수진</p><p class="price">₩22,000<span data-i18n="unit.perLesson">/회</span></p></div>
-        <p class="desc" data-i18n="tutor.soojin.desc">대학원생 · 일상 회화 전문</p>
-        <div class="meta"><span class="star">★</span> 4.8 · <span data-i18n="tutor.soojin.reviews">후기 61개</span></div>
-      </div>
-    </button>
+  <div class="tutor-list" id="tutorList">
+    <p class="empty">불러오는 중...</p>
   </div>
 </div>
 
@@ -153,39 +129,94 @@
   </button>
 </nav>
 
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script>
+const firebaseConfig = {
+  apiKey: "AIzaSyD10IdHCDkCybMrkO5fewo0ksYFBmqwWro",
+  authDomain: "malmun-bca03.firebaseapp.com",
+  projectId: "malmun-bca03",
+  storageBucket: "malmun-bca03.firebasestorage.app",
+  messagingSenderId: "831462084669",
+  appId: "1:831462084669:web:003a844918b165d5b65a54"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+let currentLang = localStorage.getItem('malmun_lang') || 'ko';
+let tutorDocs = []; // { id, data }
+
 const TRANSLATIONS = {
   ko: {
     "tutors.level": "내 등급: 중급 2단계",
-    "tutors.count": "튜터 24명이 매칭됐어요",
     "tutors.f.all": "전체", "tutors.f.rating": "평점순", "tutors.f.exam": "시험 대비", "tutors.f.biz": "비즈니스",
     "unit.perLesson": "/회",
-    "tutor.jieun.desc": "전 항공사 승무원 · 비즈니스 한국어",
-    "tutor.jieun.reviews": "후기 132개",
-    "tutor.hyunwoo.desc": "前 한국어교원 · TOPIK 전문",
-    "tutor.hyunwoo.reviews": "후기 89개",
-    "tutor.soojin.desc": "대학원생 · 일상 회화 전문",
-    "tutor.soojin.reviews": "후기 61개",
+    "tutors.empty": "아직 등록된 튜터가 없어요. 곧 만나요!",
     "nav.home": "홈", "nav.tutors": "튜터", "nav.curriculum": "커리큘럼",
     "nav.community": "커뮤니티", "nav.mypage": "마이페이지"
   },
   en: {
     "tutors.level": "Your level: Intermediate stage 2",
-    "tutors.count": "24 tutors matched",
     "tutors.f.all": "All", "tutors.f.rating": "Top rated", "tutors.f.exam": "Exam prep", "tutors.f.biz": "Business",
     "unit.perLesson": "/lesson",
-    "tutor.jieun.desc": "Former flight attendant · Business Korean",
-    "tutor.jieun.reviews": "132 reviews",
-    "tutor.hyunwoo.desc": "Former Korean language teacher · TOPIK specialist",
-    "tutor.hyunwoo.reviews": "89 reviews",
-    "tutor.soojin.desc": "Grad student · Everyday conversation specialist",
-    "tutor.soojin.reviews": "61 reviews",
+    "tutors.empty": "No tutors yet — check back soon!",
     "nav.home": "Home", "nav.tutors": "Tutors", "nav.curriculum": "Curriculum",
     "nav.community": "Community", "nav.mypage": "My page"
   }
 };
 
+function t(key){
+  const dict = TRANSLATIONS[currentLang] || TRANSLATIONS.ko;
+  return dict[key] !== undefined ? dict[key] : key;
+}
+
+function fmtKRW(n){ return '₩' + Number(n || 0).toLocaleString('en-US'); }
+
+function renderTutorList(){
+  const listEl = document.getElementById('tutorList');
+  const countEl = document.getElementById('tutorCountTitle');
+
+  if(tutorDocs.length === 0){
+    listEl.innerHTML = `<p class="empty">${t('tutors.empty')}</p>`;
+    countEl.textContent = currentLang === 'ko' ? '튜터 목록' : 'Tutors';
+    return;
+  }
+
+  countEl.textContent = currentLang === 'ko'
+    ? `튜터 ${tutorDocs.length}명이 함께하고 있어요`
+    : `${tutorDocs.length} tutors ready to help`;
+
+  listEl.innerHTML = '';
+  tutorDocs.forEach(({ id, data }) => {
+    const d = data[currentLang] && data[currentLang].name ? data[currentLang] : data.ko;
+    const card = document.createElement('button');
+    card.className = 'tutor-card';
+    card.onclick = () => location.href = 'tutor-profile.html?id=' + id;
+    card.innerHTML = `
+      <div class="avatar" style="background:${data.avatarColor || '#3b5f8f'};"></div>
+      <div class="info">
+        <div class="info-top"><p class="name">${d.name}</p><p class="price">${fmtKRW(data.price)}${t('unit.perLesson')}</p></div>
+        <p class="desc">${d.role || ''}</p>
+        <div class="meta"><span class="star">★</span> ${d.rating || '5.0'} · ${currentLang === 'ko' ? `후기 ${d.reviewCount || 0}개` : `${d.reviewCount || 0} reviews`}</div>
+      </div>
+    `;
+    listEl.appendChild(card);
+  });
+}
+
+async function loadTutors(){
+  try{
+    const snap = await db.collection('tutors').orderBy('order', 'asc').get();
+    tutorDocs = snap.docs.map(doc => ({ id: doc.id, data: doc.data() }));
+  }catch(err){
+    console.error('튜터 목록 로드 실패:', err);
+    tutorDocs = [];
+  }
+  renderTutorList();
+}
+
 function applyLang(lang){
+  currentLang = lang;
   document.documentElement.lang = lang;
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
@@ -197,6 +228,7 @@ function applyLang(lang){
   document.getElementById('langCur').textContent = (lang === 'ko') ? '한국어' : 'English';
   document.getElementById('langOther').textContent = (lang === 'ko') ? 'EN' : '한글';
   localStorage.setItem('malmun_lang', lang);
+  renderTutorList();
 }
 
 (function initLang(){
@@ -217,6 +249,8 @@ chips.forEach(chip => {
     // 실제 서비스에서는 chip.dataset.filter 값으로 튜터 목록을 재정렬/필터링
   });
 });
+
+loadTutors();
 </script>
 
 </body>
