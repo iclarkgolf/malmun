@@ -6,15 +6,15 @@
 <title>레벨테스트 | 말문</title>
 <style>
   :root{
-    --bg: #0f1115;
-    --card: rgba(255,255,255,0.04);
-    --card-border: rgba(255,255,255,0.10);
-    --text: #f5f4f0;
-    --text-secondary: #c2c0b6;
-    --text-muted: #7a7871;
-    --accent: #e0993a;
-    --accent-text: #1a1206;
-    --accent-soft: rgba(224,153,58,0.10);
+    --bg: #FFF9F0;
+    --card: #FFFFFF;
+    --card-border: #E8E4D8;
+    --text: #2C2C2A;
+    --text-secondary: #5F5E5A;
+    --text-muted: #8A8880;
+    --accent: #EF9F27;
+    --accent-text: #412402;
+    --accent-soft: #FFF3E0;
   }
   *{ box-sizing:border-box; }
   body{
@@ -28,17 +28,17 @@
 
   .topbar{ display:flex; align-items:center; gap:12px; padding:24px 0 20px; }
   .back{ background:none; border:none; color:var(--text-secondary); cursor:pointer; padding:0; display:flex; }
-  .progress-track{ flex:1; height:4px; background:rgba(255,255,255,0.1); border-radius:2px; overflow:hidden; }
+  .progress-track{ flex:1; height:4px; background:var(--card-border); border-radius:2px; overflow:hidden; }
   .progress-fill{ height:100%; background:var(--accent); border-radius:2px; transition:width .3s ease; }
   .progress-label{ font-size:12px; color:var(--text-muted); white-space:nowrap; }
 
   .q-tag{ font-size:12px; font-weight:600; color:var(--accent); margin:0 0 10px; }
-  .q-text{ font-size:17px; line-height:1.6; margin:0 0 24px; }
+  .q-text{ font-size:17px; line-height:1.6; margin:0 0 24px; color:var(--text); }
 
   .audio-row{
     display:flex; align-items:center; gap:10px;
-    background:rgba(255,255,255,0.05); border-radius:12px; padding:14px;
-    margin-bottom:20px; cursor:pointer; border:none; width:100%; text-align:left;
+    background:var(--card); border:1px solid var(--card-border); border-radius:12px; padding:14px;
+    margin-bottom:20px; cursor:pointer; width:100%; text-align:left;
   }
   .audio-icon{
     width:36px; height:36px; border-radius:50%; background:var(--accent);
@@ -48,12 +48,12 @@
 
   .option{
     display:block; width:100%; text-align:left;
-    border:0.5px solid rgba(255,255,255,0.15); border-radius:12px;
-    padding:14px 16px; margin-bottom:10px; font-size:14px; color:#e5e4dd;
-    background:transparent; cursor:pointer; transition:all .15s ease;
+    border:1px solid var(--card-border); border-radius:12px;
+    padding:14px 16px; margin-bottom:10px; font-size:14px; color:var(--text);
+    background:var(--card); cursor:pointer; transition:all .15s ease;
   }
-  .option:hover{ border-color:rgba(255,255,255,0.3); }
-  .option.selected{ border-color:var(--accent); background:var(--accent-soft); color:#f0c98a; }
+  .option:hover{ border-color:var(--accent); }
+  .option.selected{ border-color:var(--accent); background:var(--accent-soft); color:var(--accent-text); }
 
   .bottom{ padding:20px 0 32px; margin-top:auto; }
   .btn-primary{
@@ -80,7 +80,7 @@
 
     <button class="audio-row" id="playAudio">
       <div class="audio-icon">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="#1a1206"><path d="M8 5v14l11-7z"/></svg>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="#412402"><path d="M8 5v14l11-7z"/></svg>
       </div>
       <span>음성 재생 (0:14)</span>
     </button>
