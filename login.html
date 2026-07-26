@@ -48,6 +48,13 @@
   .divider .line{ flex:1; height:1px; background:var(--card-border); }
   .divider span{ font-size:11px; color:var(--text-muted); }
 
+  .tabs{ display:flex; gap:4px; background:var(--card-border); border-radius:10px; padding:4px; margin-bottom:14px; }
+  .tab{
+    flex:1; border:none; background:none; padding:9px; border-radius:7px;
+    font-size:13px; font-weight:600; color:var(--text-secondary); cursor:pointer;
+  }
+  .tab.active{ background:#fff; color:var(--text); }
+
   .field{ border:1px solid var(--card-border); border-radius:10px; padding:10px 14px; margin-bottom:10px; background:#fff; }
   .field label{ font-size:11px; color:var(--text-muted); display:block; margin-bottom:4px; }
   .field input{
@@ -92,6 +99,11 @@
 
     <div class="divider"><div class="line"></div><span data-i18n="login.or">또는</span><div class="line"></div></div>
 
+    <div class="tabs">
+      <button class="tab active" id="tabLogin" onclick="switchTab('login')" data-i18n="login.tab.login">로그인</button>
+      <button class="tab" id="tabSignup" onclick="switchTab('signup')" data-i18n="login.tab.signup">회원가입</button>
+    </div>
+
     <div class="field">
       <label data-i18n="login.email">이메일</label>
       <input type="email" placeholder="name@example.com" id="emailInput">
@@ -101,7 +113,7 @@
       <input type="password" placeholder="••••••••" id="passwordInput">
     </div>
 
-    <button class="submit-btn" data-i18n="login.continue" onclick="handleEmailLogin()">계속하기</button>
+    <button class="submit-btn" id="submitBtn" onclick="handleEmailLogin()">로그인</button>
     <p class="terms" data-i18n="login.terms">계속 진행하면 이용약관과 개인정보처리방침에 동의하게 됩니다</p>
   </div>
 </div>
@@ -133,6 +145,21 @@ async function saveUserProfile(user){
     console.error('사용자 정보 저장 실패:', err);
   }
 }
+
+async function migratePendingHistory(uid){
+  const pending = localStorage.getItem('malmun_pending_history');
+  if(!pending) return;
+  try{
+    const entry = JSON.parse(pending);
+    await db.collection('users').doc(uid).collection('history').add({
+      ...entry,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    localStorage.removeItem('malmun_pending_history');
+  }catch(err){
+    console.error('히스토리 이관 실패:', err);
+  }
+}
 </script>
 <script>
 const TRANSLATIONS = {
@@ -145,7 +172,10 @@ const TRANSLATIONS = {
     "login.or": "또는",
     "login.email": "이메일",
     "login.password": "비밀번호",
-    "login.continue": "계속하기",
+    "login.continue": "로그인",
+    "login.continue.signup": "회원가입",
+    "login.tab.login": "로그인",
+    "login.tab.signup": "회원가입",
     "login.terms": "계속 진행하면 이용약관과 개인정보처리방침에 동의하게 됩니다"
   },
   en: {
@@ -157,13 +187,30 @@ const TRANSLATIONS = {
     "login.or": "or",
     "login.email": "Email",
     "login.password": "Password",
-    "login.continue": "Continue",
+    "login.continue": "Log in",
+    "login.continue.signup": "Sign up",
+    "login.tab.login": "Log in",
+    "login.tab.signup": "Sign up",
     "login.terms": "By continuing you agree to the Terms of Service and Privacy Policy"
   }
 };
 
 const params = new URLSearchParams(window.location.search);
 const next = params.get('next');
+let currentMode = 'login';
+
+function updateSubmitBtnText(){
+  const lang = localStorage.getItem('malmun_lang') || 'ko';
+  const key = (currentMode === 'signup') ? 'login.continue.signup' : 'login.continue';
+  document.getElementById('submitBtn').textContent = TRANSLATIONS[lang][key];
+}
+
+function switchTab(mode){
+  currentMode = mode;
+  document.getElementById('tabLogin').classList.toggle('active', mode === 'login');
+  document.getElementById('tabSignup').classList.toggle('active', mode === 'signup');
+  updateSubmitBtnText();
+}
 
 function applyLang(lang){
   document.documentElement.lang = lang;
@@ -179,6 +226,7 @@ function applyLang(lang){
   document.getElementById('langCur').textContent = (lang === 'ko') ? '한국어' : 'English';
   document.getElementById('langOther').textContent = (lang === 'ko') ? 'EN' : '한글';
   localStorage.setItem('malmun_lang', lang);
+  updateSubmitBtnText();
 }
 
 (function initLang(){
@@ -208,6 +256,7 @@ async function handleOAuth(provider){
   try{
     const result = await auth.signInWithPopup(googleProvider);
     await saveUserProfile(result.user);
+    await migratePendingHistory(result.user.uid);
     afterLogin();
   }catch(err){
     console.error(err);
@@ -222,20 +271,30 @@ async function handleEmailLogin(){
     alert('이메일과 비밀번호를 모두 입력해주세요.');
     return;
   }
-  try{
-    const result = await auth.signInWithEmailAndPassword(email, password);
-    afterLogin();
-  }catch(err){
-    if(err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential'){
-      try{
-        const result = await auth.createUserWithEmailAndPassword(email, password);
-        await saveUserProfile(result.user);
-        afterLogin();
-      }catch(signupErr){
-        alert('가입에 실패했습니다: ' + signupErr.message);
+  if(currentMode === 'signup'){
+    try{
+      const result = await auth.createUserWithEmailAndPassword(email, password);
+      await saveUserProfile(result.user);
+      await migratePendingHistory(result.user.uid);
+      afterLogin();
+    }catch(err){
+      if(err.code === 'auth/email-already-in-use'){
+        alert('이미 가입된 이메일입니다. 로그인 탭에서 로그인해주세요.');
+      } else {
+        alert('가입에 실패했습니다: ' + err.message);
       }
-    } else {
-      alert('로그인에 실패했습니다: ' + err.message);
+    }
+  } else {
+    try{
+      const result = await auth.signInWithEmailAndPassword(email, password);
+      await migratePendingHistory(result.user.uid);
+      afterLogin();
+    }catch(err){
+      if(err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential'){
+        alert('가입되지 않은 이메일입니다. 회원가입 탭을 이용해주세요.');
+      } else {
+        alert('로그인에 실패했습니다: ' + err.message);
+      }
     }
   }
 }

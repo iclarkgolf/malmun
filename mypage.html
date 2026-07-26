@@ -6,15 +6,15 @@
 <title>마이페이지 | 말문</title>
 <style>
   :root{
-    --bg: #0f1115;
-    --card: rgba(255,255,255,0.04);
-    --card-border: rgba(255,255,255,0.10);
-    --text: #f5f4f0;
-    --text-secondary: #c2c0b6;
-    --text-muted: #7a7871;
-    --accent: #e0993a;
-    --accent-text: #1a1206;
-    --accent-soft: rgba(224,153,58,0.08);
+    --bg: #FFF9F0;
+    --card: #FFFFFF;
+    --card-border: #E8E4D8;
+    --text: #2C2C2A;
+    --text-secondary: #5F5E5A;
+    --text-muted: #8A8880;
+    --accent: #EF9F27;
+    --accent-text: #412402;
+    --accent-soft: #FFF3E0;
   }
   *{ box-sizing:border-box; }
   body{
@@ -28,7 +28,7 @@
   .profile-row{ display:flex; align-items:center; gap:12px; padding:0 0 20px; }
   .top-row{ display:flex; justify-content:flex-end; padding:0 0 12px; }
   #langToggle{
-    background:none; border:0.5px solid rgba(255,255,255,0.15); color:var(--text-secondary);
+    background:none; border:1px solid var(--card-border); color:var(--text-secondary);
     border-radius:16px; padding:6px 12px; font-size:12px; font-weight:600;
     cursor:pointer; display:flex; align-items:center; gap:4px;
   }
@@ -38,32 +38,40 @@
   .profile-row .sub{ font-size:12px; color:var(--text-muted); margin:2px 0 0; }
 
   .next-lesson{
-    background:var(--accent-soft); border:0.5px solid rgba(224,153,58,0.3);
-    border-radius:14px; padding:16px; margin-bottom:20px; cursor:pointer; border-width:0.5px; width:100%; text-align:left;
+    background:var(--accent-soft); border:1px solid var(--card-border);
+    border-radius:14px; padding:16px; margin-bottom:20px; cursor:pointer; width:100%; text-align:left;
   }
   .next-lesson .tag{ font-size:11px; color:var(--accent); margin:0 0 8px; }
   .next-lesson .row{ display:flex; justify-content:space-between; align-items:center; }
-  .next-lesson .lesson-name{ font-size:14px; margin:0 0 3px; }
-  .next-lesson .lesson-time{ font-size:12px; color:#c2a06a; margin:0; }
+  .next-lesson .lesson-name{ font-size:14px; margin:0 0 3px; color:var(--text); }
+  .next-lesson .lesson-time{ font-size:12px; color:var(--text-secondary); margin:0; }
 
   .stats{ display:flex; gap:10px; margin-bottom:20px; }
-  .stat-card{ flex:1; background:var(--card); border-radius:12px; padding:14px; text-align:center; }
+  .stat-card{ flex:1; background:var(--card); border:1px solid var(--card-border); border-radius:12px; padding:14px; text-align:center; }
   .stat-card .num{ font-size:20px; font-weight:600; margin:0; }
   .stat-card .label{ font-size:11px; color:var(--text-muted); margin:4px 0 0; }
 
   .menu-item{
     display:flex; justify-content:space-between; align-items:center;
-    padding:14px 0; border-bottom:0.5px solid var(--card-border);
+    padding:14px 0; border-bottom:1px solid var(--card-border);
     cursor:pointer; background:none; border-left:none; border-right:none; border-top:none; width:100%; text-align:left; color:var(--text);
   }
-  .menu-item span{ font-size:13px; color:#e5e4dd; }
+  .menu-item span{ font-size:13px; color:var(--text); }
   .menu-item:last-child{ border-bottom:none; }
+  .menu-item.danger span{ color:#D85A30; }
+
+  .history-item{ display:flex; gap:10px; margin-bottom:10px; }
+  .history-dot{ width:8px; height:8px; border-radius:50%; background:var(--accent); margin-top:6px; flex-shrink:0; }
+  .history-card{ flex:1; background:var(--card); border:1px solid var(--card-border); border-radius:12px; padding:12px; }
+  .history-date{ font-size:11px; color:var(--accent); font-weight:600; margin:0 0 4px; }
+  .history-text{ font-size:13px; color:var(--text); margin:0 0 3px; }
+  .history-sub{ font-size:12px; color:var(--text-secondary); margin:0; }
 
   body{ padding-bottom:76px; }
   .bottom-nav{
     position:fixed; bottom:0; left:0; right:0; z-index:20;
-    background:rgba(20,22,27,0.92); backdrop-filter:blur(10px);
-    border-top:0.5px solid var(--card-border);
+    background:rgba(255,255,255,0.92); backdrop-filter:blur(10px);
+    border-top:1px solid var(--card-border);
     display:flex; padding:8px 8px calc(8px + env(safe-area-inset-bottom));
   }
   .nav-item{
@@ -84,9 +92,9 @@
   </div>
 
   <div class="profile-row">
-    <div class="avatar">M</div>
+    <div class="avatar" id="avatarInitial">M</div>
     <div>
-      <p class="name">Maria</p>
+      <p class="name" id="userName">Maria</p>
       <p class="sub" data-i18n="mypage.level">중급 2단계 · 8회 수업 완료</p>
     </div>
   </div>
@@ -108,6 +116,11 @@
     <div class="stat-card"><p class="num">62%</p><p class="label" data-i18n="mypage.progress">3단계 진도율</p></div>
   </div>
 
+  <p style="font-size:12px;color:var(--text-muted);margin:0 0 10px;" data-i18n="mypage.historyTitle">나의 학습 히스토리</p>
+  <div id="historyTimeline" style="margin-bottom:20px;">
+    <p style="font-size:13px;color:var(--text-muted);" id="historyEmpty" data-i18n="mypage.historyEmpty">아직 기록이 없어요. 레벨테스트나 수업을 완료하면 여기 쌓입니다.</p>
+  </div>
+
   <button class="menu-item" onclick="alert('수업 내역/후기작성 화면으로 이동합니다.')">
     <span data-i18n="mypage.history">수업 내역</span>
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7a7871" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
@@ -119,6 +132,9 @@
   <button class="menu-item" onclick="alert('결제 수단 관리 화면으로 이동합니다.')">
     <span data-i18n="mypage.payment">결제 수단</span>
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7a7871" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+  </button>
+  <button class="menu-item danger" onclick="handleLogout()">
+    <span data-i18n="mypage.logout">로그아웃</span>
   </button>
 </div>
 
@@ -145,6 +161,83 @@
   </button>
 </nav>
 
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyD10IdHCDkCybMrkO5fewo0ksYFBmqwWro",
+  authDomain: "malmun-bca03.firebaseapp.com",
+  projectId: "malmun-bca03",
+  storageBucket: "malmun-bca03.firebasestorage.app",
+  messagingSenderId: "831462084669",
+  appId: "1:831462084669:web:003a844918b165d5b65a54"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+function formatDate(ts){
+  if(!ts) return '';
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function renderHistoryEntry(entry){
+  const div = document.createElement('div');
+  div.className = 'history-item';
+  let text = '';
+  let sub = '';
+  if(entry.type === 'level_test'){
+    text = `레벨테스트 완료 — ${entry.level} ${entry.stage}`;
+    sub = entry.desc || '';
+  } else {
+    text = entry.text || '학습 활동';
+    sub = entry.sub || '';
+  }
+  div.innerHTML = `
+    <div class="history-dot"></div>
+    <div class="history-card">
+      <p class="history-date">${formatDate(entry.createdAt)}</p>
+      <p class="history-text">${text}</p>
+      <p class="history-sub">${sub}</p>
+    </div>
+  `;
+  return div;
+}
+
+async function loadHistory(uid){
+  try{
+    const snapshot = await db.collection('users').doc(uid).collection('history')
+      .orderBy('createdAt', 'desc').limit(20).get();
+    const container = document.getElementById('historyTimeline');
+    if(snapshot.empty) return;
+    container.innerHTML = '';
+    snapshot.forEach(doc => {
+      container.appendChild(renderHistoryEntry(doc.data()));
+    });
+  }catch(err){
+    console.error('히스토리 로딩 실패:', err);
+  }
+}
+
+auth.onAuthStateChanged((user) => {
+  if(!user){
+    location.href = 'login.html?next=mypage';
+    return;
+  }
+  const displayName = user.displayName || (user.email ? user.email.split('@')[0] : '학습자');
+  document.getElementById('userName').textContent = displayName;
+  document.getElementById('avatarInitial').textContent = displayName.charAt(0).toUpperCase();
+  loadHistory(user.uid);
+});
+
+function handleLogout(){
+  auth.signOut().then(() => {
+    location.href = 'index.html';
+  });
+}
+</script>
 <script>
 const TRANSLATIONS = {
   ko: {
@@ -156,8 +249,11 @@ const TRANSLATIONS = {
     "mypage.completed": "완료한 수업",
     "mypage.progress": "3단계 진도율",
     "mypage.history": "수업 내역",
+    "mypage.historyTitle": "나의 학습 히스토리",
+    "mypage.historyEmpty": "아직 기록이 없어요. 레벨테스트나 수업을 완료하면 여기 쌓입니다.",
     "mypage.pricing": "요금제·패키지",
     "mypage.payment": "결제 수단",
+    "mypage.logout": "로그아웃",
     "nav.home": "홈", "nav.tutors": "튜터", "nav.curriculum": "커리큘럼",
     "nav.community": "커뮤니티", "nav.mypage": "마이페이지"
   },
@@ -170,8 +266,11 @@ const TRANSLATIONS = {
     "mypage.completed": "Lessons completed",
     "mypage.progress": "Stage 3 progress",
     "mypage.history": "Lesson history",
+    "mypage.historyTitle": "My learning history",
+    "mypage.historyEmpty": "No entries yet. Complete a level test or lesson to start building your history.",
     "mypage.pricing": "Pricing & packages",
     "mypage.payment": "Payment methods",
+    "mypage.logout": "Log out",
     "nav.home": "Home", "nav.tutors": "Tutors", "nav.curriculum": "Curriculum",
     "nav.community": "Community", "nav.mypage": "My page"
   }

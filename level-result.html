@@ -6,15 +6,15 @@
 <title>레벨테스트 결과 | 말문</title>
 <style>
   :root{
-    --bg: #0f1115;
-    --card: rgba(255,255,255,0.04);
-    --card-border: rgba(255,255,255,0.10);
-    --text: #f5f4f0;
-    --text-secondary: #c2c0b6;
-    --text-muted: #7a7871;
-    --accent: #e0993a;
-    --accent-text: #1a1206;
-    --accent-soft: rgba(224,153,58,0.12);
+    --bg: #FFF9F0;
+    --card: #FFFFFF;
+    --card-border: #E8E4D8;
+    --text: #2C2C2A;
+    --text-secondary: #5F5E5A;
+    --text-muted: #8A8880;
+    --accent: #EF9F27;
+    --accent-text: #412402;
+    --accent-soft: #FFF3E0;
   }
   *{ box-sizing:border-box; }
   body{
@@ -36,14 +36,14 @@
     display:flex; flex-direction:column; align-items:center; justify-content:center;
     margin-bottom:18px;
   }
-  .badge .level{ font-size:24px; font-weight:600; color:#f0c98a; margin:0; }
-  .badge .stage{ font-size:12px; color:#c2a06a; margin:2px 0 0; }
-  .result-desc{ font-size:15px; text-align:center; line-height:1.6; margin:0; }
+  .badge .level{ font-size:24px; font-weight:600; color:var(--accent-text); margin:0; }
+  .badge .stage{ font-size:12px; color:var(--accent); margin:2px 0 0; }
+  .result-desc{ font-size:15px; text-align:center; line-height:1.6; margin:0; color:var(--text); }
 
   .skill-block{ padding:8px 0 24px; }
   .skill-row{ display:flex; align-items:center; margin-bottom:12px; }
   .skill-name{ font-size:13px; color:var(--text-secondary); width:44px; flex-shrink:0; }
-  .skill-track{ flex:1; height:6px; background:rgba(255,255,255,0.08); border-radius:3px; margin:0 12px; overflow:hidden; }
+  .skill-track{ flex:1; height:6px; background:var(--card-border); border-radius:3px; margin:0 12px; overflow:hidden; }
   .skill-fill{ height:100%; background:var(--accent); border-radius:3px; }
   .skill-pct{ font-size:12px; color:var(--text-muted); width:36px; text-align:right; }
 
@@ -95,6 +95,47 @@
     <button class="btn-ghost" onclick="location.href='login.html'">결과 저장하고 나중에 보기</button>
   </div>
 </div>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyD10IdHCDkCybMrkO5fewo0ksYFBmqwWro",
+  authDomain: "malmun-bca03.firebaseapp.com",
+  projectId: "malmun-bca03",
+  storageBucket: "malmun-bca03.firebasestorage.app",
+  messagingSenderId: "831462084669",
+  appId: "1:831462084669:web:003a844918b165d5b65a54"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+const levelResult = {
+  type: 'level_test',
+  level: '중급',
+  stage: '2단계',
+  desc: '일상 대화는 가능하지만 문법 정확도가 아쉬운 단계예요',
+  skills: { listening: 75, reading: 60, grammar: 40 },
+  dateLabel: new Date().toISOString().slice(0, 10)
+};
+
+async function saveHistoryEntry(uid, entry){
+  await db.collection('users').doc(uid).collection('history').add({
+    ...entry,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+}
+
+auth.onAuthStateChanged(async (user) => {
+  if(user){
+    await saveHistoryEntry(user.uid, levelResult);
+  } else {
+    localStorage.setItem('malmun_pending_history', JSON.stringify(levelResult));
+  }
+});
+</script>
 
 </body>
 </html>
