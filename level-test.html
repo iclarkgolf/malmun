@@ -40,6 +40,7 @@
     background:var(--card); border:1px solid var(--card-border); border-radius:12px; padding:14px;
     margin-bottom:20px; cursor:pointer; width:100%; text-align:left;
   }
+  .audio-row:disabled{ opacity:0.6; cursor:wait; }
   .audio-icon{
     width:36px; height:36px; border-radius:50%; background:var(--accent);
     display:flex; align-items:center; justify-content:center; flex-shrink:0;
@@ -61,67 +62,246 @@
     font-size:15px; font-weight:600; cursor:pointer; border:none;
     background:var(--accent); color:var(--accent-text);
   }
+  .btn-primary:disabled{ background:#e8e4d8; color:#a8a49a; cursor:not-allowed; }
+  .loading{ text-align:center; color:var(--text-muted); font-size:13px; padding:60px 0; }
 </style>
 </head>
 <body>
 
-<div class="wrap">
-  <div class="topbar">
-    <button class="back" onclick="location.href='index.html'" aria-label="뒤로가기">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-    </button>
-    <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:35%"></div></div>
-    <span class="progress-label" id="progressLabel">7 / 20</span>
-  </div>
-
-  <div>
-    <p class="q-tag">듣기 · 초급</p>
-    <p class="q-text">다음 대화를 듣고, 여자가 무엇을 주문했는지 고르세요.</p>
-
-    <button class="audio-row" id="playAudio">
-      <div class="audio-icon">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="#412402"><path d="M8 5v14l11-7z"/></svg>
-      </div>
-      <span>음성 재생 (0:14)</span>
-    </button>
-
-    <div id="options">
-      <button class="option" data-value="americano">아메리카노</button>
-      <button class="option" data-value="latte">카페라떼</button>
-      <button class="option" data-value="greentea">녹차</button>
-      <button class="option" data-value="blacktea">홍차</button>
-    </div>
-  </div>
-
-  <div class="bottom">
-    <button class="btn-primary" id="nextBtn">다음 문항</button>
-  </div>
+<div class="wrap" id="testWrap">
+  <p class="loading">불러오는 중...</p>
 </div>
 
 <script>
-  const options = document.querySelectorAll('.option');
-  let selected = null;
-  options.forEach(opt => {
+// ── 문항은행 ─────────────────────────────────────────────
+// 실제 서비스에서는 이 배열을 admin에서 관리하도록 확장할 수 있습니다.
+// audioText: TTS(브라우저 음성합성)로 읽어줄 문장 — 나중에 실제 성우 녹음(mp3)으로 교체할 때는
+// 이 항목 대신 audioSrc(파일 경로)를 넣고 재생 로직만 바꾸면 됩니다.
+const QUESTIONS = [
+  { type:'listening', diff:1, tag:'듣기 · 초급',
+    text:'다음 대화를 듣고, 여자가 무엇을 주문했는지 고르세요.',
+    audioText:'여자: 아메리카노 한 잔 주세요. 남자: 네, 아메리카노 한 잔이요.',
+    options:[['americano','아메리카노'],['latte','카페라떼'],['greentea','녹차'],['blacktea','홍차']],
+    answer:'americano' },
+  { type:'listening', diff:1, tag:'듣기 · 초급',
+    text:'다음 대화를 듣고, 약속 시간을 고르세요.',
+    audioText:'남자: 우리 몇 시에 만날까요? 여자: 저는 3시가 좋을 것 같아요.',
+    options:[['1','1시'],['2','2시'],['3','3시'],['4','4시']],
+    answer:'3' },
+  { type:'listening', diff:2, tag:'듣기 · 중급',
+    text:'다음 대화를 듣고, 남자가 오늘 못 가는 이유를 고르세요.',
+    audioText:'여자: 오늘 모임에 오실 수 있어요? 남자: 죄송한데 오늘은 몸이 안 좋아서 못 갈 것 같아요.',
+    options:[['work','회사 일'],['sick','몸이 안 좋아서'],['travel','여행 중'],['forgot','깜빡해서']],
+    answer:'sick' },
+  { type:'listening', diff:3, tag:'듣기 · 고급',
+    text:'다음 대화를 듣고, 두 사람의 관계로 가장 알맞은 것을 고르세요.',
+    audioText:'여자: 이번 분기 매출 보고서는 언제까지 제출하면 될까요? 남자: 다음 주 월요일까지 부탁드립니다.',
+    options:[['friends','친구 사이'],['coworkers','직장 동료'],['family','가족'],['strangers','처음 만난 사이']],
+    answer:'coworkers' },
+
+  { type:'reading', diff:1, tag:'읽기 · 초급',
+    text:'"저는 학생이에요. 매일 학교에 가요." 이 사람은 무엇을 하는 사람인가요?',
+    options:[['student','학생'],['teacher','선생님'],['doctor','의사'],['cook','요리사']],
+    answer:'student' },
+  { type:'reading', diff:1, tag:'읽기 · 초급',
+    text:'"오늘은 비가 와서 우산을 가지고 나갔어요." 오늘 날씨는 어땠나요?',
+    options:[['sunny','맑음'],['rain','비'],['snow','눈'],['wind','바람']],
+    answer:'rain' },
+  { type:'reading', diff:2, tag:'읽기 · 중급',
+    text:'"그는 회의에 늦었지만, 다행히 중요한 안건은 놓치지 않았다." 이 문장과 가장 가까운 뜻은?',
+    options:[['ontime','회의에 제시간에 도착했다'],['late_ok','늦었지만 큰 문제는 없었다'],['missed','중요한 내용을 놓쳤다'],['cancelled','회의가 취소되었다']],
+    answer:'late_ok' },
+  { type:'reading', diff:3, tag:'읽기 · 고급',
+    text:'"경기 침체에도 불구하고 해당 기업의 실적은 오히려 개선되었다." 이 문장에서 알 수 있는 것은?',
+    options:[['worse','경기와 함께 실적도 나빠졌다'],['better','경기와 달리 실적은 좋아졌다'],['same','경기와 실적 모두 그대로다'],['unknown','알 수 없다']],
+    answer:'better' },
+
+  { type:'grammar', diff:1, tag:'문법 · 초급',
+    text:'빈칸에 알맞은 것을 고르세요: "저는 커피___ 좋아해요."',
+    options:[['ga','가'],['reul','를'],['e','에'],['do','도']],
+    answer:'reul' },
+  { type:'grammar', diff:1, tag:'문법 · 초급',
+    text:'빈칸에 알맞은 것을 고르세요: "내일 친구를 만___ 거예요."',
+    options:[['nada','나다'],['nal','날'],['nalgeoya','날 거예요'],['nass','났어요']],
+    answer:'nalgeoya' },
+  { type:'grammar', diff:2, tag:'문법 · 중급',
+    text:'빈칸에 알맞은 것을 고르세요: "비가 오___ 우산을 안 가져갔어요."',
+    options:[['neunde','는데'],['myeonseo','면서'],['gie','기에'],['eottdeon','었던']],
+    answer:'neunde' },
+  { type:'grammar', diff:3, tag:'문법 · 고급',
+    text:'빈칸에 알맞은 것을 고르세요: "그 일은 제가 알아서 처리___ 테니 걱정하지 마세요."',
+    options:[['hal','할'],['hago','하고'],['haetdeon','했던'],['haneun','하는']],
+    answer:'hal' }
+];
+
+// ── 적응형(adaptive) 출제 로직 ─────────────────────────────
+// Duolingo 등 검증된 플랫폼 방식과 동일: 맞히면 다음 문제가 더 어려워지고,
+// 틀리면 더 쉬워집니다. 영역(듣기/읽기/문법)은 번갈아 가며 출제합니다.
+const TYPES = ['listening', 'reading', 'grammar'];
+const pools = {
+  listening: QUESTIONS.filter(q => q.type === 'listening'),
+  reading: QUESTIONS.filter(q => q.type === 'reading'),
+  grammar: QUESTIONS.filter(q => q.type === 'grammar')
+};
+const difficulty = { listening: 2, reading: 2, grammar: 2 }; // 1=초급 2=중급 3=고급
+const TOTAL_QUESTIONS = QUESTIONS.length;
+let typeCursor = 0;
+let currentQuestion = null;
+
+function pickNextQuestion(){
+  for(let i = 0; i < TYPES.length; i++){
+    const type = TYPES[typeCursor % TYPES.length];
+    typeCursor++;
+    const pool = pools[type];
+    if(pool.length === 0) continue;
+    const targetDiff = difficulty[type];
+    pool.sort((a, b) => Math.abs(a.diff - targetDiff) - Math.abs(b.diff - targetDiff));
+    return pool.shift();
+  }
+  return null;
+}
+
+let answeredCount = 0;
+let selected = null;
+const results = []; // { type, correct }
+
+function speak(text){
+  if(!('speechSynthesis' in window)){
+    alert('이 브라우저는 음성 재생을 지원하지 않아요. 문제를 읽고 풀어주세요.');
+    return;
+  }
+  window.speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = 'ko-KR';
+  utter.rate = 0.95;
+  window.speechSynthesis.speak(utter);
+}
+
+function renderQuestion(){
+  selected = null;
+  currentQuestion = pickNextQuestion();
+  if(!currentQuestion){
+    finishTest();
+    return;
+  }
+  const q = currentQuestion;
+  const pct = Math.round((answeredCount / TOTAL_QUESTIONS) * 100);
+
+  const wrap = document.getElementById('testWrap');
+  wrap.innerHTML = `
+    <div class="topbar">
+      <button class="back" onclick="goBack()" aria-label="뒤로가기">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      </button>
+      <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+      <span class="progress-label">${answeredCount + 1} / ${TOTAL_QUESTIONS}</span>
+    </div>
+
+    <div>
+      <p class="q-tag">${q.tag}</p>
+      <p class="q-text">${q.text}</p>
+
+      ${q.type === 'listening' ? `
+        <button class="audio-row" id="playAudio">
+          <div class="audio-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="#412402"><path d="M8 5v14l11-7z"/></svg>
+          </div>
+          <span>음성 재생</span>
+        </button>
+      ` : ''}
+
+      <div id="options">
+        ${q.options.map(([value, label]) => `<button class="option" data-value="${value}">${label}</button>`).join('')}
+      </div>
+    </div>
+
+    <div class="bottom">
+      <button class="btn-primary" id="nextBtn">${answeredCount === TOTAL_QUESTIONS - 1 ? '결과 보기' : '다음 문항'}</button>
+    </div>
+  `;
+
+  document.querySelectorAll('.option').forEach(opt => {
     opt.addEventListener('click', () => {
-      options.forEach(o => o.classList.remove('selected'));
+      document.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
       opt.classList.add('selected');
       selected = opt.dataset.value;
     });
   });
 
-  document.getElementById('nextBtn').addEventListener('click', () => {
-    if(!selected){
-      alert('보기를 선택해주세요.');
-      return;
-    }
-    // 실제 서비스에서는 다음 문항 로드 또는 결과 페이지로 이동
-    location.href = 'level-result.html';
-  });
+  if(q.type === 'listening'){
+    document.getElementById('playAudio').addEventListener('click', () => speak(q.audioText));
+  }
 
-  document.getElementById('playAudio').addEventListener('click', () => {
-    // 실제 서비스에서는 오디오 재생 로직 연결
-    console.log('오디오 재생');
-  });
+  document.getElementById('nextBtn').addEventListener('click', handleNext);
+}
+
+function handleNext(){
+  const q = currentQuestion;
+  if(!selected){
+    alert('보기를 선택해주세요.');
+    return;
+  }
+  const correct = selected === q.answer;
+  results.push({ type: q.type, correct });
+
+  // 적응형 조정: 맞히면 다음 문제가 더 어려워지고, 틀리면 더 쉬워짐
+  if(correct) difficulty[q.type] = Math.min(3, difficulty[q.type] + 1);
+  else difficulty[q.type] = Math.max(1, difficulty[q.type] - 1);
+
+  answeredCount++;
+  if(answeredCount < TOTAL_QUESTIONS){
+    renderQuestion();
+    window.scrollTo(0, 0);
+  }else{
+    finishTest();
+  }
+}
+
+function goBack(){
+  if(window.speechSynthesis) window.speechSynthesis.cancel();
+  location.href = 'index.html';
+}
+
+function pctFor(type){
+  const items = results.filter(r => r.type === type);
+  if(items.length === 0) return 0;
+  const correct = items.filter(r => r.correct).length;
+  return Math.round((correct / items.length) * 100);
+}
+
+function levelFor(avg){
+  if(avg < 50) return { level: '초급', stage: avg < 25 ? 1 : 2 };
+  if(avg < 80) return { level: '중급', stage: avg < 65 ? 1 : 2 };
+  return { level: '고급', stage: avg < 90 ? 1 : 2 };
+}
+
+function finishTest(){
+  const listening = pctFor('listening');
+  const reading = pctFor('reading');
+  const grammar = pctFor('grammar');
+  const avg = Math.round((listening + reading + grammar) / 3);
+  const { level, stage } = levelFor(avg);
+
+  const descByLevel = {
+    '초급': '기본적인 인사와 표현을 익히는 단계예요',
+    '중급': '일상 대화는 가능하지만 문법 정확도가 아쉬운 단계예요',
+    '고급': '자연스러운 대화와 복잡한 표현까지 이해하는 단계예요'
+  };
+
+  const resultData = {
+    type: 'level_test',
+    level: level,
+    stage: stage + '단계',
+    desc: descByLevel[level],
+    skills: { listening, reading, grammar },
+    dateLabel: new Date().toISOString().slice(0, 10)
+  };
+
+  sessionStorage.setItem('malmun_level_result', JSON.stringify(resultData));
+  location.href = 'level-result.html';
+}
+
+renderQuestion();
 </script>
 
 </body>
