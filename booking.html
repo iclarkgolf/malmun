@@ -275,7 +275,12 @@ function updatePayState(){
 function renderTutorSummary(){
   if(!tutorData) return;
   const d = (tutorData[currentLang] && tutorData[currentLang].name) ? tutorData[currentLang] : tutorData.ko;
-  document.getElementById('tutorAvatar').style.background = tutorData.avatarColor || '#3b5f8f';
+  const avatarEl = document.getElementById('tutorAvatar');
+  if(tutorData.avatarImage){
+    avatarEl.style.background = `url('${tutorData.avatarImage}') center/cover`;
+  }else{
+    avatarEl.style.background = tutorData.avatarColor || '#3b5f8f';
+  }
   const withText = currentLang === 'ko' ? `${d.name} 튜터와 1회 수업` : `1 lesson with tutor ${d.name}`;
   document.getElementById('tutorSummaryName').textContent = withText;
   document.getElementById('tutorSummaryType').textContent = d.role || '';

@@ -193,7 +193,7 @@ function renderTutorList(){
     card.className = 'tutor-card';
     card.onclick = () => location.href = 'tutor-profile.html?id=' + id;
     card.innerHTML = `
-      <div class="avatar" style="background:${data.avatarColor || '#3b5f8f'};"></div>
+      <div class="avatar" style="${data.avatarImage ? `background:url('${data.avatarImage}') center/cover;` : `background:${data.avatarColor || '#3b5f8f'};`}"></div>
       <div class="info">
         <div class="info-top"><p class="name">${d.name}</p><p class="price">${fmtKRW(data.price)}${t('unit.perLesson')}</p></div>
         <p class="desc">${d.role || ''}</p>

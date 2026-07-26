@@ -63,6 +63,15 @@
   .color-row{ display:flex; gap:6px; align-items:center; }
   .color-row input[type=color]{ width:36px; height:36px; padding:0; border:none; border-radius:8px; cursor:pointer; }
 
+  .photo-row{ display:flex; align-items:center; gap:10px; }
+  .photo-preview{ width:48px; height:48px; border-radius:50%; flex-shrink:0; background-size:cover; background-position:center; border:1px solid var(--card-border); }
+  .photo-upload-btn{
+    border:1px solid var(--card-border); background:#fff; color:var(--text-secondary);
+    font-size:12px; padding:8px 12px; border-radius:8px; cursor:pointer;
+  }
+  .photo-upload-btn:hover{ border-color:var(--accent); color:var(--accent-text); }
+  .photo-status{ font-size:11px; color:var(--text-muted); }
+
   .section-label{ font-size:12px; font-weight:600; color:var(--text-secondary); margin:16px 0 8px; }
 
   .avail-grid{ display:flex; flex-direction:column; gap:6px; }
@@ -112,6 +121,7 @@
 
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
 <script>
 const firebaseConfig = {
   apiKey: "AIzaSyD10IdHCDkCybMrkO5fewo0ksYFBmqwWro",
@@ -123,6 +133,7 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+const storage = firebase.storage();
 
 const ADMIN_PW = "admin0115";
 const DAYS = [
@@ -163,6 +174,7 @@ function blankTutor(order){
   return {
     order: order,
     avatarColor: '#3b5f8f',
+    avatarImage: '',
     price: 25000,
     ko: {
       name: '', role: '',
@@ -249,9 +261,17 @@ function renderCard(id, data){
         <input type="number" class="f-price" value="${data.price}">
       </div>
       <div>
-        <label>아바타 색상</label>
-        <div class="color-row">
+        <label>사진 (없으면 색상 원으로 표시)</label>
+        <div class="photo-row">
+          <div class="photo-preview f-photo-preview" style="${data.avatarImage ? `background-image:url('${data.avatarImage}');` : `background:${data.avatarColor};`}"></div>
+          <button type="button" class="photo-upload-btn f-photo-btn">사진 선택</button>
+          <input type="file" accept="image/*" class="f-photo-file" style="display:none;">
+          <input type="hidden" class="f-avatar-image" value="${escapeHtml(data.avatarImage || '')}">
+          <span class="photo-status f-photo-status"></span>
+        </div>
+        <div class="color-row" style="margin-top:8px;">
           <input type="color" class="f-color" value="${data.avatarColor}">
+          <span style="font-size:11px; color:var(--text-muted);">사진 없을 때 색상</span>
         </div>
       </div>
     </div>
@@ -330,10 +350,44 @@ function renderCard(id, data){
     btn.addEventListener('click', () => btn.classList.toggle('on'));
   });
 
+  el.querySelector('.f-color').addEventListener('input', (e) => {
+    const hasImage = el.querySelector('.f-avatar-image').value;
+    if(!hasImage){
+      el.querySelector('.f-photo-preview').style.background = e.target.value;
+    }
+  });
+
+  el.querySelector('.f-photo-btn').addEventListener('click', () => {
+    el.querySelector('.f-photo-file').click();
+  });
+
+  el.querySelector('.f-photo-file').addEventListener('change', (e) => uploadAvatarPhoto(id, e.target.files[0], el));
+
   el.querySelector('.save-btn').addEventListener('click', () => saveCard(id, el));
   el.querySelector('.delete-btn').addEventListener('click', () => deleteCard(id, el));
 
   return el;
+}
+
+async function uploadAvatarPhoto(id, file, el){
+  if(!file) return;
+  const statusEl = el.querySelector('.f-photo-status');
+  statusEl.textContent = '업로드 중...';
+  try{
+    const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+    const path = `tutors/${id}/avatar_${Date.now()}.${ext}`;
+    const ref = storage.ref().child(path);
+    await ref.put(file);
+    const url = await ref.getDownloadURL();
+    el.querySelector('.f-avatar-image').value = url;
+    el.querySelector('.f-photo-preview').style.backgroundImage = `url('${url}')`;
+    el.querySelector('.f-photo-preview').style.background = `url('${url}') center/cover`;
+    statusEl.textContent = '업로드 완료 (저장 버튼을 눌러 반영하세요)';
+    setTimeout(() => statusEl.textContent = '', 4000);
+  }catch(err){
+    console.error('사진 업로드 실패:', err);
+    statusEl.textContent = '업로드 실패: ' + err.message;
+  }
 }
 
 function escapeHtml(s){
@@ -358,6 +412,7 @@ async function saveCard(id, el){
   const data = {
     order: tutorsCache[id] ? tutorsCache[id].order : 0,
     avatarColor: el.querySelector('.f-color').value,
+    avatarImage: el.querySelector('.f-avatar-image').value || '',
     price: Number(el.querySelector('.f-price').value) || 0,
     ko: {
       name: el.querySelector('.f-name-ko').value,

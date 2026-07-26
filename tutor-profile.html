@@ -132,7 +132,7 @@ function renderProfile(){
   const tags = (d.tags || []).filter(Boolean);
   bodyEl.innerHTML = `
     <div class="profile-head">
-      <div class="avatar-lg" style="background:${tutorData.avatarColor || '#3b5f8f'};"></div>
+      <div class="avatar-lg" style="${tutorData.avatarImage ? `background:url('${tutorData.avatarImage}') center/cover;` : `background:${tutorData.avatarColor || '#3b5f8f'};`}"></div>
       <p class="name">${d.name}</p>
       <p class="role">${d.role || ''}</p>
       <div class="meta"><span class="star">★</span> ${d.rating || '5.0'} <span class="dim">· ${currentLang === 'ko' ? `후기 ${d.reviewCount || 0}개 · 수업 ${d.lessonCount || 0}회` : `${d.reviewCount || 0} reviews · ${d.lessonCount || 0} lessons`}</span></div>
