@@ -274,7 +274,12 @@ function updatePayState(){
 
 function renderTutorSummary(){
   if(!tutorData) return;
-  const d = (tutorData[currentLang] && tutorData[currentLang].name) ? tutorData[currentLang] : tutorData.ko;
+  const koS = tutorData.ko || {};
+  const enS = tutorData.en || {};
+  const d = {
+    name: (currentLang === 'en' && enS.name) ? enS.name : koS.name,
+    role: (currentLang === 'en' && enS.role) ? enS.role : koS.role
+  };
   const avatarEl = document.getElementById('tutorAvatar');
   if(tutorData.avatarImage){
     avatarEl.style.background = `url('${tutorData.avatarImage}') center/cover`;
@@ -332,8 +337,9 @@ async function handleConfirm(){
   }
   const dayObj = DAYS.find(d => d.id === selectedDay);
   const dayLabel = currentLang === 'ko' ? dayObj.ko : dayObj.en;
-  const d = (tutorData[currentLang] && tutorData[currentLang].name) ? tutorData[currentLang] : tutorData.ko;
-  const tutorName = d.name;
+  const koC = tutorData.ko || {};
+  const enC = tutorData.en || {};
+  const tutorName = (currentLang === 'en' && enC.name) ? enC.name : koC.name;
 
   try{
     await db.collection('users').doc(user.uid).collection('history').add({

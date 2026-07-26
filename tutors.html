@@ -188,7 +188,14 @@ function renderTutorList(){
 
   listEl.innerHTML = '';
   tutorDocs.forEach(({ id, data }) => {
-    const d = data[currentLang] && data[currentLang].name ? data[currentLang] : data.ko;
+    const ko = data.ko || {};
+    const en = data.en || {};
+    const d = {
+      name: (currentLang === 'en' && en.name) ? en.name : ko.name,
+      role: (currentLang === 'en' && en.role) ? en.role : ko.role,
+      rating: ko.rating,
+      reviewCount: ko.reviewCount
+    };
     const card = document.createElement('button');
     card.className = 'tutor-card';
     card.onclick = () => location.href = 'tutor-profile.html?id=' + id;

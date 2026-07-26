@@ -126,7 +126,19 @@ function renderProfile(){
     document.getElementById('bookBtn').style.display = 'none';
     return;
   }
-  const d = tutorData[currentLang] && tutorData[currentLang].name ? tutorData[currentLang] : tutorData.ko;
+  const ko = tutorData.ko || {};
+  const en = tutorData.en || {};
+  const d = {
+    name: (currentLang === 'en' && en.name) ? en.name : ko.name,
+    role: (currentLang === 'en' && en.role) ? en.role : ko.role,
+    intro: (currentLang === 'en' && en.intro) ? en.intro : ko.intro,
+    tags: (currentLang === 'en' && en.tags && en.tags.length) ? en.tags : ko.tags,
+    rating: ko.rating,
+    reviewCount: ko.reviewCount,
+    lessonCount: ko.lessonCount,
+    reviewAuthor: ko.reviewAuthor,
+    reviewBody: (currentLang === 'en' && en.reviewBody) ? en.reviewBody : ko.reviewBody
+  };
   document.title = `${d.name} 튜터 | 말문`;
 
   const tags = (d.tags || []).filter(Boolean);
