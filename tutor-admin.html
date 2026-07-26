@@ -101,6 +101,7 @@
 
 <div id="app">
   <div class="wrap">
+    <p style="margin:0 0 10px;"><a href="admin.html" style="font-size:12px; color:var(--text-muted);">← 관리자 홈</a></p>
     <h1>튜터 관리</h1>
     <p class="sub">카드를 추가하고, 각 튜터의 요일·시간별 가능 시간을 설정하세요. 예약이 들어오면 해당 요일·시간은 자동으로 잠깁니다.</p>
 
@@ -138,10 +139,18 @@ function tryUnlock(){
   if(val === ADMIN_PW){
     document.getElementById('gate').style.display = 'none';
     document.getElementById('app').style.display = 'block';
+    sessionStorage.setItem('malmun_admin_ok', '1');
     loadCards();
   }else{
     document.getElementById('gateError').style.display = 'block';
   }
+}
+
+// 관리자 홈(admin.html)에서 이미 잠금해제한 세션이면 다시 묻지 않음
+if(sessionStorage.getItem('malmun_admin_ok') === '1'){
+  document.getElementById('gate').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  loadCards();
 }
 
 function emptyAvailability(){
@@ -176,26 +185,36 @@ let tutorsCache = {}; // id -> data (working copy while editing)
 async function loadCards(){
   const listEl = document.getElementById('cardList');
   listEl.innerHTML = '<p class="empty">불러오는 중...</p>';
-  const snap = await db.collection('tutors').orderBy('order', 'asc').get();
-  if(snap.empty){
-    listEl.innerHTML = '<p class="empty">아직 등록된 튜터가 없습니다. 위 버튼으로 첫 카드를 추가하세요.</p>';
-    return;
+  try{
+    const snap = await db.collection('tutors').orderBy('order', 'asc').get();
+    if(snap.empty){
+      listEl.innerHTML = '<p class="empty">아직 등록된 튜터가 없습니다. 위 버튼으로 첫 카드를 추가하세요.</p>';
+      return;
+    }
+    listEl.innerHTML = '';
+    snap.forEach(doc => {
+      tutorsCache[doc.id] = doc.data();
+      listEl.appendChild(renderCard(doc.id, tutorsCache[doc.id]));
+    });
+  }catch(err){
+    console.error('튜터 목록 로드 실패:', err);
+    listEl.innerHTML = `<p class="empty" style="color:#D85A30;">불러오기 실패: ${escapeHtml(err.message)}<br>(이 메시지를 그대로 캡처해서 보내주세요)</p>`;
   }
-  listEl.innerHTML = '';
-  snap.forEach(doc => {
-    tutorsCache[doc.id] = doc.data();
-    listEl.appendChild(renderCard(doc.id, tutorsCache[doc.id]));
-  });
 }
 
 document.getElementById('addBtn').addEventListener('click', async () => {
   const order = Object.keys(tutorsCache).length;
   const data = blankTutor(order);
-  const ref = await db.collection('tutors').add(data);
-  tutorsCache[ref.id] = data;
-  const listEl = document.getElementById('cardList');
-  if(listEl.querySelector('.empty')) listEl.innerHTML = '';
-  listEl.appendChild(renderCard(ref.id, data));
+  try{
+    const ref = await db.collection('tutors').add(data);
+    tutorsCache[ref.id] = data;
+    const listEl = document.getElementById('cardList');
+    if(listEl.querySelector('.empty')) listEl.innerHTML = '';
+    listEl.appendChild(renderCard(ref.id, data));
+  }catch(err){
+    console.error('카드 추가 실패:', err);
+    alert('카드 추가 실패: ' + err.message + '\n(이 메시지를 그대로 캡처해서 보내주세요)');
+  }
 });
 
 function renderCard(id, data){
