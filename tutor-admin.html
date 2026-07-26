@@ -165,7 +165,7 @@ function blankTutor(order){
     avatarColor: '#3b5f8f',
     price: 25000,
     ko: {
-      name: '이름을 입력하세요', role: '소개를 입력하세요',
+      name: '', role: '',
       intro: '', tags: ['', '', ''],
       rating: '5.0', reviewCount: '0', lessonCount: '0',
       reviewAuthor: '', reviewLoc: '', reviewBody: ''
@@ -226,21 +226,21 @@ function renderCard(id, data){
     <div class="row">
       <div>
         <label>이름 (한글)</label>
-        <input type="text" class="f-name-ko" value="${escapeHtml(data.ko.name)}">
+        <input type="text" class="f-name-ko" placeholder="예: 지은" value="${escapeHtml(data.ko.name)}">
       </div>
       <div>
         <label>이름 (영문, 선택)</label>
-        <input type="text" class="f-name-en" value="${escapeHtml(data.en.name || '')}">
+        <input type="text" class="f-name-en" placeholder="e.g. Jieun" value="${escapeHtml(data.en.name || '')}">
       </div>
     </div>
     <div class="row">
       <div>
         <label>소개 한 줄 (한글)</label>
-        <input type="text" class="f-role-ko" value="${escapeHtml(data.ko.role)}">
+        <input type="text" class="f-role-ko" placeholder="예: 전 항공사 승무원 · 비즈니스 한국어" value="${escapeHtml(data.ko.role)}">
       </div>
       <div>
         <label>소개 한 줄 (영문, 선택)</label>
-        <input type="text" class="f-role-en" value="${escapeHtml(data.en.role || '')}">
+        <input type="text" class="f-role-en" placeholder="e.g. Former flight attendant" value="${escapeHtml(data.en.role || '')}">
       </div>
     </div>
     <div class="row">
