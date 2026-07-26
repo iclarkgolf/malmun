@@ -66,7 +66,7 @@
 
   .hero-page{
     scroll-snap-align:start; scroll-margin-top:70px;
-    min-height:calc(100vh - 70px - 76px); display:flex; flex-direction:column; justify-content:center;
+    min-height:calc(100vh - 70px - 76px); padding:32px 0;
   }
   .hero-mobile{ padding:24px 20px 32px; }
   .hero-desktop{ display:none; }
@@ -103,9 +103,10 @@
   .trust .label{ font-size:11px; color:var(--text-muted); }
 
   section{
-    padding:32px 20px; border-top:1px solid var(--card-border);
+    padding:48px 20px; border-top:1px solid var(--card-border);
     scroll-snap-align:start; scroll-margin-top:70px;
-    min-height:calc(100vh - 70px - 76px); display:flex; flex-direction:column; justify-content:center;
+    min-height:calc(100vh - 70px - 76px);
+    display:flex; flex-direction:column; justify-content:center;
   }
   .section-eyebrow{ font-size:12px; color:var(--text-muted); margin:0 0 6px; }
   .section-title{ font-size:18px; font-weight:600; margin:0 0 20px; }
@@ -213,8 +214,9 @@
     .hero-page{ display:none; }
     .hero-desktop{
       display:grid; grid-template-columns:1.1fr 1fr; gap:36px; align-items:center;
-      max-width:1080px; margin:0 auto; padding:28px 20px;
-      scroll-snap-align:start; scroll-margin-top:70px; min-height:calc(100vh - 70px); align-content:start;
+      max-width:1080px; margin:0 auto; padding:48px 20px;
+      scroll-snap-align:start; scroll-margin-top:70px;
+      min-height:calc(100vh - 70px); align-content:start;
     }
     .hero-visual{ position:relative; }
     .hero-visual .frame{ background:#F0E6D2; border-radius:20px; padding:16px; height:260px; position:relative; }
@@ -260,8 +262,7 @@
     .desktop-trust{ padding-top:16px !important; }
 
     section{ max-width:1080px; margin:0 auto; min-height:calc(100vh - 70px); }
-    .hero-page{ min-height:calc(100vh - 70px); }
-    .brand-story{ display:grid; grid-template-columns:1fr 1.2fr; gap:48px; align-items:center; text-align:left; }
+    .brand-story{ display:grid; grid-template-columns:1fr 1.2fr; gap:48px; align-items:center; align-content:center; text-align:left; }
     .brand-story svg{ margin:0; max-width:100%; }
     .brand-story .s{ margin-left:0; margin-right:0; max-width:none; }
     .tutor-scroll{ display:grid; grid-template-columns:repeat(3,1fr); overflow:visible; margin:0; padding:0; }
