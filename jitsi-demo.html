@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>말문 화상수업 데모 (Jitsi)</title>
+<title>말문 화상수업 데모 (JaaS)</title>
 <style>
   body{ margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; background:#FAF7EF; }
   header{ padding:16px 20px; text-align:center; }
@@ -16,8 +16,8 @@
 <body>
 
 <header>
-  <h1>말문 화상수업 데모 (Jitsi Meet 임베드)</h1>
-  <p>가입 없이 바로 뜨는 화상통화 화면입니다. 카메라/마이크 권한만 허용해보세요.</p>
+  <h1>말문 화상수업 데모 (JaaS 임베드)</h1>
+  <p>가입 없이 바로 뜨는 화상통화 화면입니다. 5분 제한 없이 정상 작동합니다.</p>
 </header>
 
 <div id="meet"></div>
@@ -27,11 +27,11 @@
   방 이름은 코드에 고정돼 있어서(malmun-demo-room), 같은 링크로 여러 명이 들어오면 같은 방에서 만나게 됩니다.
 </div>
 
-<script src="https://meet.jit.si/external_api.js"></script>
+<script src="https://8x8.vc/vpaas-magic-cookie-cf396ecd65dc43128daa258dfe07cba4/external_api.js"></script>
 <script>
-  const domain = 'meet.jit.si';
+  const domain = '8x8.vc';
   const options = {
-    roomName: 'malmun-demo-room-iclarkgolf-pj',
+    roomName: 'vpaas-magic-cookie-cf396ecd65dc43128daa258dfe07cba4/malmun-demo-room-iclarkgolf-pj',
     width: '100%',
     height: 520,
     parentNode: document.querySelector('#meet'),
