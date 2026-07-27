@@ -71,27 +71,147 @@
 <div id="app">
   <div class="wrap">
     <h1>말문 관리자 홈</h1>
-    <p class="sub">말문 사이트의 모든 관리 기능을 여기서 시작하세요.</p>
-    <p style="margin:-14px 0 24px; display:flex; gap:14px;">
-      <a href="index.html" target="_blank" style="font-size:12px; color:var(--text-muted); text-decoration:underline;">🏠 사이트 메인 페이지</a>
-      <a href="tutors.html" target="_blank" style="font-size:12px; color:var(--text-muted); text-decoration:underline;">🧑‍🏫 튜터 카드 목록 (사진 보이는 곳)</a>
-    </p>
+    <p class="sub">사이트 전체 지도예요. 뭘 고쳤는지 기억 안 나셔도, 여기서 클릭 몇 번이면 원하는 화면을 바로 찾아가실 수 있어요.</p>
 
-    <p class="section-label">튜터 · 예약</p>
+    <p class="section-label">가장 자주 보는 곳</p>
     <div class="link-list">
-      <a class="link-card" href="tutor-admin.html">
-        <div class="icon">👤</div>
+      <a class="link-card" href="index.html" target="_blank">
+        <div class="icon">🏠</div>
         <div>
-          <p class="name">튜터 관리</p>
-          <p class="desc">튜터 카드 추가·수정·삭제, 요일·시간별 가능 시간 설정</p>
+          <p class="name">홈페이지</p>
+          <p class="desc">index.html · 방문자가 처음 보는 화면</p>
         </div>
         <span class="arrow">→</span>
       </a>
       <a class="link-card" href="tutors.html" target="_blank">
         <div class="icon">🧑‍🏫</div>
         <div>
-          <p class="name">튜터 카드 목록 보기</p>
-          <p class="desc">방문자 눈에 실제로 보이는 화면 (사진·가격 확인용)</p>
+          <p class="name">튜터 목록</p>
+          <p class="desc">tutors.html · 사진·가격 확인용</p>
+        </div>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+
+    <p class="section-label">튜터 · 예약</p>
+    <div class="link-list">
+      <a class="link-card" href="tutor-admin.html">
+        <div class="icon">👤</div>
+        <div>
+          <p class="name">튜터 관리 (수정용)</p>
+          <p class="desc">tutor-admin.html · 카드 추가·수정·삭제, 가능 시간 설정</p>
+        </div>
+        <span class="arrow">→</span>
+      </a>
+      <a class="link-card" href="tutors.html" target="_blank">
+        <div class="icon">🧑‍🏫</div>
+        <div>
+          <p class="name">튜터 목록 (방문자 화면)</p>
+          <p class="desc">tutors.html · 실제로 노출되는 카드 목록</p>
+        </div>
+        <span class="arrow">→</span>
+      </a>
+      <a class="link-card" href="booking.html" target="_blank">
+        <div class="icon">📅</div>
+        <div>
+          <p class="name">예약 페이지</p>
+          <p class="desc">booking.html · 튜터 ID 없이 열면 기본 화면만 보임</p>
+        </div>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+
+    <p class="section-label">레벨테스트 · 학습</p>
+    <div class="link-list">
+      <a class="link-card" href="level-test.html" target="_blank">
+        <div class="icon">📝</div>
+        <div>
+          <p class="name">레벨테스트</p>
+          <p class="desc">level-test.html · 12문항 적응형 테스트</p>
+        </div>
+        <span class="arrow">→</span>
+      </a>
+      <a class="link-card" href="level-result.html" target="_blank">
+        <div class="icon">🏅</div>
+        <div>
+          <p class="name">레벨테스트 결과</p>
+          <p class="desc">level-result.html · 테스트 끝나면 자동 연결되는 화면</p>
+        </div>
+        <span class="arrow">→</span>
+      </a>
+      <a class="link-card" href="curriculum.html" target="_blank">
+        <div class="icon">📚</div>
+        <div>
+          <p class="name">커리큘럼 (4단계)</p>
+          <p class="desc">curriculum.html · 아직 고정 콘텐츠(관리 도구 없음)</p>
+        </div>
+        <span class="arrow">→</span>
+      </a>
+      <a class="link-card" href="curriculum-stage.html" target="_blank">
+        <div class="icon">📖</div>
+        <div>
+          <p class="name">커리큘럼 단계 상세</p>
+          <p class="desc">curriculum-stage.html · 각 단계별 모듈 목록</p>
+        </div>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+
+    <p class="section-label">커뮤니티</p>
+    <div class="link-list">
+      <a class="link-card" href="blog.html" target="_blank">
+        <div class="icon">📰</div>
+        <div>
+          <p class="name">블로그/커뮤니티 목록</p>
+          <p class="desc">blog.html · 아직 고정 콘텐츠(관리 도구 없음)</p>
+        </div>
+        <span class="arrow">→</span>
+      </a>
+      <a class="link-card" href="article.html" target="_blank">
+        <div class="icon">📄</div>
+        <div>
+          <p class="name">아티클 상세</p>
+          <p class="desc">article.html · 블로그 글 하나를 열면 보이는 화면</p>
+        </div>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+
+    <p class="section-label">계정 · 결제</p>
+    <div class="link-list">
+      <a class="link-card" href="login.html" target="_blank">
+        <div class="icon">🔑</div>
+        <div>
+          <p class="name">로그인/회원가입</p>
+          <p class="desc">login.html · 구글/이메일 가입, Firebase 연동됨</p>
+        </div>
+        <span class="arrow">→</span>
+      </a>
+      <a class="link-card" href="mypage.html" target="_blank">
+        <div class="icon">👋</div>
+        <div>
+          <p class="name">마이페이지</p>
+          <p class="desc">mypage.html · 로그인 안 하면 자동으로 로그인 화면으로 이동</p>
+        </div>
+        <span class="arrow">→</span>
+      </a>
+      <a class="link-card" href="pricing.html" target="_blank">
+        <div class="icon">💳</div>
+        <div>
+          <p class="name">요금제·패키지</p>
+          <p class="desc">pricing.html · 아직 고정 가격(관리 도구 없음)</p>
+        </div>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+
+    <p class="section-label">화상수업 (테스트 중)</p>
+    <div class="link-list">
+      <a class="link-card" href="jitsi-demo.html" target="_blank">
+        <div class="icon">🎥</div>
+        <div>
+          <p class="name">화상통화 데모</p>
+          <p class="desc">jitsi-demo.html · Jitsi 임베드 테스트, 가입 필요 없음</p>
         </div>
         <span class="arrow">→</span>
       </a>
@@ -102,22 +222,22 @@
       <div class="link-card coming">
         <div class="icon">💳</div>
         <div>
-          <p class="name">요금제 관리</p>
-          <p class="desc">구독·패키지 가격 관리 (준비 중)</p>
+          <p class="name">요금제 관리 도구</p>
+          <p class="desc">지금은 pricing.html에 가격이 고정 텍스트로 박혀있음 (준비 중)</p>
         </div>
       </div>
       <div class="link-card coming">
         <div class="icon">📝</div>
         <div>
-          <p class="name">블로그 관리</p>
-          <p class="desc">커뮤니티/블로그 글 작성·관리 (준비 중)</p>
+          <p class="name">블로그 관리 도구</p>
+          <p class="desc">지금은 blog.html·article.html이 고정 글 3개뿐 (준비 중)</p>
         </div>
       </div>
       <div class="link-card coming">
         <div class="icon">📚</div>
         <div>
-          <p class="name">커리큘럼 관리</p>
-          <p class="desc">레벨테스트·커리큘럼 콘텐츠 관리 (준비 중)</p>
+          <p class="name">커리큘럼 관리 도구</p>
+          <p class="desc">지금은 curriculum.html이 고정 4단계뿐 (준비 중)</p>
         </div>
       </div>
     </div>
