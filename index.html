@@ -254,7 +254,19 @@
       background:#fff; border:1.5px solid var(--card-border); border-radius:14px;
       margin-bottom:12px; padding:11px 16px; font-size:14px; cursor:pointer;
       display:flex; justify-content:space-between; align-items:center;
+      position:relative; max-width:320px;
     }
+    .purpose-dropdown svg{ transition:transform .15s ease; }
+    .purpose-dropdown.open svg{ transform:rotate(180deg); }
+    .purpose-menu{
+      display:none; position:absolute; top:calc(100% + 6px); left:0; right:0;
+      background:#fff; border:1.5px solid var(--card-border); border-radius:14px;
+      overflow:hidden; z-index:20; box-shadow:0 8px 24px rgba(0,0,0,.08);
+    }
+    .purpose-menu.open{ display:block; }
+    .purpose-option{ padding:11px 16px; font-size:14px; cursor:pointer; }
+    .purpose-option:hover{ background:var(--bg-soft, #f5f1e8); }
+    .purpose-option + .purpose-option{ border-top:1px solid var(--card-border); }
     .hero-copy .btn{ width:auto; padding:13px 28px; display:inline-block; margin-bottom:10px; font-size:14px; }
     .hero-copy .more-link{ font-size:12px; color:var(--text-secondary); margin:0; }
     .hero-copy .more-link b{ color:var(--text); }
@@ -305,12 +317,18 @@
     <h1><span data-i18n="hero.d.title1">나만의 튜터와 함께</span><br><span class="hl" data-i18n="hero.d.title2">한국어</span><span data-i18n="hero.d.title3">를 배워보세요</span></h1>
     <p data-i18n="hero.d.sub">목표와 일정에 맞춰 레슨을 구성하는 검증된 튜터와 학습을 시작하세요.</p>
     <p class="purpose-label" data-i18n="hero.purpose.label">한국어로 뭘 하고 싶나요?</p>
-    <div class="purpose-dropdown">
-      <span data-i18n="hero.purpose.biz">비즈니스·커리어</span>
+    <div class="purpose-dropdown" id="purposeDropdown" onclick="togglePurposeMenu(event)">
+      <span data-i18n="hero.purpose.biz" id="purposeLabel">비즈니스·커리어</span>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+      <div class="purpose-menu" id="purposeMenu">
+        <div class="purpose-option" data-i18n="hero.purpose.biz" onclick="selectPurpose(event,'hero.purpose.biz')">비즈니스·커리어</div>
+        <div class="purpose-option" data-i18n="hero.purpose.study" onclick="selectPurpose(event,'hero.purpose.study')">유학·진학</div>
+        <div class="purpose-option" data-i18n="hero.purpose.move" onclick="selectPurpose(event,'hero.purpose.move')">이주·취업</div>
+        <div class="purpose-option" data-i18n="hero.purpose.travel" onclick="selectPurpose(event,'hero.purpose.travel')">여행·한류</div>
+      </div>
     </div>
-    <button class="btn btn-primary" data-i18n="hero.cta1" onclick="location.href='level-test.html'">무료 레벨테스트 시작</button>
-    <p class="more-link" style="cursor:pointer;" onclick="location.href='tutors.html'"><span data-i18n="hero.more1">검증된 튜터</span> <b id="tutorCountNumDesktop">24명</b> <span data-i18n="hero.more3">보기</span></p>
+    <button class="btn btn-primary" data-i18n="hero.cta1" onclick="goToLevelTest()">무료 레벨테스트 시작</button>
+    <p class="more-link" style="cursor:pointer;" onclick="goToTutors()"><span data-i18n="hero.more1">검증된 튜터</span> <b id="tutorCountNumDesktop">24명</b> <span data-i18n="hero.more3">보기</span></p>
   </div>
   <div class="desktop-trust" style="grid-column:1 / -1; display:flex; gap:48px; padding-top:24px; border-top:1px solid var(--card-border); cursor:pointer;" onclick="location.href='tutors.html'">
     <div><p id="ratingNumDesktop" style="font-size:20px;font-weight:600;margin:0;">4.9</p><p style="font-size:12px;color:var(--text-muted);margin:4px 0 0;" data-i18n="trust.rating">평균 평점</p></div>
@@ -469,6 +487,9 @@ const TRANSLATIONS = {
     "hero.d.sub": "목표와 일정에 맞춰 레슨을 구성하는 검증된 튜터와 학습을 시작하세요.",
     "hero.purpose.label": "한국어로 뭘 하고 싶나요?",
     "hero.purpose.biz": "비즈니스·커리어",
+    "hero.purpose.study": "유학·진학",
+    "hero.purpose.move": "이주·취업",
+    "hero.purpose.travel": "여행·한류",
     "hero.more1": "검증된 튜터", "hero.more2": "24명", "hero.more3": "보기",
     "trust.rating": "평균 평점",
     "trust.verified": "검증된",
@@ -529,6 +550,9 @@ const TRANSLATIONS = {
     "hero.d.sub": "Start learning with a verified tutor who builds lessons around your goals and schedule.",
     "hero.purpose.label": "What do you want to do with Korean?",
     "hero.purpose.biz": "Business & career",
+    "hero.purpose.study": "Study abroad",
+    "hero.purpose.move": "Relocation & work",
+    "hero.purpose.travel": "Travel & K-culture",
     "hero.more1": "See", "hero.more2": "24", "hero.more3": "verified tutors",
     "trust.rating": "avg. rating",
     "trust.verified": "Verified",
@@ -594,6 +618,48 @@ function applyLang(lang){
   document.getElementById('langOther').textContent = (lang === 'ko') ? 'EN' : '한글';
   localStorage.setItem('malmun_lang', lang);
 }
+
+// ── 목적 드롭다운: 실제 클릭으로 열리고 선택되는 기능 ──
+// 선택한 목적은 localStorage(malmun_purpose)에 저장되고, 레벨테스트·튜터 목록으로
+// 이동할 때 ?purpose= 파라미터로 함께 전달되어 다음 단계에서 활용할 수 있다.
+function togglePurposeMenu(e){
+  e.stopPropagation();
+  document.getElementById('purposeDropdown').classList.toggle('open');
+  document.getElementById('purposeMenu').classList.toggle('open');
+}
+function selectPurpose(e, key){
+  e.stopPropagation();
+  const label = document.getElementById('purposeLabel');
+  label.setAttribute('data-i18n', key);
+  const lang = localStorage.getItem('malmun_lang') || 'ko';
+  const dict = TRANSLATIONS[lang] || TRANSLATIONS.ko;
+  if(dict[key] !== undefined) label.innerHTML = dict[key];
+  localStorage.setItem('malmun_purpose', key);
+  document.getElementById('purposeDropdown').classList.remove('open');
+  document.getElementById('purposeMenu').classList.remove('open');
+}
+document.addEventListener('click', () => {
+  const dd = document.getElementById('purposeDropdown');
+  const menu = document.getElementById('purposeMenu');
+  if(dd) dd.classList.remove('open');
+  if(menu) menu.classList.remove('open');
+});
+function purposeSlug(){
+  const key = localStorage.getItem('malmun_purpose') || 'hero.purpose.biz';
+  return key.split('.').pop();
+}
+function goToLevelTest(){
+  location.href = 'level-test.html?purpose=' + purposeSlug();
+}
+function goToTutors(){
+  location.href = 'tutors.html?purpose=' + purposeSlug();
+}
+(function initPurpose(){
+  const saved = localStorage.getItem('malmun_purpose');
+  if(saved){
+    document.getElementById('purposeLabel').setAttribute('data-i18n', saved);
+  }
+})();
 
 (function initLang(){
   const saved = localStorage.getItem('malmun_lang') || 'ko';
