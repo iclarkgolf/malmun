@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>예약 관리 | 말문 Admin</title>
+<style>
+  :root{
+    --bg: #FFF9F0;
+    --card: #FFFFFF;
+    --card-border: #E8E4D8;
+    --text: #2C2C2A;
+    --text-secondary: #5F5E5A;
+    --text-muted: #8A8880;
+    --accent: #EF9F27;
+    --accent-text: #412402;
+    --accent-soft: #FFF3E0;
+    --danger: #D85A30;
+  }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{ color:inherit; text-decoration:none; }
+  .wrap{ max-width:720px; margin:0 auto; padding:24px 20px 60px; }
+  h1{ font-size:18px; margin:0 0 4px; }
+  .sub{ font-size:13px; color:var(--text-muted); margin:0 0 24px; }
+
+  /* ---- password gate ---- */
+  #gate{ max-width:320px; margin:80px auto; text-align:center; }
+  #gate input{
+    width:100%; padding:12px; border:1px solid var(--card-border); border-radius:10px;
+    font-size:14px; margin-bottom:10px; box-sizing:border-box;
+  }
+  #gate button{
+    width:100%; padding:12px; border:none; border-radius:10px; background:var(--accent);
+    color:var(--accent-text); font-weight:600; font-size:14px; cursor:pointer;
+  }
+  #gateError{ color:var(--danger); font-size:12px; margin-top:8px; display:none; }
+
+  #app{ display:none; }
+
+  .filter-row{ display:flex; gap:8px; margin-bottom:18px; flex-wrap:wrap; }
+  .filter-btn{
+    border:1px solid var(--card-border); background:#fff; color:var(--text-secondary);
+    font-size:13px; padding:8px 14px; border-radius:20px; cursor:pointer; font-weight:600;
+  }
+  .filter-btn.active{ background:var(--accent); color:var(--accent-text); border-color:var(--accent); }
+
+  .booking-card{
+    background:var(--card); border:1px solid var(--card-border); border-radius:16px;
+    padding:16px 18px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center; gap:12px;
+  }
+  .booking-card.past{ opacity:0.55; }
+  .b-left{ flex:1; min-width:0; }
+  .b-student{ font-size:14px; font-weight:700; margin:0 0 2px; }
+  .b-meta{ font-size:12px; color:var(--text-secondary); margin:0 0 6px; }
+  .b-tags{ display:flex; gap:6px; flex-wrap:wrap; }
+  .tag{ font-size:11px; font-weight:600; padding:3px 8px; border-radius:8px; }
+  .tag.free{ color:var(--accent); background:var(--accent-soft); }
+  .tag.paid{ color:var(--text-secondary); background:#F3F1EA; }
+  .tag.email{ color:var(--text-muted); background:#F3F1EA; }
+
+  .b-right{ display:flex; flex-direction:column; gap:6px; align-items:flex-end; flex-shrink:0; }
+  .enter-btn{
+    display:flex; align-items:center; gap:6px; padding:9px 14px; border:none; border-radius:10px;
+    background:var(--accent); color:var(--accent-text); font-weight:600; font-size:12px; cursor:pointer; white-space:nowrap;
+  }
+  .enter-btn.disabled{ background:#EAE6D8; color:var(--text-muted); cursor:default; }
+
+  .empty{ text-align:center; color:var(--text-muted); font-size:13px; padding:60px 0; }
+  .loading{ text-align:center; color:var(--text-muted); font-size:13px; padding:60px 0; }
+</style>
+</head>
+<body>
+
+<div id="gate">
+  <h1 style="text-align:center;">예약 관리 admin</h1>
+  <input type="password" id="pwInput" placeholder="비밀번호">
+  <button id="pwBtn">입장</button>
+  <p id="gateError">비밀번호가 틀렸습니다</p>
+</div>
+
+<div id="app">
+  <div class="wrap">
+    <p style="margin:0 0 10px;"><a href="admin.html" style="font-size:12px; color:var(--text-muted);">← 관리자 홈</a></p>
+    <h1>예약 관리</h1>
+    <p class="sub">학생이 예약하면 여기 실시간으로 뜹니다. 시간 맞춰 "화상룸 입장" 버튼으로 학생과 같은 방에 들어가면 돼요.</p>
+
+    <div class="filter-row">
+      <button class="filter-btn active" data-filter="upcoming">예정된 예약</button>
+      <button class="filter-btn" data-filter="all">전체 보기</button>
+    </div>
+
+    <div id="list"><p class="loading">불러오는 중...</p></div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyD10IdHCDkCybMrkO5fewo0ksYFBmqwWro",
+  authDomain: "malmun-bca03.firebaseapp.com",
+  projectId: "malmun-bca03",
+  storageBucket: "malmun-bca03.firebasestorage.app",
+  messagingSenderId: "831462084669",
+  appId: "1:831462084669:web:003a844918b165d5b65a54"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+const ADMIN_PW = "admin0115";
+const DAY_ORDER = { mon:0, tue:1, wed:2, thu:3, fri:4, sat:5, sun:6 };
+
+document.getElementById('pwBtn').addEventListener('click', tryUnlock);
+document.getElementById('pwInput').addEventListener('keydown', e => { if(e.key === 'Enter') tryUnlock(); });
+
+function tryUnlock(){
+  const val = document.getElementById('pwInput').value;
+  if(val === ADMIN_PW){
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    sessionStorage.setItem('malmun_admin_ok', '1');
+    loadBookings();
+  }else{
+    document.getElementById('gateError').style.display = 'block';
+  }
+}
+
+if(sessionStorage.getItem('malmun_admin_ok') === '1'){
+  document.getElementById('gate').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  loadBookings();
+}
+
+let allBookings = [];
+let currentFilter = 'upcoming';
+
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentFilter = btn.dataset.filter;
+    render();
+  });
+});
+
+async function loadBookings(){
+  try{
+    const snap = await db.collection('bookings').orderBy('createdAt', 'desc').limit(100).get();
+    allBookings = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    render();
+  }catch(err){
+    console.error('예약 목록 불러오기 실패:', err);
+    document.getElementById('list').innerHTML = `<p class="empty">예약 목록을 불러오지 못했어요.<br>${err.message}</p>`;
+  }
+}
+
+// 요일·시간이 "지금 이후"인지 대략적으로 판단 (같은 주 기준 요일 순서 비교)
+function isUpcoming(b){
+  const now = new Date();
+  const todayIdx = (now.getDay() + 6) % 7; // 월=0 ... 일=6
+  const bIdx = DAY_ORDER[b.day] ?? 0;
+  if(bIdx > todayIdx) return true;
+  if(bIdx < todayIdx) return false;
+  // 같은 요일이면 시간 비교
+  const [h, m] = (b.time || '00:00').split(':').map(Number);
+  const nowMinutes = now.getHours() * 60 + now.getMinutes();
+  return (h * 60 + m) >= nowMinutes;
+}
+
+function render(){
+  const list = document.getElementById('list');
+  let items = allBookings;
+  if(currentFilter === 'upcoming'){
+    items = items.filter(isUpcoming);
+  }
+  if(items.length === 0){
+    list.innerHTML = `<p class="empty">${currentFilter === 'upcoming' ? '예정된 예약이 없어요.' : '아직 예약이 없어요.'}</p>`;
+    return;
+  }
+  list.innerHTML = items.map(b => {
+    const upcoming = isUpcoming(b);
+    const params = new URLSearchParams({
+      room: b.roomId || '',
+      tutor: b.tutorName || '',
+      time: `${b.dayLabel || ''} ${b.time || ''}`
+    });
+    return `
+      <div class="booking-card ${upcoming ? '' : 'past'}">
+        <div class="b-left">
+          <p class="b-student">${escapeHtml(b.studentName || '학생')}</p>
+          <p class="b-meta">${escapeHtml(b.tutorName || '')} 튜터 · ${escapeHtml(b.dayLabel || b.day || '')} ${escapeHtml(b.time || '')}</p>
+          <div class="b-tags">
+            ${b.isFreeOrientation ? '<span class="tag free">무료 오리엔테이션</span>' : `<span class="tag paid">${fmtKRW(b.price)}</span>`}
+            ${b.studentEmail ? `<span class="tag email">${escapeHtml(b.studentEmail)}</span>` : ''}
+          </div>
+        </div>
+        <div class="b-right">
+          ${b.roomId
+            ? `<button class="enter-btn" onclick="location.href='classroom.html?${params.toString()}'">🎥 화상룸 입장</button>`
+            : `<span class="enter-btn disabled">룸 정보 없음</span>`}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function fmtKRW(n){
+  return '₩' + (Number(n) || 0).toLocaleString('ko-KR');
+}
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str == null ? '' : String(str);
+  return div.innerHTML;
+}
+</script>
+
+</body>
+</html>
