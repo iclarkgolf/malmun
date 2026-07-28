@@ -48,6 +48,24 @@
   .guide-text{ font-size:13px; color:var(--text-secondary); line-height:1.6; }
   .guide-text b{ color:var(--text); }
 
+  .perk-note{
+    background:var(--accent-soft); border:1px solid #F0D9A8; border-radius:12px;
+    padding:12px 14px; font-size:12px; color:var(--accent-text); line-height:1.6; margin-bottom:28px;
+  }
+
+  .photo-row{ display:flex; align-items:center; gap:12px; }
+  .photo-preview{
+    width:64px; height:64px; border-radius:50%; flex-shrink:0; background:#F3F1EA;
+    background-size:cover; background-position:center; border:1px solid var(--card-border);
+  }
+  .photo-upload-btn{
+    border:1px solid var(--card-border); background:#fff; color:var(--text-secondary);
+    font-size:12px; font-weight:600; padding:9px 14px; border-radius:10px; cursor:pointer;
+  }
+  .photo-upload-btn:hover{ border-color:var(--accent); color:var(--accent-text); }
+  .photo-status{ font-size:11px; color:var(--text-muted); margin-top:6px; }
+  .required-mark{ color:#D85A30; }
+
   .form-section{ margin-bottom:20px; }
   label{ display:block; font-size:13px; font-weight:600; color:var(--text); margin-bottom:8px; }
   .hint-small{ font-size:11px; color:var(--text-muted); margin:-4px 0 8px; }
@@ -99,6 +117,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
 <script>
 const firebaseConfig = {
   apiKey: "AIzaSyD10IdHCDkCybMrkO5fewo0ksYFBmqwWro",
@@ -111,12 +130,14 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
+const storage = firebase.storage();
 
 const DAY_OPTIONS = [
   { id:'mon', label:'월' }, { id:'tue', label:'화' }, { id:'wed', label:'수' },
   { id:'thu', label:'목' }, { id:'fri', label:'금' }, { id:'sat', label:'토' }, { id:'sun', label:'일' }
 ];
 let selectedDays = [];
+let photoURL = '';
 
 function guideHtml(){
   return `
@@ -128,6 +149,10 @@ function guideHtml(){
 
     <div class="guide-card">
       <p class="guide-title">지원 전 확인해주세요</p>
+      <div class="guide-item">
+        <div class="guide-check">✓</div>
+        <div class="guide-text">얼굴이 잘 보이는 <b>본인 사진이 필수</b>예요 — 학생들이 신뢰하고 선택할 수 있도록요.</div>
+      </div>
       <div class="guide-item">
         <div class="guide-check">✓</div>
         <div class="guide-text"><b>한국어 원어민이거나, 이에 준하는 유창한 실력</b>이 있어야 해요.</div>
@@ -145,6 +170,10 @@ function guideHtml(){
         <div class="guide-text">교재나 자격증은 <b>필수가 아니에요</b> — 외국인과 대화하며 한국어를 가르치는 것에 관심이 있으면 충분해요.</div>
       </div>
     </div>
+
+    <div class="perk-note">
+      💡 한국어교원 자격증 소지자나 관련 강의·통역 경력이 있으시면 <b>우대</b>해요. 없어도 지원엔 전혀 문제없어요.
+    </div>
   `;
 }
 
@@ -152,6 +181,17 @@ function formHtml(user, prefillName){
   return `
     ${guideHtml()}
     <form id="applyForm">
+      <div class="form-section">
+        <label>본인 사진 <span class="required-mark">*필수</span></label>
+        <div class="photo-row">
+          <div class="photo-preview" id="photoPreview"></div>
+          <div>
+            <button type="button" class="photo-upload-btn" id="photoBtn">사진 선택</button>
+            <input type="file" accept="image/*" id="photoFile" style="display:none;">
+            <p class="photo-status" id="photoStatus"></p>
+          </div>
+        </div>
+      </div>
       <div class="form-section">
         <label>이름</label>
         <input type="text" id="fName" value="${escapeAttr(prefillName)}" placeholder="말문에서 학생들에게 보여질 이름">
@@ -176,6 +216,11 @@ function formHtml(user, prefillName){
         <div class="chip-grid" id="dayChips">
           ${DAY_OPTIONS.map(d => `<button type="button" class="chip" data-day="${d.id}">${d.label}</button>`).join('')}
         </div>
+      </div>
+      <div class="form-section">
+        <label>자격증 · 경력 (있으시면 적어주세요, 우대돼요)</label>
+        <p class="hint-small">예: 한국어교원 2급, 학원 강사 3년, 외국인 대상 과외 경험 등</p>
+        <input type="text" id="fCredential" placeholder="없으면 비워두셔도 돼요">
       </div>
       <div class="form-section">
         <label>간단한 자기소개 / 지원 동기</label>
@@ -207,6 +252,31 @@ function escapeAttr(str){
   return div.innerHTML.replace(/"/g, '&quot;');
 }
 
+function wirePhotoUpload(user){
+  const btn = document.getElementById('photoBtn');
+  const fileInput = document.getElementById('photoFile');
+  btn.addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', async () => {
+    const file = fileInput.files[0];
+    if(!file) return;
+    const statusEl = document.getElementById('photoStatus');
+    statusEl.textContent = '업로드 중...';
+    try{
+      const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+      const path = `tutorApplications/${user.uid}_${Date.now()}.${ext}`;
+      const ref = storage.ref().child(path);
+      await ref.put(file);
+      photoURL = await ref.getDownloadURL();
+      document.getElementById('photoPreview').style.background = `url('${photoURL}') center/cover`;
+      statusEl.textContent = '업로드 완료';
+      checkFormValid();
+    }catch(err){
+      console.error('사진 업로드 실패:', err);
+      statusEl.textContent = '업로드 실패: ' + err.message;
+    }
+  });
+}
+
 function wireDayChips(){
   document.querySelectorAll('#dayChips .chip').forEach(chip => {
     chip.addEventListener('click', () => {
@@ -233,10 +303,12 @@ async function handleSubmit(e, user){
   try{
     await db.collection('tutorApplications').add({
       uid: user.uid,
+      photoURL: photoURL,
       name: document.getElementById('fName').value.trim(),
       email: document.getElementById('fEmail').value.trim(),
       kakaoId: document.getElementById('fKakao').value.trim(),
       nativeLevel: document.getElementById('fNative').value,
+      credential: document.getElementById('fCredential').value.trim(),
       availableDays: selectedDays,
       intro: document.getElementById('fIntro').value.trim(),
       status: 'pending',
@@ -256,7 +328,7 @@ function checkFormValid(){
   const name = document.getElementById('fName').value.trim();
   const email = document.getElementById('fEmail').value.trim();
   const intro = document.getElementById('fIntro').value.trim();
-  document.getElementById('submitBtn').disabled = !(name && email && intro);
+  document.getElementById('submitBtn').disabled = !(name && email && intro && photoURL);
 }
 
 auth.onAuthStateChanged(async (user) => {
@@ -286,6 +358,7 @@ auth.onAuthStateChanged(async (user) => {
   const prefillName = userDoc.malmunDisplayName || user.displayName || '';
   document.getElementById('content').innerHTML = formHtml(user, prefillName);
   wireDayChips();
+  wirePhotoUpload(user);
   ['fName','fEmail','fIntro'].forEach(id => {
     document.getElementById(id).addEventListener('input', checkFormValid);
   });
