@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Disallow: /admin.html
+Disallow: /tutor-admin.html
+Disallow: /mypage.html
+Disallow: /booking.html
+Disallow: /classroom.html
+Disallow: /jitsi-demo.html
+Disallow: /login.html
+Disallow: /level-result.html
+
+Sitemap: https://malmunkorean.com/sitemap.xml
