@@ -243,6 +243,8 @@ function afterLogin(){
   if(next === 'booking'){
     const tutor = params.get('tutor');
     location.href = tutor ? ('booking.html?tutor=' + tutor) : 'booking.html';
+  } else if(next === 'tutor-apply'){
+    location.href = 'tutor-apply.html';
   } else {
     location.href = 'mypage.html';
   }

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>튜터 지원서 관리 | 말문 Admin</title>
+<style>
+  :root{
+    --bg: #FFF9F0;
+    --card: #FFFFFF;
+    --card-border: #E8E4D8;
+    --text: #2C2C2A;
+    --text-secondary: #5F5E5A;
+    --text-muted: #8A8880;
+    --accent: #EF9F27;
+    --accent-text: #412402;
+    --accent-soft: #FFF3E0;
+    --danger: #D85A30;
+    --success: #3FA34D;
+  }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{ color:inherit; text-decoration:none; }
+  .wrap{ max-width:720px; margin:0 auto; padding:24px 20px 60px; }
+  h1{ font-size:18px; margin:0 0 4px; }
+  .sub{ font-size:13px; color:var(--text-muted); margin:0 0 24px; }
+
+  #gate{ max-width:320px; margin:80px auto; text-align:center; }
+  #gate input{
+    width:100%; padding:12px; border:1px solid var(--card-border); border-radius:10px;
+    font-size:14px; margin-bottom:10px; box-sizing:border-box;
+  }
+  #gate button{
+    width:100%; padding:12px; border:none; border-radius:10px; background:var(--accent);
+    color:var(--accent-text); font-weight:600; font-size:14px; cursor:pointer;
+  }
+  #gateError{ color:var(--danger); font-size:12px; margin-top:8px; display:none; }
+
+  #app{ display:none; }
+
+  .filter-row{ display:flex; gap:8px; margin-bottom:18px; flex-wrap:wrap; }
+  .filter-btn{
+    border:1px solid var(--card-border); background:#fff; color:var(--text-secondary);
+    font-size:13px; padding:8px 14px; border-radius:20px; cursor:pointer; font-weight:600;
+  }
+  .filter-btn.active{ background:var(--accent); color:var(--accent-text); border-color:var(--accent); }
+
+  .app-card{
+    background:var(--card); border:1px solid var(--card-border); border-radius:16px;
+    padding:18px; margin-bottom:14px;
+  }
+  .app-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:10px; }
+  .app-name{ font-size:15px; font-weight:700; margin:0 0 3px; }
+  .app-meta{ font-size:12px; color:var(--text-muted); margin:0; }
+  .status-badge{ font-size:11px; font-weight:700; padding:4px 10px; border-radius:20px; white-space:nowrap; flex-shrink:0; }
+  .status-badge.pending{ background:var(--accent-soft); color:var(--accent-text); }
+  .status-badge.approved{ background:#E4F4E7; color:var(--success); }
+  .status-badge.rejected{ background:#FBE7E1; color:var(--danger); }
+
+  .app-row{ font-size:13px; color:var(--text-secondary); margin-bottom:6px; line-height:1.6; }
+  .app-row b{ color:var(--text); font-weight:600; }
+  .app-intro{
+    font-size:13px; color:var(--text-secondary); line-height:1.7; background:#FBF8F0;
+    border-radius:10px; padding:12px 14px; margin:10px 0;
+  }
+  .day-tags{ display:flex; gap:5px; flex-wrap:wrap; margin:6px 0; }
+  .day-tag{ font-size:11px; font-weight:700; background:#F3F1EA; color:var(--text-secondary); padding:3px 8px; border-radius:6px; }
+
+  .action-row{ display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
+  .action-btn{
+    flex:1; min-width:100px; padding:9px 12px; border:1px solid var(--card-border); border-radius:10px;
+    background:#fff; color:var(--text-secondary); font-size:12px; font-weight:700; cursor:pointer;
+  }
+  .action-btn.approve{ border-color:var(--success); color:var(--success); }
+  .action-btn.reject{ border-color:var(--danger); color:var(--danger); }
+  .action-btn.reset{ color:var(--text-muted); }
+  .action-btn:hover{ opacity:0.8; }
+
+  .empty{ text-align:center; color:var(--text-muted); font-size:13px; padding:60px 0; }
+  .loading{ text-align:center; color:var(--text-muted); font-size:13px; padding:60px 0; }
+</style>
+</head>
+<body>
+
+<div id="gate">
+  <h1 style="text-align:center;">튜터 지원서 admin</h1>
+  <input type="password" id="pwInput" placeholder="비밀번호">
+  <button id="pwBtn">입장</button>
+  <p id="gateError">비밀번호가 틀렸습니다</p>
+</div>
+
+<div id="app">
+  <div class="wrap">
+    <p style="margin:0 0 10px;"><a href="admin.html" style="font-size:12px; color:var(--text-muted);">← 관리자 홈</a></p>
+    <h1>튜터 지원서 관리</h1>
+    <p class="sub">지원서를 확인하고 승인/반려 표시를 해두세요. 승인한 분은 tutor-admin.html에서 직접 튜터 카드를 만들어주면 돼요.</p>
+
+    <div class="filter-row">
+      <button class="filter-btn active" data-filter="pending">검토 대기</button>
+      <button class="filter-btn" data-filter="all">전체 보기</button>
+    </div>
+
+    <div id="list"><p class="loading">불러오는 중...</p></div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyD10IdHCDkCybMrkO5fewo0ksYFBmqwWro",
+  authDomain: "malmun-bca03.firebaseapp.com",
+  projectId: "malmun-bca03",
+  storageBucket: "malmun-bca03.firebasestorage.app",
+  messagingSenderId: "831462084669",
+  appId: "1:831462084669:web:003a844918b165d5b65a54"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+const ADMIN_PW = "admin0115";
+const DAY_LABEL = { mon:'월', tue:'화', wed:'수', thu:'목', fri:'금', sat:'토', sun:'일' };
+const NATIVE_LABEL = { native:'원어민', fluent:'원어민 수준' };
+
+document.getElementById('pwBtn').addEventListener('click', tryUnlock);
+document.getElementById('pwInput').addEventListener('keydown', e => { if(e.key === 'Enter') tryUnlock(); });
+
+function tryUnlock(){
+  const val = document.getElementById('pwInput').value;
+  if(val === ADMIN_PW){
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    sessionStorage.setItem('malmun_admin_ok', '1');
+    loadApps();
+  }else{
+    document.getElementById('gateError').style.display = 'block';
+  }
+}
+
+if(sessionStorage.getItem('malmun_admin_ok') === '1'){
+  document.getElementById('gate').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  loadApps();
+}
+
+let allApps = [];
+let currentFilter = 'pending';
+
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentFilter = btn.dataset.filter;
+    render();
+  });
+});
+
+async function loadApps(){
+  try{
+    const snap = await db.collection('tutorApplications').orderBy('createdAt', 'desc').limit(100).get();
+    allApps = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    render();
+  }catch(err){
+    console.error('지원서 목록 불러오기 실패:', err);
+    document.getElementById('list').innerHTML = `<p class="empty">지원서를 불러오지 못했어요.<br>${err.message}</p>`;
+  }
+}
+
+async function setStatus(id, status){
+  try{
+    await db.collection('tutorApplications').doc(id).update({ status });
+    const item = allApps.find(a => a.id === id);
+    if(item) item.status = status;
+    render();
+  }catch(err){
+    alert('상태 변경 실패: ' + err.message);
+  }
+}
+
+function render(){
+  const list = document.getElementById('list');
+  let items = allApps;
+  if(currentFilter === 'pending'){
+    items = items.filter(a => (a.status || 'pending') === 'pending');
+  }
+  if(items.length === 0){
+    list.innerHTML = `<p class="empty">${currentFilter === 'pending' ? '검토 대기 중인 지원서가 없어요.' : '아직 지원서가 없어요.'}</p>`;
+    return;
+  }
+  list.innerHTML = items.map(a => {
+    const status = a.status || 'pending';
+    const statusLabel = { pending:'검토 대기', approved:'승인됨', rejected:'반려됨' }[status];
+    const days = (a.availableDays || []).map(d => `<span class="day-tag">${DAY_LABEL[d] || d}</span>`).join('');
+    return `
+      <div class="app-card">
+        <div class="app-top">
+          <div>
+            <p class="app-name">${escapeHtml(a.name || '이름 없음')}</p>
+            <p class="app-meta">${NATIVE_LABEL[a.nativeLevel] || ''}</p>
+          </div>
+          <span class="status-badge ${status}">${statusLabel}</span>
+        </div>
+        <div class="app-row"><b>이메일</b> ${escapeHtml(a.email || '-')}</div>
+        ${a.kakaoId ? `<div class="app-row"><b>카카오톡</b> ${escapeHtml(a.kakaoId)}</div>` : ''}
+        ${days ? `<div class="day-tags">${days}</div>` : ''}
+        ${a.intro ? `<div class="app-intro">${escapeHtml(a.intro)}</div>` : ''}
+        <div class="action-row">
+          ${status !== 'approved' ? `<button class="action-btn approve" onclick="setStatus('${a.id}','approved')">✓ 승인</button>` : ''}
+          ${status !== 'rejected' ? `<button class="action-btn reject" onclick="setStatus('${a.id}','rejected')">✕ 반려</button>` : ''}
+          ${status !== 'pending' ? `<button class="action-btn reset" onclick="setStatus('${a.id}','pending')">되돌리기</button>` : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str == null ? '' : String(str);
+  return div.innerHTML;
+}
+</script>
+
+</body>
+</html>
