@@ -102,7 +102,7 @@
   <div class="wrap">
     <p style="margin:0 0 10px;"><a href="admin.html" style="font-size:12px; color:var(--text-muted);">← 관리자 홈</a></p>
     <h1>튜터 지원서 관리</h1>
-    <p class="sub">지원서를 확인하고 승인/반려 표시를 해두세요. 승인한 분은 tutor-admin.html에서 직접 튜터 카드를 만들어주면 돼요.</p>
+    <p class="sub">지원서를 확인하고 "승인" 누르면 튜터 카드가 자동으로 만들어져요. 시급이나 가능 시간은 나중에 tutor-admin.html에서 조정하면 됩니다.</p>
 
     <div class="filter-row">
       <button class="filter-btn active" data-filter="pending">검토 대기</button>
@@ -175,11 +175,70 @@ async function loadApps(){
   }
 }
 
+const DAY_IDS = ['mon','tue','wed','thu','fri','sat','sun'];
+const AVATAR_COLORS = ['#3b5f8f','#c07a3f','#4f7d5c','#8a5a8f','#3f8a94','#a4593e'];
+
+function emptyAvailability(){
+  const a = {};
+  DAY_IDS.forEach(d => a[d] = []);
+  return a;
+}
+
+// 지원서 정보로 실제 튜터 카드 데이터를 만듦 (tutor-admin.html과 동일한 스키마)
+async function buildTutorDataFromApp(a){
+  const countSnap = await db.collection('tutors').get();
+  const order = countSnap.size;
+  const color = AVATAR_COLORS[order % AVATAR_COLORS.length];
+
+  const availability = emptyAvailability();
+  (a.availableDays || []).forEach(d => {
+    if(availability[d] !== undefined) availability[d] = ['19:00','21:00']; // 기본 시간대, 나중에 tutor-admin.html에서 조정 가능
+  });
+
+  const tags = [
+    NATIVE_LABEL[a.nativeLevel] || '',
+    a.credential ? a.credential : '',
+    '왕초보 환영'
+  ].filter(Boolean).slice(0, 3);
+  while(tags.length < 3) tags.push('');
+
+  return {
+    order: order,
+    avatarColor: color,
+    avatarImage: a.photoURL || '',
+    price: 25000,
+    ko: {
+      name: a.name || '',
+      role: a.credential || '한국어 튜터',
+      intro: a.intro || '',
+      tags: tags,
+      rating: '5.0', reviewCount: '0', lessonCount: '0',
+      reviewAuthor: '', reviewLoc: '', reviewBody: ''
+    },
+    en: {
+      name: '', role: '', intro: '', tags: ['', '', ''],
+      rating: '5.0', reviewCount: '0', lessonCount: '0',
+      reviewAuthor: '', reviewLoc: '', reviewBody: ''
+    },
+    availability: availability,
+    bookedSlots: emptyAvailability()
+  };
+}
+
 async function setStatus(id, status){
   try{
-    await db.collection('tutorApplications').doc(id).update({ status });
     const item = allApps.find(a => a.id === id);
-    if(item) item.status = status;
+    const updates = { status };
+
+    // 승인 + 아직 튜터 카드가 없으면 자동으로 tutors 컬렉션에 카드 생성
+    if(status === 'approved' && item && !item.tutorId){
+      const tutorData = await buildTutorDataFromApp(item);
+      const ref = await db.collection('tutors').add(tutorData);
+      updates.tutorId = ref.id;
+    }
+
+    await db.collection('tutorApplications').doc(id).update(updates);
+    if(item) Object.assign(item, updates);
     render();
   }catch(err){
     alert('상태 변경 실패: ' + err.message);
@@ -217,8 +276,9 @@ function render(){
         ${a.credential ? `<div class="app-row"><b>자격증·경력</b> ${escapeHtml(a.credential)}</div>` : ''}
         ${days ? `<div class="day-tags">${days}</div>` : ''}
         ${a.intro ? `<div class="app-intro">${escapeHtml(a.intro)}</div>` : ''}
+        ${a.tutorId ? `<div class="app-row" style="color:#3FA34D;font-weight:700;">✓ 튜터 카드 자동 생성됨 — <a href="tutor-admin.html" style="text-decoration:underline;">tutor-admin.html에서 시급·시간 조정하기</a></div>` : ''}
         <div class="action-row">
-          ${status !== 'approved' ? `<button class="action-btn approve" onclick="setStatus('${a.id}','approved')">✓ 승인</button>` : ''}
+          ${status !== 'approved' ? `<button class="action-btn approve" onclick="setStatus('${a.id}','approved')">✓ 승인 (튜터 카드 자동 생성)</button>` : ''}
           ${status !== 'rejected' ? `<button class="action-btn reject" onclick="setStatus('${a.id}','rejected')">✕ 반려</button>` : ''}
           ${status !== 'pending' ? `<button class="action-btn reset" onclick="setStatus('${a.id}','pending')">되돌리기</button>` : ''}
         </div>
