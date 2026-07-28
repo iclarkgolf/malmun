@@ -387,6 +387,26 @@ async function handleConfirm(){
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
 
+    // 튜터가 예약 목록을 확인할 수 있도록 최상위 bookings 컬렉션에도 동일하게 기록
+    try{
+      await db.collection('bookings').add({
+        tutorId: currentTutorId,
+        tutorName: tutorName,
+        studentUid: user.uid,
+        studentName: user.displayName || (user.email ? user.email.split('@')[0] : '학생'),
+        studentEmail: user.email || '',
+        day: selectedDay,
+        dayLabel: dayLabel,
+        time: selectedTime,
+        price: currentFinalPrice,
+        isFreeOrientation: isFirstLesson,
+        roomId: roomId,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    }catch(bookingListErr){
+      console.error('튜터용 예약 목록 저장 실패 (학생 예약 자체는 완료됨):', bookingListErr);
+    }
+
     // 해당 요일·시간을 다른 학생이 다시 예약하지 못하도록 잠금 처리
     try{
       await db.collection('tutors').doc(currentTutorId).update({
