@@ -61,8 +61,21 @@
     background:none; border:none; color:var(--text-secondary);
     width:32px; height:32px; border-radius:50%;
     display:flex; align-items:center; justify-content:center;
-    cursor:pointer; flex-shrink:0;
+    cursor:pointer; flex-shrink:0; position:relative;
   }
+  .site-menu{
+    position:absolute; top:56px; right:20px; z-index:30;
+    background:var(--card); border:1px solid var(--card-border); border-radius:14px;
+    box-shadow:0 8px 24px rgba(44,44,42,0.12); min-width:180px; padding:8px;
+    display:none;
+  }
+  .site-menu.open{ display:block; }
+  .site-menu a{
+    display:block; padding:10px 12px; border-radius:8px;
+    font-size:14px; color:var(--text); font-weight:500;
+  }
+  .site-menu a:hover{ background:var(--accent-soft); }
+  .site-menu .divider{ height:1px; background:var(--card-border); margin:6px 4px; }
 
   .hero-page{
     scroll-snap-align:start; scroll-margin-top:70px;
@@ -291,8 +304,17 @@
     <button id="langToggle" aria-label="언어 전환">
       <span class="cur" id="langCur">한국어</span> / <span id="langOther">EN</span>
     </button>
-    <button class="menu-btn" aria-label="메뉴 열기">
+    <button class="menu-btn" id="siteMenuBtn" aria-label="메뉴 열기" onclick="toggleSiteMenu(event)">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      <div class="site-menu" id="siteMenu">
+        <a href="index.html" data-i18n="nav.home">홈</a>
+        <a href="tutors.html" data-i18n="nav.tutors">튜터</a>
+        <a href="curriculum.html" data-i18n="nav.curriculum">커리큘럼</a>
+        <a href="blog.html" data-i18n="nav.community">커뮤니티</a>
+        <a href="pricing.html" data-i18n="mypage.pricing">요금제·패키지</a>
+        <div class="divider"></div>
+        <a href="mypage.html" data-i18n="nav.mypage">마이페이지</a>
+      </div>
     </button>
   </div>
 </header>
@@ -538,7 +560,7 @@ const TRANSLATIONS = {
     "brand.title": "왜 \"말문\"일까요?",
     "brand.body": "말은 입을 통해 나오고, 입은 곧 우리 안의 \"문\"입니다. 말문은 그 문이 열리는 순간 — 처음으로 한국어가 자연스럽게 흘러나오는 순간을 뜻합니다.",
     "nav.home": "홈", "nav.tutors": "튜터", "nav.curriculum": "커리큘럼",
-    "nav.community": "커뮤니티", "nav.mypage": "마이페이지"
+    "nav.community": "커뮤니티", "nav.mypage": "마이페이지", "mypage.pricing": "요금제·패키지"
   },
   en: {
     "hero.eyebrow": "1:1 Korean tutor matching",
@@ -601,7 +623,7 @@ const TRANSLATIONS = {
     "brand.title": "Why \"Malmun\"?",
     "brand.body": "Words come out through the mouth, and the mouth is the \"door\" (mun) within us. Malmun is the moment that door opens — the moment Korean first starts to flow naturally.",
     "nav.home": "Home", "nav.tutors": "Tutors", "nav.curriculum": "Curriculum",
-    "nav.community": "Community", "nav.mypage": "My page"
+    "nav.community": "Community", "nav.mypage": "My page", "mypage.pricing": "Pricing & packages"
   }
 };
 
@@ -638,11 +660,18 @@ function selectPurpose(e, key){
   document.getElementById('purposeDropdown').classList.remove('open');
   document.getElementById('purposeMenu').classList.remove('open');
 }
+// ── 헤더 햄버거 메뉴: 실제 클릭으로 열리고 닫히는 사이트 내비게이션 ──
+function toggleSiteMenu(e){
+  e.stopPropagation();
+  document.getElementById('siteMenu').classList.toggle('open');
+}
 document.addEventListener('click', () => {
   const dd = document.getElementById('purposeDropdown');
   const menu = document.getElementById('purposeMenu');
   if(dd) dd.classList.remove('open');
   if(menu) menu.classList.remove('open');
+  const siteMenu = document.getElementById('siteMenu');
+  if(siteMenu) siteMenu.classList.remove('open');
 });
 function purposeSlug(){
   const key = localStorage.getItem('malmun_purpose') || 'hero.purpose.biz';
