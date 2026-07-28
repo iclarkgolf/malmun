@@ -341,15 +341,20 @@ async function handleConfirm(){
   const enC = tutorData.en || {};
   const tutorName = (currentLang === 'en' && enC.name) ? enC.name : koC.name;
 
+  // 이 예약 하나에만 쓰이는 고유 화상룸 ID (튜터+요일+시간+타임스탬프 조합으로 절대 겹치지 않게 생성)
+  const roomId = `${currentTutorId}-${selectedDay}${selectedTime.replace(':','')}-${Date.now().toString(36)}`;
+
   try{
     await db.collection('users').doc(user.uid).collection('history').add({
       type: 'booking',
       text: currentLang === 'ko' ? `${tutorName} 튜터 예약 완료` : `Booked a lesson with ${tutorName}`,
       sub: `${dayLabel} ${selectedTime}`,
       tutorId: currentTutorId,
+      tutorName: tutorName,
       day: selectedDay,
       time: selectedTime,
       price: tutorData.price,
+      roomId: roomId,
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
 

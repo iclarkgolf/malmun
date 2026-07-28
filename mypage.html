@@ -102,7 +102,7 @@
     </div>
   </div>
 
-  <button class="next-lesson" id="nextLessonCard" style="display:none;" onclick="alert('예약된 수업 상세/입장 화면으로 이동합니다.')">
+  <button class="next-lesson" id="nextLessonCard" style="display:none;">
     <p class="tag" data-i18n="mypage.nextLesson">다음 수업</p>
     <div class="row">
       <div>
@@ -244,8 +244,22 @@ async function loadHistory(uid){
       const latest = bookings[0];
       document.getElementById('nextLessonName').textContent = latest.text || '예약된 수업';
       document.getElementById('nextLessonTime').textContent = latest.sub || '';
-      document.getElementById('nextLessonCard').style.display = 'block';
+      const nextCard = document.getElementById('nextLessonCard');
+      nextCard.style.display = 'block';
       document.getElementById('noLessonCard').style.display = 'none';
+      if(latest.roomId){
+        nextCard.onclick = () => {
+          const params = new URLSearchParams({
+            room: latest.roomId,
+            tutor: latest.tutorName || '',
+            time: latest.sub || ''
+          });
+          location.href = 'classroom.html?' + params.toString();
+        };
+      }else{
+        // 예전 예약 기록(roomId 없음)은 안내만 표시
+        nextCard.onclick = () => alert('이 예약은 이전 방식이라 화상룸 정보가 없어요. 튜터에게 별도로 문의해주세요.');
+      }
     }else{
       document.getElementById('nextLessonCard').style.display = 'none';
       document.getElementById('noLessonCard').style.display = 'block';
