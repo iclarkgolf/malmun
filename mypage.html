@@ -122,6 +122,26 @@
     </div>
   </button>
 
+  <button class="next-lesson" id="creditCard" onclick="location.href='pricing.html'" style="display:none;">
+    <p class="tag" data-i18n="mypage.creditTag">보유 크레딧</p>
+    <div class="row">
+      <div>
+        <p class="lesson-name" id="creditNum"></p>
+        <p class="lesson-time" id="creditExpiry"></p>
+      </div>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e0993a" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+    </div>
+  </button>
+  <button class="next-lesson" id="noCreditCard" onclick="location.href='pricing.html'">
+    <p class="tag" data-i18n="mypage.creditTag">보유 크레딧</p>
+    <div class="row">
+      <div>
+        <p class="lesson-name" data-i18n="mypage.noCredit">크레딧이 없어요</p>
+        <p class="lesson-time" data-i18n="mypage.noCreditSub">충전하러 가기 →</p>
+      </div>
+    </div>
+  </button>
+
   <p style="font-size:12px;color:var(--text-muted);margin:0 0 10px;" data-i18n="mypage.monthly">이번 달 학습 현황</p>
   <div class="stats">
     <div class="stat-card"><p class="num" id="statLessonCount">0</p><p class="label" data-i18n="mypage.completed">예약한 수업</p></div>
@@ -295,7 +315,47 @@ auth.onAuthStateChanged((user) => {
   }
   loadDisplayName(user);
   loadHistory(user.uid);
+  loadCreditBalance(user.uid);
 });
+
+function fmtCreditDate(d){
+  return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+}
+
+async function loadCreditBalance(uid){
+  try{
+    const snap = await db.collection('users').doc(uid).collection('creditLots').get();
+    const now = new Date();
+    let total = 0;
+    let nearestExpiry = null;
+    snap.forEach(doc => {
+      const d = doc.data();
+      const expiresAt = d.expiresAt && d.expiresAt.toDate ? d.expiresAt.toDate() : null;
+      const remaining = d.remainingSessions || 0;
+      if(remaining > 0 && (!expiresAt || expiresAt > now)){
+        total += remaining;
+        if(expiresAt && (!nearestExpiry || expiresAt < nearestExpiry)) nearestExpiry = expiresAt;
+      }
+    });
+    const lang = localStorage.getItem('malmun_lang') || 'ko';
+    const creditCard = document.getElementById('creditCard');
+    const noCreditCard = document.getElementById('noCreditCard');
+    if(total > 0){
+      creditCard.style.display = 'block';
+      noCreditCard.style.display = 'none';
+      document.getElementById('creditNum').textContent = (lang === 'ko' ? `${total}회 남음` : `${total} lessons left`);
+      if(nearestExpiry){
+        document.getElementById('creditExpiry').textContent =
+          (lang === 'ko' ? `${fmtCreditDate(nearestExpiry)}까지` : `Valid until ${fmtCreditDate(nearestExpiry)}`);
+      }
+    }else{
+      creditCard.style.display = 'none';
+      noCreditCard.style.display = 'block';
+    }
+  }catch(err){
+    console.error('크레딧 잔액 조회 실패:', err);
+  }
+}
 
 async function loadDisplayName(user){
   const fallback = user.displayName || (user.email ? user.email.split('@')[0] : '학습자');
@@ -340,6 +400,9 @@ const TRANSLATIONS = {
     "mypage.nextLesson": "다음 수업",
     "mypage.noLesson": "예약된 수업이 없어요",
     "mypage.noLessonSub": "튜터 보러가기 →",
+    "mypage.creditTag": "보유 크레딧",
+    "mypage.noCredit": "크레딧이 없어요",
+    "mypage.noCreditSub": "충전하러 가기 →",
     "mypage.monthly": "이번 달 학습 현황",
     "mypage.completed": "예약한 수업",
     "mypage.history": "수업 내역",
@@ -356,6 +419,9 @@ const TRANSLATIONS = {
     "mypage.nextLesson": "Next lesson",
     "mypage.noLesson": "No upcoming lesson",
     "mypage.noLessonSub": "Browse tutors →",
+    "mypage.creditTag": "Your credits",
+    "mypage.noCredit": "No credits yet",
+    "mypage.noCreditSub": "Get credits →",
     "mypage.monthly": "This month's progress",
     "mypage.completed": "Lessons booked",
     "mypage.history": "Lesson history",
