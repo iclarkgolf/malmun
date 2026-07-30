@@ -59,6 +59,16 @@
   .price-card .selected-check{ display:none; position:absolute; top:14px; right:14px; width:22px; height:22px; border-radius:50%; background:var(--accent); color:#fff; align-items:center; justify-content:center; font-size:13px; font-weight:700; }
   .price-card.selected .selected-check{ display:flex; }
   .badge{ position:absolute; top:-10px; left:16px; background:var(--accent); color:var(--accent-text); font-size:11px; font-weight:600; padding:3px 10px; border-radius:8px; }
+
+  .card-hint{
+    display:inline-flex; align-items:center; gap:4px;
+    background:var(--text); color:#FFF9F0; font-size:12px; font-weight:600;
+    padding:7px 12px; border-radius:14px; margin:0 0 8px 4px; position:relative;
+  }
+  .card-hint::after{
+    content:''; position:absolute; bottom:-5px; left:18px;
+    width:10px; height:10px; background:var(--text); transform:rotate(45deg);
+  }
   .price-card .name{ font-size:14px; font-weight:700; margin:8px 0 4px; }
   .price-card .sub{ font-size:12px; color:var(--text-muted); margin:0 0 10px; }
   .price-card .amount{ font-size:19px; font-weight:700; }
@@ -116,6 +126,7 @@
     <p class="expiry" id="balanceExpiry"></p>
   </div>
 
+  <p class="card-hint" data-i18n="pricing.hint">💬 가볍게 시작해볼까?</p>
   <div class="cards">
     <button class="price-card" onclick="openPurchaseModal('5', event)">
       <span class="selected-check">✓</span>
@@ -186,6 +197,7 @@ const TRANSLATIONS = {
   ko: {
     "pricing.h.title": "요금제·패키지",
     "pricing.h.sub": "묶어서 충전하면 회당 가격이 낮아져요",
+    "pricing.hint": "💬 가볍게 시작해볼까?",
     "pricing.balance.label": "보유 크레딧",
     "pricing.balance.unit": "회",
     "pricing.pack5.name": "5회권",
@@ -209,6 +221,7 @@ const TRANSLATIONS = {
   en: {
     "pricing.h.title": "Pricing & packages",
     "pricing.h.sub": "Bundle up for a lower rate per lesson",
+    "pricing.hint": "💬 Wanna just try it out?",
     "pricing.balance.label": "Your credits",
     "pricing.balance.unit": "",
     "pricing.pack5.name": "5-lesson pack",
@@ -362,6 +375,8 @@ async function loadBalance(){
     });
     if(total > 0){
       document.getElementById('balanceCard').style.display = 'block';
+      const hintEl = document.querySelector('.card-hint');
+      if(hintEl) hintEl.style.display = 'none';
       document.getElementById('balanceNum').textContent = total;
       if(nearestExpiry){
         document.getElementById('balanceExpiry').textContent =
