@@ -126,7 +126,7 @@
     <p class="expiry" id="balanceExpiry"></p>
   </div>
 
-  <p class="card-hint" data-i18n="pricing.hint">💬 가볍게 시작해볼까?</p>
+  <p class="card-hint" id="cardHintNew" data-i18n="pricing.hint.new">💬 가볍게 시작해볼까?</p>
   <div class="cards">
     <button class="price-card" onclick="openPurchaseModal('5', event)">
       <span class="selected-check">✓</span>
@@ -135,6 +135,7 @@
       <p class="amount">₩150,000<span class="unit" data-i18n="pricing.pack5.unit"> · 회당 ₩30,000</span></p>
     </button>
 
+    <p class="card-hint" id="cardHintRefill" data-i18n="pricing.hint.refill" style="display:none; margin-top:2px;">💬 다시 채워볼까?</p>
     <button class="price-card featured" onclick="openPurchaseModal('10', event)">
       <div class="badge" data-i18n="pricing.popular">가장 많이 선택</div>
       <span class="selected-check">✓</span>
@@ -197,7 +198,8 @@ const TRANSLATIONS = {
   ko: {
     "pricing.h.title": "요금제·패키지",
     "pricing.h.sub": "묶어서 충전하면 회당 가격이 낮아져요",
-    "pricing.hint": "💬 가볍게 시작해볼까?",
+    "pricing.hint.new": "💬 가볍게 시작해볼까?",
+    "pricing.hint.refill": "💬 다시 채워볼까?",
     "pricing.balance.label": "보유 크레딧",
     "pricing.balance.unit": "회",
     "pricing.pack5.name": "5회권",
@@ -221,7 +223,8 @@ const TRANSLATIONS = {
   en: {
     "pricing.h.title": "Pricing & packages",
     "pricing.h.sub": "Bundle up for a lower rate per lesson",
-    "pricing.hint": "💬 Wanna just try it out?",
+    "pricing.hint.new": "💬 Wanna give it a shot?",
+    "pricing.hint.refill": "💬 Ready for a refill?",
     "pricing.balance.label": "Your credits",
     "pricing.balance.unit": "",
     "pricing.pack5.name": "5-lesson pack",
@@ -373,10 +376,21 @@ async function loadBalance(){
         if(expiresAt && (!nearestExpiry || expiresAt < nearestExpiry)) nearestExpiry = expiresAt;
       }
     });
+    const hintNewEl = document.getElementById('cardHintNew');
+    const hintRefillEl = document.getElementById('cardHintRefill');
+    if(total > 0){
+      // 현재 크레딧 보유 중 → 힌트 둘 다 숨김
+      if(hintNewEl) hintNewEl.style.display = 'none';
+      if(hintRefillEl) hintRefillEl.style.display = 'none';
+    }else if(!snap.empty){
+      // 예전에 구매한 적 있지만 지금은 0회 → "다시 채워볼까?"
+      if(hintNewEl) hintNewEl.style.display = 'none';
+      if(hintRefillEl) hintRefillEl.style.display = 'inline-flex';
+    }
+    // snap.empty (한 번도 구매한 적 없음) → 기본값인 "가볍게 시작해볼까?" 그대로 유지
+
     if(total > 0){
       document.getElementById('balanceCard').style.display = 'block';
-      const hintEl = document.querySelector('.card-hint');
-      if(hintEl) hintEl.style.display = 'none';
       document.getElementById('balanceNum').textContent = total;
       if(nearestExpiry){
         document.getElementById('balanceExpiry').textContent =
