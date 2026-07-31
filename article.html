@@ -3,70 +3,112 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>외국인 전문직들이 한국을 선택하는 이유 | 말문</title>
+<title>말문 커뮤니티 | 말문 Malmun</title>
 <style>
   :root{
-    --bg: #0f1115;
-    --text: #f5f4f0;
-    --text-secondary: #c2c0b6;
-    --text-muted: #7a7871;
-    --accent: #e0993a;
-    --accent-text: #1a1206;
+    --bg:#FFF9F0; --card:#FFFFFF; --card-border:#E8E4D8;
+    --text:#2C2C2A; --text-secondary:#5F5E5A; --text-muted:#8A8880;
+    --accent:#EF9F27; --accent-text:#412402; --accent-soft:#FFF3E0; --coral:#D85A30;
   }
   *{ box-sizing:border-box; }
-  body{
-    margin:0; background:var(--bg); color:var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", sans-serif;
-    -webkit-font-smoothing:antialiased;
-    min-height:100vh; display:flex; flex-direction:column;
-  }
+  body{ margin:0; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Noto Sans KR",sans-serif; -webkit-font-smoothing:antialiased; padding-bottom:76px; }
   a{ color:inherit; text-decoration:none; }
-  .wrap{ max-width:480px; margin:0 auto; width:100%; padding:0 20px; flex:1; display:flex; flex-direction:column; }
+  .wrap{ max-width:600px; margin:0 auto; padding:0 20px 32px; }
 
-  .topbar{ padding:24px 0 16px; }
+  .topbar{ display:flex; align-items:center; padding:20px 0; }
   .topbar button{ background:none; border:none; color:var(--text-secondary); cursor:pointer; padding:0; display:flex; }
 
-  .hero-image{ margin:0 0 20px; height:160px; border-radius:14px; background:linear-gradient(135deg,#2a2f38,#1a1d24); }
+  .post-category{ display:inline-block; background:var(--accent-soft); color:var(--coral); font-size:11px; font-weight:700; padding:4px 10px; border-radius:10px; margin-bottom:10px; }
+  .post-title{ font-size:22px; font-weight:700; line-height:1.4; margin:0 0 10px; }
+  .post-meta{ font-size:12px; color:var(--text-muted); margin-bottom:18px; }
 
-  .tag{ font-size:11px; color:var(--accent); margin:0 0 8px; }
-  .title{ font-size:18px; font-weight:600; line-height:1.4; margin:0 0 10px; }
-  .meta{ font-size:12px; color:var(--text-muted); margin:0 0 20px; }
+  .post-thumb{ width:100%; border-radius:14px; overflow:hidden; margin-bottom:20px; background:var(--accent-soft); min-height:100px; }
+  .post-thumb img{ width:100%; display:block; }
 
-  .body-text{ flex:1; }
-  .body-text p{ font-size:14px; color:var(--text-secondary); line-height:1.75; margin:0 0 16px; }
+  .post-body{ font-size:15px; line-height:1.9; color:var(--text); }
+  .post-body p{ margin:0 0 18px; }
 
-  .bottom{ padding:16px 0 32px; }
-  .btn-primary{
-    display:block; width:100%; text-align:center; padding:15px; border-radius:12px;
-    font-size:15px; font-weight:600; cursor:pointer; border:none;
-    background:var(--accent); color:var(--accent-text);
-  }
+  .cta-box{ background:var(--coral); border-radius:16px; padding:28px 24px; text-align:center; margin-top:24px; }
+  .cta-box p{ color:#FFF3EC; font-size:14px; margin:0 0 16px; }
+  .cta-box a{ display:inline-block; background:var(--accent); color:var(--accent-text); font-weight:700; font-size:14px; padding:13px 28px; border-radius:50px; }
+
+  .loading, .error{ text-align:center; padding:80px 20px; color:var(--text-muted); font-size:14px; }
+
+  .bottom-nav{ position:fixed; bottom:0; left:0; right:0; z-index:20; background:rgba(255,255,255,0.92); backdrop-filter:blur(10px); border-top:1px solid var(--card-border); display:flex; padding:8px 8px calc(8px + env(safe-area-inset-bottom)); max-width:600px; margin:0 auto; }
+  .nav-item{ flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; padding:6px 0; color:var(--text-muted); background:none; border:none; cursor:pointer; }
+  .nav-item.active{ color:var(--accent); }
+  .nav-item span{ font-size:11px; }
 </style>
 </head>
 <body>
 
 <div class="wrap">
   <div class="topbar">
-    <button onclick="location.href='blog.html'" aria-label="뒤로가기">
+    <button onclick="location.href='blog.html'" aria-label="목록으로">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
     </button>
   </div>
 
-  <div class="hero-image"></div>
-
-  <p class="tag">한국 이주 이야기</p>
-  <p class="title">외국인 전문직들이 한국을 선택하는 이유</p>
-  <p class="meta">읽는 시간 4분</p>
-
-  <div class="body-text">
-    <p>최근 조사에 따르면 해외 26개국에서 한국에 대한 호감도는 매년 오르고 있습니다. 특히 경제적 성취와 문화적 매력이 동시에 작용하며, 전문직 종사자들의 이주 결정에도 영향을 주고 있습니다.</p>
-    <p>언어는 그 시작점입니다. 실력 있는 튜터와의 1:1 대화는 단순 암기가 아니라, 실제 업무 환경에서 통하는 언어 감각을 길러줍니다.</p>
-  </div>
-
-  <div class="bottom">
-    <button class="btn-primary" onclick="location.href='level-test.html'">내 한국어 레벨 확인하기</button>
-  </div>
+  <div id="content"><div class="loading">글을 불러오는 중...</div></div>
 </div>
+
+<nav class="bottom-nav">
+  <button class="nav-item" onclick="location.href='index.html'"><span>🏠</span><span>홈</span></button>
+  <button class="nav-item" onclick="location.href='tutors.html'"><span>🔍</span><span>튜터</span></button>
+  <button class="nav-item" onclick="location.href='curriculum.html'"><span>📖</span><span>커리큘럼</span></button>
+  <button class="nav-item active" onclick="location.href='blog.html'"><span>💬</span><span>커뮤니티</span></button>
+  <button class="nav-item" onclick="location.href='mypage.html'"><span>👤</span><span>마이페이지</span></button>
+</nav>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyD10IdHCDkCybMrkO5fewo0ksYFBmqwWro",
+  authDomain: "malmun-bca03.firebaseapp.com",
+  projectId: "malmun-bca03",
+  storageBucket: "malmun-bca03.firebasestorage.app",
+  messagingSenderId: "831462084669",
+  appId: "1:831462084669:web:003a844918b165d5b65a54"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+async function loadArticle(){
+  const id = new URLSearchParams(location.search).get('id');
+  const content = document.getElementById('content');
+  if(!id){ content.innerHTML = '<div class="error">글을 찾을 수 없습니다</div>'; return; }
+  try{
+    const doc = await db.collection('blogPosts').doc(id).get();
+    if(!doc.exists || !doc.data().published){
+      content.innerHTML = '<div class="error">글을 찾을 수 없습니다</div>';
+      return;
+    }
+    const p = doc.data();
+    document.title = p.title + ' | 말문 Malmun';
+    const dt = p.createdAt ? new Date(p.createdAt.seconds*1000).toLocaleDateString('ko-KR') : '';
+    const paragraphs = (p.body||'').split(/\n\s*\n/).filter(x=>x.trim()).map(t => `<p>${esc(t).replace(/\n/g,'<br>')}</p>`).join('');
+
+    content.innerHTML = `
+      <span class="post-category">${esc(p.cat)}</span>
+      <h1 class="post-title">${esc(p.title)}</h1>
+      <p class="post-meta">✍️ 말문 · ${dt}</p>
+      ${p.thumb ? `<div class="post-thumb"><img src="${p.thumb}" alt="${esc(p.title)}"></div>` : ''}
+      <article class="post-body">${paragraphs}</article>
+      <div class="cta-box">
+        <p>지금 무료 첫 수업을 예약해보세요</p>
+        <a href="tutors.html">튜터 둘러보기</a>
+      </div>
+    `;
+  }catch(e){
+    console.error(e);
+    content.innerHTML = '<div class="error">글을 불러오지 못했습니다</div>';
+  }
+}
+loadArticle();
+</script>
 
 </body>
 </html>

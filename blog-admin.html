@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>블로그 관리 | 말문 Admin</title>
+<style>
+  :root{
+    --bg: #FFF9F0; --card: #FFFFFF; --card-border: #E8E4D8;
+    --text: #2C2C2A; --text-secondary: #5F5E5A; --text-muted: #8A8880;
+    --accent: #EF9F27; --accent-text: #412402; --danger: #D85A30;
+  }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Noto Sans KR",sans-serif; -webkit-font-smoothing:antialiased; }
+  a{ color:inherit; text-decoration:none; }
+  .wrap{ max-width:720px; margin:0 auto; padding:24px 20px 60px; }
+  h1{ font-size:18px; margin:0 0 4px; }
+  .sub{ font-size:13px; color:var(--text-muted); margin:0 0 24px; }
+
+  #gate{ max-width:320px; margin:80px auto; text-align:center; }
+  #gate input{ width:100%; padding:12px; border:1px solid var(--card-border); border-radius:10px; font-size:14px; margin-bottom:10px; box-sizing:border-box; }
+  #gate button{ width:100%; padding:12px; border:none; border-radius:10px; background:var(--accent); color:var(--accent-text); font-weight:600; font-size:14px; cursor:pointer; }
+  #gateError{ color:var(--danger); font-size:12px; margin-top:8px; display:none; }
+  #app{ display:none; }
+
+  .add-btn{ display:block; width:100%; padding:14px; margin-bottom:20px; border:1.5px dashed var(--card-border); border-radius:14px; background:none; color:var(--text-secondary); font-size:14px; font-weight:600; cursor:pointer; }
+  .add-btn:hover{ border-color:var(--accent); color:var(--accent-text); }
+
+  .post-card{ background:var(--card); border:1px solid var(--card-border); border-radius:14px; padding:16px; margin-bottom:14px; }
+  .post-card .top{ display:flex; gap:12px; align-items:flex-start; }
+  .post-card .thumb{ width:64px; height:64px; border-radius:10px; background:var(--bg); flex-shrink:0; object-fit:cover; }
+  .post-card .info{ flex:1; min-width:0; }
+  .post-card .title{ font-size:14px; font-weight:700; margin:0 0 4px; }
+  .post-card .meta{ font-size:12px; color:var(--text-muted); }
+  .badge{ display:inline-block; font-size:11px; font-weight:700; padding:2px 8px; border-radius:8px; margin-left:6px; }
+  .badge.pub{ background:#E4F3E6; color:#1E7B34; }
+  .badge.draft{ background:#F0EEE8; color:var(--text-muted); }
+  .post-card .actions{ display:flex; gap:8px; margin-top:12px; }
+  .post-card .actions button{ flex:1; padding:9px; border-radius:8px; border:1px solid var(--card-border); background:var(--bg); font-size:12px; font-weight:600; cursor:pointer; color:var(--text); }
+  .post-card .actions .del{ color:var(--danger); border-color:var(--danger); background:none; }
+
+  .field{ margin-bottom:14px; }
+  .field label{ display:block; font-size:12px; font-weight:600; color:var(--text-secondary); margin-bottom:6px; }
+  .field input, .field select, .field textarea{
+    width:100%; padding:11px 12px; border:1px solid var(--card-border); border-radius:10px;
+    font-size:14px; font-family:inherit; background:#fff; color:var(--text);
+  }
+  .field textarea{ min-height:180px; resize:vertical; line-height:1.7; }
+  .field .hint{ font-size:11px; color:var(--text-muted); margin-top:4px; }
+
+  .thumb-preview{ width:100%; max-width:200px; border-radius:10px; margin-top:8px; display:none; }
+
+  .modal-overlay{ position:fixed; inset:0; background:rgba(44,44,42,0.4); display:none; align-items:flex-end; justify-content:center; z-index:50; }
+  .modal-overlay.on{ display:flex; }
+  .modal{ background:var(--bg); width:100%; max-width:560px; max-height:92vh; overflow-y:auto; border-radius:20px 20px 0 0; padding:24px 20px 32px; }
+  .modal h2{ font-size:16px; margin:0 0 18px; }
+  .modal .btn-row{ display:flex; gap:10px; margin-top:18px; }
+  .modal .btn-row button{ flex:1; padding:13px; border-radius:10px; border:none; font-weight:600; font-size:14px; cursor:pointer; }
+  .modal .save{ background:var(--accent); color:var(--accent-text); }
+  .modal .cancel{ background:none; border:1px solid var(--card-border) !important; color:var(--text-secondary); }
+
+  .toast{ position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:var(--text); color:#fff; padding:10px 20px; border-radius:20px; font-size:13px; z-index:100; opacity:0; transition:opacity .3s; }
+  .toast.on{ opacity:1; }
+</style>
+</head>
+<body>
+
+<div id="gate">
+  <h1>🔒 블로그 관리자</h1>
+  <input id="gatePw" type="password" placeholder="비밀번호">
+  <button onclick="tryLogin()">입장</button>
+  <p id="gateError">비밀번호가 틀렸습니다</p>
+</div>
+
+<div id="app">
+  <div class="wrap">
+    <p style="margin:0 0 10px;"><a href="admin.html" style="font-size:12px; color:var(--text-muted);">← 관리자 홈</a></p>
+    <h1>블로그 관리</h1>
+    <p class="sub">글을 쓰고, 사진을 올리고, 게시/비공개를 바로 전환하세요. 게시된 글만 blog.html에 보입니다.</p>
+
+    <button class="add-btn" onclick="openModal()">+ 새 글 쓰기</button>
+    <div id="list"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h2 id="modalTitle">새 글 쓰기</h2>
+    <input type="hidden" id="f-id">
+
+    <div class="field">
+      <label>썸네일 사진</label>
+      <input type="file" id="f-thumbFile" accept="image/*" onchange="previewThumb(event)">
+      <img id="thumbPreview" class="thumb-preview">
+      <input type="hidden" id="f-thumb">
+    </div>
+
+    <div class="field">
+      <label>카테고리</label>
+      <input id="f-cat" placeholder="예: 말문 이야기, 학습 팁, 한국 생활">
+    </div>
+
+    <div class="field">
+      <label>제목</label>
+      <input id="f-title" placeholder="글 제목">
+    </div>
+
+    <div class="field">
+      <label>요약 (목록 카드에 짧게 표시)</label>
+      <input id="f-excerpt" placeholder="한 줄 요약">
+    </div>
+
+    <div class="field">
+      <label>본문</label>
+      <textarea id="f-body" placeholder="본문을 쭉 적어주세요. 문단을 나누려면 줄을 한 번 비워주세요."></textarea>
+      <div class="hint">문단 사이에 빈 줄을 하나 넣으면 자동으로 문단이 나뉩니다.</div>
+    </div>
+
+    <div class="field">
+      <label><input type="checkbox" id="f-published" style="width:auto; margin-right:6px;"> 바로 게시하기 (끄면 임시저장)</label>
+    </div>
+
+    <div class="btn-row">
+      <button class="cancel" onclick="closeModal()">취소</button>
+      <button class="save" onclick="savePost()">저장</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyD10IdHCDkCybMrkO5fewo0ksYFBmqwWro",
+  authDomain: "malmun-bca03.firebaseapp.com",
+  projectId: "malmun-bca03",
+  storageBucket: "malmun-bca03.firebasestorage.app",
+  messagingSenderId: "831462084669",
+  appId: "1:831462084669:web:003a844918b165d5b65a54"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const storage = firebase.storage();
+const ADMIN_PW = "admin0115";
+
+function tryLogin(){
+  if(document.getElementById('gatePw').value === ADMIN_PW){
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    loadPosts();
+  } else {
+    document.getElementById('gateError').style.display = 'block';
+  }
+}
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('on');
+  setTimeout(()=>t.classList.remove('on'), 2200);
+}
+
+let posts = [];
+let pendingThumbFile = null;
+
+async function loadPosts(){
+  try{
+    const snap = await db.collection('blogPosts').orderBy('createdAt','desc').get();
+    posts = snap.docs.map(d => ({ id:d.id, ...d.data() }));
+    renderList();
+  }catch(e){
+    console.error(e);
+    showToast('❌ 불러오기 실패: ' + e.message);
+  }
+}
+
+function renderList(){
+  const list = document.getElementById('list');
+  if(!posts.length){
+    list.innerHTML = '<p style="color:var(--text-muted); font-size:13px; text-align:center; padding:30px 0;">아직 쓴 글이 없어요</p>';
+    return;
+  }
+  list.innerHTML = posts.map(p => `
+    <div class="post-card">
+      <div class="top">
+        <img class="thumb" src="${p.thumb || ''}" onerror="this.style.opacity=0">
+        <div class="info">
+          <p class="title">${esc(p.title)}<span class="badge ${p.published?'pub':'draft'}">${p.published?'게시됨':'임시저장'}</span></p>
+          <p class="meta">${p.cat || ''} · ${p.createdAt ? new Date(p.createdAt.seconds*1000).toLocaleDateString('ko-KR') : ''}</p>
+        </div>
+      </div>
+      <div class="actions">
+        <button onclick="editPost('${p.id}')">수정</button>
+        <button onclick="togglePublish('${p.id}', ${!p.published})">${p.published?'비공개로 전환':'지금 게시'}</button>
+        <button class="del" onclick="deletePost('${p.id}')">삭제</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function openModal(post){
+  document.getElementById('modalTitle').textContent = post ? '글 수정' : '새 글 쓰기';
+  document.getElementById('f-id').value = post ? post.id : '';
+  document.getElementById('f-cat').value = post ? post.cat || '' : '';
+  document.getElementById('f-title').value = post ? post.title || '' : '';
+  document.getElementById('f-excerpt').value = post ? post.excerpt || '' : '';
+  document.getElementById('f-body').value = post ? post.body || '' : '';
+  document.getElementById('f-published').checked = post ? !!post.published : false;
+  document.getElementById('f-thumb').value = post ? post.thumb || '' : '';
+  const prev = document.getElementById('thumbPreview');
+  if(post && post.thumb){ prev.src = post.thumb; prev.style.display='block'; } else { prev.style.display='none'; }
+  pendingThumbFile = null;
+  document.getElementById('f-thumbFile').value = '';
+  document.getElementById('modalOverlay').classList.add('on');
+}
+function closeModal(){ document.getElementById('modalOverlay').classList.remove('on'); }
+
+function editPost(id){
+  const p = posts.find(x => x.id === id);
+  if(p) openModal(p);
+}
+
+function previewThumb(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  pendingThumbFile = file;
+  const prev = document.getElementById('thumbPreview');
+  prev.src = URL.createObjectURL(file);
+  prev.style.display = 'block';
+}
+
+async function savePost(){
+  const id = document.getElementById('f-id').value;
+  const title = document.getElementById('f-title').value.trim();
+  if(!title){ showToast('제목을 입력해주세요'); return; }
+
+  showToast('저장 중...');
+  let thumbUrl = document.getElementById('f-thumb').value;
+
+  try{
+    if(pendingThumbFile){
+      const path = `blog/${Date.now()}_${pendingThumbFile.name}`;
+      const ref = storage.ref().child(path);
+      await ref.put(pendingThumbFile);
+      thumbUrl = await ref.getDownloadURL();
+    }
+
+    const data = {
+      title,
+      cat: document.getElementById('f-cat').value.trim(),
+      excerpt: document.getElementById('f-excerpt').value.trim(),
+      body: document.getElementById('f-body').value,
+      thumb: thumbUrl,
+      published: document.getElementById('f-published').checked
+    };
+
+    if(id){
+      await db.collection('blogPosts').doc(id).update(data);
+    } else {
+      data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+      await db.collection('blogPosts').add(data);
+    }
+
+    showToast('✅ 저장 완료');
+    closeModal();
+    loadPosts();
+  }catch(e){
+    console.error(e);
+    showToast('❌ 저장 실패: ' + e.message);
+  }
+}
+
+async function togglePublish(id, val){
+  try{
+    await db.collection('blogPosts').doc(id).update({ published: val });
+    showToast(val ? '✅ 게시했습니다' : '비공개로 전환했습니다');
+    loadPosts();
+  }catch(e){
+    showToast('❌ 실패: ' + e.message);
+  }
+}
+
+async function deletePost(id){
+  if(!confirm('이 글을 완전히 삭제할까요?')) return;
+  try{
+    await db.collection('blogPosts').doc(id).delete();
+    showToast('삭제했습니다');
+    loadPosts();
+  }catch(e){
+    showToast('❌ 실패: ' + e.message);
+  }
+}
+</script>
+
+</body>
+</html>
