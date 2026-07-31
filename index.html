@@ -667,14 +667,8 @@ function togglePurposeMenu(e){
 }
 function selectPurpose(e, key){
   e.stopPropagation();
-  const label = document.getElementById('purposeLabel');
-  label.setAttribute('data-i18n', key);
-  const lang = localStorage.getItem('malmun_lang') || 'ko';
-  const dict = TRANSLATIONS[lang] || TRANSLATIONS.ko;
-  if(dict[key] !== undefined) label.innerHTML = dict[key];
   localStorage.setItem('malmun_purpose', key);
-  document.getElementById('purposeDropdown').classList.remove('open');
-  document.getElementById('purposeMenu').classList.remove('open');
+  location.href = 'purpose.html?type=' + key.split('.').pop();
 }
 // ── 헤더 햄버거 메뉴: 실제 클릭으로 열리고 닫히는 사이트 내비게이션 ──
 function toggleSiteMenu(e){

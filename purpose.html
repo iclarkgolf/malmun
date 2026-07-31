@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>말문 Malmun</title>
+<style>
+  :root{
+    --bg:#FFF9F0; --card:#FFFFFF; --card-border:#E8E4D8;
+    --text:#2C2C2A; --text-secondary:#5F5E5A; --text-muted:#8A8880;
+    --accent:#EF9F27; --accent-text:#412402; --accent-soft:#FFF3E0; --coral:#D85A30;
+  }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Noto Sans KR",sans-serif; -webkit-font-smoothing:antialiased; padding-bottom:76px; }
+  a{ color:inherit; text-decoration:none; }
+  .wrap{ max-width:600px; margin:0 auto; padding:0 20px 32px; }
+
+  .topbar{ display:flex; align-items:center; justify-content:space-between; padding:20px 0; }
+  .topbar button{ background:none; border:none; color:var(--text-secondary); cursor:pointer; padding:0; display:flex; }
+  #langToggle{ background:none; border:1px solid var(--card-border); color:var(--text-secondary); border-radius:16px; padding:6px 12px; font-size:12px; font-weight:600; cursor:pointer; }
+
+  .eyebrow{ font-size:12px; font-weight:700; color:var(--coral); margin:0 0 10px; }
+  .headline{ font-size:24px; font-weight:700; line-height:1.4; margin:0 0 26px; }
+
+  .empathy-card{ background:var(--card); border:1px solid var(--card-border); border-radius:14px; padding:18px 20px; margin-bottom:12px; display:flex; gap:12px; align-items:flex-start; }
+  .empathy-card .mark{ font-size:18px; }
+  .empathy-card p{ margin:0; font-size:14px; line-height:1.6; color:var(--text); }
+
+  .sec-title{ font-size:15px; font-weight:700; margin:32px 0 12px; }
+  .topics{ background:var(--card); border:1px solid var(--card-border); border-radius:14px; padding:16px 18px 14px; }
+  .topics ul{ margin:0; padding-left:18px; }
+  .topics li{ font-size:13px; color:var(--text-secondary); line-height:1.85; }
+
+  .tutor-preview{ display:flex; gap:10px; overflow-x:auto; padding-bottom:4px; }
+  .tutor-mini{ flex-shrink:0; width:130px; background:var(--card); border:1px solid var(--card-border); border-radius:12px; padding:12px; text-align:center; cursor:pointer; }
+  .tutor-mini .av{ width:52px; height:52px; border-radius:50%; margin:0 auto 8px; background:#3b5f8f; background-size:cover; background-position:center; }
+  .tutor-mini .n{ font-size:12px; font-weight:700; margin:0 0 2px; }
+  .tutor-mini .r{ font-size:11px; color:var(--text-muted); }
+
+  .cta{ display:block; text-align:center; background:var(--accent); color:var(--accent-text); font-weight:700; font-size:15px; padding:16px; border-radius:12px; margin-top:32px; border:none; width:100%; cursor:pointer; }
+  .cta-sub{ display:block; text-align:center; font-size:12px; color:var(--text-muted); margin-top:10px; }
+
+  .bottom-nav{ position:fixed; bottom:0; left:0; right:0; z-index:20; background:rgba(255,255,255,0.92); backdrop-filter:blur(10px); border-top:1px solid var(--card-border); display:flex; padding:8px 8px calc(8px + env(safe-area-inset-bottom)); max-width:600px; margin:0 auto; }
+  .nav-item{ flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; padding:6px 0; color:var(--text-muted); background:none; border:none; cursor:pointer; }
+  .nav-item.active{ color:var(--accent); }
+  .nav-item span{ font-size:11px; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="topbar">
+    <button onclick="location.href='index.html'" aria-label="홈으로">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    </button>
+    <button id="langToggle">한국어 / EN</button>
+  </div>
+
+  <div id="content"></div>
+
+  <p class="sec-title" data-i18n="p.tutorTitle">먼저 만나볼 튜터</p>
+  <div class="tutor-preview" id="tutorPreview"></div>
+
+  <button class="cta" onclick="goNext()" id="ctaBtn">무료 레벨테스트 시작</button>
+  <span class="cta-sub" data-i18n="p.ctaSub">1분이면 끝나요. 결과 보고 나서 결정해도 늦지 않아요.</span>
+</div>
+
+<nav class="bottom-nav">
+  <button class="nav-item active" onclick="location.href='index.html'"><span>🏠</span><span>홈</span></button>
+  <button class="nav-item" onclick="location.href='tutors.html'"><span>🔍</span><span>튜터</span></button>
+  <button class="nav-item" onclick="location.href='curriculum.html'"><span>📖</span><span>커리큘럼</span></button>
+  <button class="nav-item" onclick="location.href='blog.html'"><span>💬</span><span>커뮤니티</span></button>
+  <button class="nav-item" onclick="location.href='mypage.html'"><span>👤</span><span>마이페이지</span></button>
+</nav>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyD10IdHCDkCybMrkO5fewo0ksYFBmqwWro",
+  authDomain: "malmun-bca03.firebaseapp.com",
+  projectId: "malmun-bca03",
+  storageBucket: "malmun-bca03.firebasestorage.app",
+  messagingSenderId: "831462084669",
+  appId: "1:831462084669:web:003a844918b165d5b65a54"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+const CONTENT = {
+  biz: {
+    icon:"💼",
+    ko:{ eyebrow:"돈벌이", headline:"이력서에 한국어 한 줄, 인생이 달라져요",
+      empathy:["면접관이 갑자기 한국어로 질문했을 때, 머리가 하얘진 적 있나요?","동료들이 다 같이 웃는데, 왜 웃는지 혼자만 몰랐던 순간 있으시죠?"],
+      topics:["자기소개와 이력 말하기","면접에서 자주 나오는 질문","직장 예절과 존댓말 기본","업무 지시 알아듣기","동료·상사와 대화하기","카톡으로 업무 연락하기"] },
+    en:{ eyebrow:"Making money", headline:"One line on your resume — \"I speak Korean\" — can change everything",
+      empathy:["Ever frozen when an interviewer suddenly switched to Korean?","Ever stood there while coworkers laughed, with no idea why?"],
+      topics:["Introducing yourself and your background","Common interview questions","Workplace manners and basic honorifics","Understanding instructions at work","Talking with coworkers and bosses","Work messages on KakaoTalk"] }
+  },
+  study: {
+    icon:"📚",
+    ko:{ eyebrow:"공부", headline:"TOPIK 점수보다 중요한 건, 진짜 쓸 수 있는 한국어",
+      empathy:["교수님 질문에 답은 아는데, 말이 안 나온 적 있나요?","스터디그룹에서 혼자만 못 알아들은 것 같은 기분, 아시죠?"],
+      topics:["교실에서 질문하고 발표하기","자주 나오는 시험 표현(TOPIK 등)","학교 행정실에서 쓰는 말","과제·리포트 관련 어휘","교수님께 이메일 쓰기","스터디그룹 대화"] },
+    en:{ eyebrow:"Studying", headline:"A TOPIK score matters less than Korean you can actually use",
+      empathy:["Known the answer but couldn't get the words out for your professor?","Felt like the only one lost in a study group?"],
+      topics:["Asking questions and presenting in class","Common test expressions (like TOPIK)","Talking to school administration","Assignment and report vocabulary","Emailing professors","Study group conversations"] }
+  },
+  move: {
+    icon:"🏠",
+    ko:{ eyebrow:"살아보기", headline:"편의점 알바생 말이 안 들려서 당황했던 적, 있으시죠",
+      empathy:["병원에서 증상을 설명 못해 답답했던 적 있나요?","계약서에 뭐라고 써있는지 몰라 불안했던 순간, 있으시죠?"],
+      topics:["편의점·마트에서 쓰는 말","병원·약국 이용하기","집 구하고 계약하기","은행·통신사 업무 보기","이웃과 인사 나누기","배달앱 주문하기"] },
+    en:{ eyebrow:"Living here", headline:"Ever panicked because you couldn't understand the convenience store clerk?",
+      empathy:["Struggled to explain your symptoms at the hospital?","Felt anxious not knowing what a contract actually said?"],
+      topics:["Convenience store and grocery Korean","Going to the hospital or pharmacy","Finding and signing for housing","Banking and phone plan errands","Greeting neighbors","Ordering on delivery apps"] }
+  },
+  travel: {
+    icon:"✨",
+    ko:{ eyebrow:"유행따라가기", headline:"자막 없이 그 장면, 그 대사를 이해하고 싶다면",
+      empathy:["좋아하는 아이돌 브이앱을 자막 없이 보고 싶었던 적 있나요?","팬 커뮤니티에서 한국 팬들과 진짜 대화하고 싶었던 순간, 있으시죠?"],
+      topics:["드라마·예능에서 자주 나오는 표현","좋아하는 가수·배우 이야기하기","SNS 신조어와 줄임말","노래 가사 이해하기","팬 커뮤니티에서 대화하기","한국 친구와 톡하기"] },
+    en:{ eyebrow:"Following the trend", headline:"Want to understand that scene, that line, without subtitles?",
+      empathy:["Wished you could watch your favorite idol's V Live without subtitles?","Wanted to really talk with Korean fans in the community?"],
+      topics:["Common expressions from K-dramas and variety shows","Talking about your favorite singer or actor","Slang and abbreviations on social media","Understanding song lyrics","Chatting in fan communities","Texting with Korean friends"] }
+  }
+};
+
+function getType(){
+  const t = new URLSearchParams(location.search).get('type');
+  return CONTENT[t] ? t : 'biz';
+}
+let currentType = getType();
+
+function render(){
+  const lang = localStorage.getItem('malmun_lang') || 'ko';
+  const c = CONTENT[currentType][lang] || CONTENT[currentType].ko;
+  const icon = CONTENT[currentType].icon;
+  document.getElementById('content').innerHTML = `
+    <p class="eyebrow">${icon} ${c.eyebrow}</p>
+    <h1 class="headline">${c.headline}</h1>
+    ${c.empathy.map(e => `<div class="empathy-card"><span class="mark">💬</span><p>${e}</p></div>`).join('')}
+    <p class="sec-title">${lang==='ko' ? '이런 걸 배우게 돼요' : "What you'll learn"}</p>
+    <div class="topics"><ul>${c.topics.map(t => `<li>${t}</li>`).join('')}</ul></div>
+  `;
+  document.getElementById('ctaBtn').textContent = lang==='ko' ? '무료 레벨테스트 시작' : 'Start free level test';
+  document.getElementById('langToggle').textContent = lang==='ko' ? '한국어 / EN' : 'English / 한글';
+  document.querySelector('[data-i18n="p.tutorTitle"]').textContent = lang==='ko' ? '먼저 만나볼 튜터' : 'Meet a tutor first';
+  document.querySelector('[data-i18n="p.ctaSub"]').textContent = lang==='ko' ? '1분이면 끝나요. 결과 보고 나서 결정해도 늦지 않아요.' : "Takes about a minute — decide after you see your result.";
+}
+
+document.getElementById('langToggle').addEventListener('click', () => {
+  const cur = localStorage.getItem('malmun_lang') || 'ko';
+  localStorage.setItem('malmun_lang', cur === 'ko' ? 'en' : 'ko');
+  render();
+});
+
+function goNext(){
+  localStorage.setItem('malmun_purpose', 'hero.purpose.' + currentType);
+  location.href = 'level-test.html?purpose=' + currentType;
+}
+
+async function loadTutorPreview(){
+  const wrap = document.getElementById('tutorPreview');
+  try{
+    const snap = await db.collection('tutors').orderBy('order','asc').limit(3).get();
+    if(snap.empty){ wrap.innerHTML = ''; return; }
+    const lang = localStorage.getItem('malmun_lang') || 'ko';
+    wrap.innerHTML = snap.docs.map(doc => {
+      const data = doc.data();
+      const ko = data.ko || {};
+      const en = data.en || {};
+      const name = (lang==='en' && en.name) ? en.name : ko.name;
+      const bg = data.avatarImage ? `background-image:url('${data.avatarImage}')` : `background:${data.avatarColor||'#3b5f8f'}`;
+      return `
+        <div class="tutor-mini" onclick="location.href='tutor-profile.html?id=${doc.id}'">
+          <div class="av" style="${bg}"></div>
+          <p class="n">${name||''}</p>
+          <p class="r">★ ${ko.rating||'5.0'}</p>
+        </div>`;
+    }).join('');
+  }catch(e){
+    console.error(e);
+    wrap.innerHTML = '';
+  }
+}
+
+render();
+loadTutorPreview();
+</script>
+
+</body>
+</html>
