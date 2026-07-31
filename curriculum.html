@@ -63,6 +63,15 @@
     color:var(--accent); background:var(--accent-soft); padding:3px 8px; border-radius:8px;
   }
 
+  .cat-heading{ font-size:15px; font-weight:700; margin:28px 0 12px; }
+  .cat-card{
+    background:var(--card); border:1px solid var(--card-border); border-radius:12px;
+    padding:16px 18px 14px; margin-bottom:10px;
+  }
+  .cat-title{ font-size:14px; font-weight:700; margin:0 0 10px; }
+  .cat-list{ margin:0; padding-left:18px; }
+  .cat-list li{ font-size:13px; color:var(--text-secondary); line-height:1.85; }
+
   .note{
     background:var(--card); border:1px solid var(--card-border); border-radius:12px;
     padding:14px 16px; margin:8px 0 20px; font-size:12px; color:var(--text-muted); line-height:1.6;
@@ -134,6 +143,56 @@
     </div>
   </div>
 
+  <p class="cat-heading" data-i18n="curr.catHeading">카테고리별로는 이런 걸 배워요</p>
+
+  <div class="cat-card">
+    <p class="cat-title" data-i18n="curr.cat1.title">💼 돈벌이</p>
+    <ul class="cat-list" data-i18n="curr.cat1.list">
+      <li>자기소개와 이력 말하기</li>
+      <li>면접에서 자주 나오는 질문</li>
+      <li>직장 예절과 존댓말 기본</li>
+      <li>업무 지시 알아듣기</li>
+      <li>동료·상사와 대화하기</li>
+      <li>카톡으로 업무 연락하기</li>
+    </ul>
+  </div>
+
+  <div class="cat-card">
+    <p class="cat-title" data-i18n="curr.cat2.title">📚 공부</p>
+    <ul class="cat-list" data-i18n="curr.cat2.list">
+      <li>교실에서 질문하고 발표하기</li>
+      <li>자주 나오는 시험 표현(TOPIK 등)</li>
+      <li>학교 행정실에서 쓰는 말</li>
+      <li>과제·리포트 관련 어휘</li>
+      <li>교수님께 이메일 쓰기</li>
+      <li>스터디그룹 대화</li>
+    </ul>
+  </div>
+
+  <div class="cat-card">
+    <p class="cat-title" data-i18n="curr.cat3.title">🏠 살아보기</p>
+    <ul class="cat-list" data-i18n="curr.cat3.list">
+      <li>편의점·마트에서 쓰는 말</li>
+      <li>병원·약국 이용하기</li>
+      <li>집 구하고 계약하기</li>
+      <li>은행·통신사 업무 보기</li>
+      <li>이웃과 인사 나누기</li>
+      <li>배달앱 주문하기</li>
+    </ul>
+  </div>
+
+  <div class="cat-card">
+    <p class="cat-title" data-i18n="curr.cat4.title">✨ 유행따라가기</p>
+    <ul class="cat-list" data-i18n="curr.cat4.list">
+      <li>드라마·예능에서 자주 나오는 표현</li>
+      <li>좋아하는 가수·배우 이야기하기</li>
+      <li>SNS 신조어와 줄임말</li>
+      <li>노래 가사 이해하기</li>
+      <li>팬 커뮤니티에서 대화하기</li>
+      <li>한국 친구와 톡하기</li>
+    </ul>
+  </div>
+
   <div class="note" data-i18n="curr.note">
     말문은 정해진 교재를 따라가는 학원식 수업이 아니에요. 튜터 한 명 한 명이 학생에 맞춰 직접 자료를 준비하는 1:1 맞춤 수업이라, 시작은 항상 "대화"에서부터예요.
   </div>
@@ -179,6 +238,15 @@ const TRANSLATIONS = {
     "curr.step2.desc": "오리엔테이션에서 나눈 이야기를 바탕으로, 나에게 맞는 학습 카테고리(예: 돈벌이, 공부, 살아보기, 유행따라가기 등)를 함께 정해요.",
     "curr.step3.title": "맞춤 수업 시작",
     "curr.step3.desc": "2회차부터 튜터가 그 카테고리에 맞는 자료를 준비해서 수업을 진행해요. 진도는 나의 속도에 맞춰 유연하게 조정돼요.",
+    "curr.catHeading": "카테고리별로는 이런 걸 배워요",
+    "curr.cat1.title": "💼 돈벌이",
+    "curr.cat1.list": "<li>자기소개와 이력 말하기</li><li>면접에서 자주 나오는 질문</li><li>직장 예절과 존댓말 기본</li><li>업무 지시 알아듣기</li><li>동료·상사와 대화하기</li><li>카톡으로 업무 연락하기</li>",
+    "curr.cat2.title": "📚 공부",
+    "curr.cat2.list": "<li>교실에서 질문하고 발표하기</li><li>자주 나오는 시험 표현(TOPIK 등)</li><li>학교 행정실에서 쓰는 말</li><li>과제·리포트 관련 어휘</li><li>교수님께 이메일 쓰기</li><li>스터디그룹 대화</li>",
+    "curr.cat3.title": "🏠 살아보기",
+    "curr.cat3.list": "<li>편의점·마트에서 쓰는 말</li><li>병원·약국 이용하기</li><li>집 구하고 계약하기</li><li>은행·통신사 업무 보기</li><li>이웃과 인사 나누기</li><li>배달앱 주문하기</li>",
+    "curr.cat4.title": "✨ 유행따라가기",
+    "curr.cat4.list": "<li>드라마·예능에서 자주 나오는 표현</li><li>좋아하는 가수·배우 이야기하기</li><li>SNS 신조어와 줄임말</li><li>노래 가사 이해하기</li><li>팬 커뮤니티에서 대화하기</li><li>한국 친구와 톡하기</li>",
     "curr.note": "말문은 정해진 교재를 따라가는 학원식 수업이 아니에요. 튜터 한 명 한 명이 학생에 맞춰 직접 자료를 준비하는 1:1 맞춤 수업이라, 시작은 항상 \"대화\"에서부터예요.",
     "curr.cta": "무료 첫 수업 예약하기",
     "nav.home": "홈", "nav.tutors": "튜터", "nav.curriculum": "커리큘럼",
@@ -195,6 +263,15 @@ const TRANSLATIONS = {
     "curr.step2.desc": "Based on what you shared, you and your tutor agree on a learning category (e.g. work, study, living here, K-culture) together.",
     "curr.step3.title": "Lessons begin",
     "curr.step3.desc": "From lesson 2 onward, your tutor prepares materials matched to that category, and the pace adjusts to fit you.",
+    "curr.catHeading": "What you'll actually learn, by category",
+    "curr.cat1.title": "💼 Work & income",
+    "curr.cat1.list": "<li>Introducing yourself and your background</li><li>Common interview questions</li><li>Workplace manners and basic honorifics</li><li>Understanding instructions at work</li><li>Talking with coworkers and bosses</li><li>Work messages on KakaoTalk</li>",
+    "curr.cat2.title": "📚 Study",
+    "curr.cat2.list": "<li>Asking questions and presenting in class</li><li>Common test expressions (like TOPIK)</li><li>Talking to school administration</li><li>Assignment and report vocabulary</li><li>Emailing professors</li><li>Study group conversations</li>",
+    "curr.cat3.title": "🏠 Living here",
+    "curr.cat3.list": "<li>Convenience store and grocery Korean</li><li>Going to the hospital or pharmacy</li><li>Finding and signing for housing</li><li>Banking and phone plan errands</li><li>Greeting neighbors</li><li>Ordering on delivery apps</li>",
+    "curr.cat4.title": "✨ Following the trend",
+    "curr.cat4.list": "<li>Common expressions from K-dramas and variety shows</li><li>Talking about your favorite singer or actor</li><li>Slang and abbreviations on social media</li><li>Understanding song lyrics</li><li>Chatting in fan communities</li><li>Texting with Korean friends</li>",
     "curr.note": "Malmun isn't a classroom following a fixed textbook. Each tutor prepares materials one-on-one for each student, so it always starts with a conversation.",
     "curr.cta": "Book your free first lesson",
     "nav.home": "Home", "nav.tutors": "Tutors", "nav.curriculum": "Curriculum",
