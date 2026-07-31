@@ -89,10 +89,10 @@
 
   .hero-page{
     scroll-snap-align:start; scroll-margin-top:70px;
-    min-height:calc(100vh - 70px - 76px); padding:32px 0;
+    min-height:calc(100vh - 70px - 76px); padding:20px 0 32px;
   }
-  .hero-mobile{ padding:24px 20px 32px; }
-  .door-frame-mobile{ background:#F0E6D2; border-radius:16px; padding:14px; width:150px; margin:0 auto 20px; }
+  .hero-mobile{ padding:16px 20px 32px; }
+  .door-frame-mobile{ background:#F0E6D2; border-radius:16px; padding:14px; width:150px; margin:0 auto 16px; }
   .hero-desktop{ display:none; }
   .eyebrow{
     font-size:13px; font-weight:600; color:var(--coral);
@@ -358,6 +358,7 @@
 
   <div class="hero-page">
   <section class="hero-mobile" style="border-top:none; padding-top:8px;">
+    <div class="door-frame-mobile">
       <svg class="door-svg" viewBox="0 0 240 280" role="img" style="width:100%; height:auto; display:block;">
         <title data-i18n="hero.svgTitle">살짝 열린 문 틈으로 빛과 말이 새어나오는 일러스트</title>
         <rect x="18" y="10" width="204" height="260" rx="6" fill="none" stroke="var(--text)" stroke-width="2.5"/>
