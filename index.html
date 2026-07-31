@@ -31,7 +31,7 @@
     --teal: #5DCAA5;
   }
   *{ box-sizing:border-box; }
-  html{ scroll-snap-type: y proximity; }
+  html{ scroll-snap-type: none; }
   body{
     margin:0;
     background:var(--bg);
@@ -281,6 +281,11 @@
     .tutor-scroll{ display:grid; grid-template-columns:repeat(3,1fr); overflow:visible; margin:0; padding:0; }
     .pricing-cards{ display:grid; grid-template-columns:repeat(3,1fr); }
     footer{ max-width:1080px; margin:0 auto; }
+  }
+  @supports (height: 100dvh){
+    .hero-page{ min-height:calc(100dvh - 70px - 76px); }
+    .hero-desktop{ min-height:calc(100dvh - 70px); }
+    section{ min-height:calc(100dvh - 70px); }
   }
 </style>
 </head>
