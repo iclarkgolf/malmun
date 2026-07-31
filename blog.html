@@ -8,60 +8,75 @@
 <link rel="canonical" href="https://malmunkorean.com/blog.html">
 <style>
   :root{
-    --bg: #0f1115;
-    --card: rgba(255,255,255,0.04);
-    --card-border: rgba(255,255,255,0.10);
-    --text: #f5f4f0;
-    --text-secondary: #c2c0b6;
-    --text-muted: #7a7871;
-    --accent: #e0993a;
-    --accent-text: #1a1206;
+    --bg: #FFF9F0;
+    --card: #FFFFFF;
+    --card-border: #E8E4D8;
+    --text: #2C2C2A;
+    --text-secondary: #5F5E5A;
+    --text-muted: #8A8880;
+    --accent: #EF9F27;
+    --accent-text: #412402;
+    --accent-soft: #FFF3E0;
+    --coral: #D85A30;
   }
   *{ box-sizing:border-box; }
   body{
     margin:0; background:var(--bg); color:var(--text);
     font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", sans-serif;
-    -webkit-font-smoothing:antialiased;
+    -webkit-font-smoothing:antialiased; padding-bottom:76px;
   }
   a{ color:inherit; text-decoration:none; }
-  .wrap{ max-width:480px; margin:0 auto; padding:0 20px 40px; }
+  .wrap{ max-width:600px; margin:0 auto; padding:0 20px 32px; }
 
   .header{ display:flex; justify-content:space-between; align-items:center; padding:24px 0 16px; }
-  .header .title{ font-size:17px; font-weight:600; margin:0; }
-  .header button{ background:none; border:none; color:var(--text-secondary); cursor:pointer; padding:0; display:flex; }
-  .header .right{ display:flex; align-items:center; gap:10px; }
+  .header .title{ font-size:19px; font-weight:700; margin:0; }
   #langToggle{
-    background:none; border:0.5px solid rgba(255,255,255,0.15); color:var(--text-secondary);
+    background:none; border:1px solid var(--card-border); color:var(--text-secondary);
     border-radius:16px; padding:6px 12px; font-size:12px; font-weight:600;
     cursor:pointer; display:flex; align-items:center; gap:4px;
   }
   #langToggle .cur{ color:var(--text); }
 
-  .chips{ display:flex; gap:8px; overflow-x:auto; padding:0 0 16px; margin:0 -20px; padding-left:20px; padding-right:20px; scrollbar-width:none; }
-  .chips::-webkit-scrollbar{ display:none; }
-  .chip{ flex-shrink:0; font-size:12px; padding:8px 14px; border-radius:16px; white-space:nowrap; border:0.5px solid rgba(255,255,255,0.15); color:var(--text-secondary); cursor:pointer; background:none; }
-  .chip.active{ background:var(--accent); color:var(--accent-text); border:none; font-weight:600; }
+  .search-bar{ display:flex; border:1px solid var(--card-border); border-radius:14px; overflow:hidden; background:var(--card); margin-bottom:12px; }
+  .search-bar input{ flex:1; padding:12px 14px; border:none; outline:none; font-size:14px; font-family:inherit; background:none; color:var(--text); }
+  .search-bar button{ background:none; border:none; padding:0 16px; cursor:pointer; font-size:15px; }
 
-  .post-list{ display:flex; flex-direction:column; gap:12px; }
-  .post-card{
-    background:var(--card); border-radius:14px; padding:16px; cursor:pointer;
-    border:none; width:100%; text-align:left; color:var(--text);
+  .chips{ display:flex; gap:8px; overflow-x:auto; padding-bottom:16px; margin:0 -20px 4px; padding-left:20px; padding-right:20px; scrollbar-width:none; }
+  .chips::-webkit-scrollbar{ display:none; }
+  .chip{
+    flex-shrink:0; padding:8px 14px; border-radius:14px; border:1px solid var(--card-border);
+    background:var(--card); font-size:12px; font-weight:600; color:var(--text-secondary); cursor:pointer;
   }
-  .post-tag{ font-size:11px; color:var(--accent); margin:0 0 8px; }
-  .post-title{ font-size:14px; font-weight:600; line-height:1.4; margin:0 0 6px; }
-  .post-meta{ font-size:12px; color:var(--text-muted); margin:0; }
+  .chip.active{ background:var(--accent-soft); border-color:var(--accent); color:var(--coral); }
+
+  .grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  @media(min-width:600px){ .grid{ grid-template-columns:repeat(3,1fr); } }
+  .card{ background:var(--card); border:1px solid var(--card-border); border-radius:14px; overflow:hidden; display:block; }
+  .card-thumb{ height:110px; background:var(--accent-soft); position:relative; overflow:hidden; }
+  .card-thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .card-cat{ position:absolute; top:8px; left:8px; background:var(--coral); color:#FFF9F0; font-size:10px; font-weight:700; padding:3px 9px; border-radius:10px; }
+  .card-body{ padding:10px 12px 12px; }
+  .card-title{ font-size:13px; font-weight:700; line-height:1.4; margin:0 0 6px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .card-meta{ font-size:11px; color:var(--text-muted); }
+
+  .empty{ text-align:center; padding:60px 20px; color:var(--text-muted); font-size:14px; grid-column:1/-1; }
+
+  .pg{ display:flex; justify-content:center; gap:8px; padding:24px 0 8px; }
+  .pg-btn{
+    width:34px; height:34px; border-radius:50%; border:1px solid var(--card-border);
+    background:var(--card); cursor:pointer; font-size:13px; font-weight:600; color:var(--text);
+  }
+  .pg-btn.active{ background:var(--accent); color:var(--accent-text); border-color:var(--accent); }
 
   body{ padding-bottom:76px; }
   .bottom-nav{
     position:fixed; bottom:0; left:0; right:0; z-index:20;
-    background:rgba(20,22,27,0.92); backdrop-filter:blur(10px);
-    border-top:0.5px solid var(--card-border);
+    background:rgba(255,255,255,0.92); backdrop-filter:blur(10px);
+    border-top:1px solid var(--card-border);
     display:flex; padding:8px 8px calc(8px + env(safe-area-inset-bottom));
+    max-width:600px; margin:0 auto;
   }
-  .nav-item{
-    flex:1; display:flex; flex-direction:column; align-items:center; gap:4px;
-    padding:6px 0; color:var(--text-muted); background:none; border:none; cursor:pointer;
-  }
+  .nav-item{ flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; padding:6px 0; color:var(--text-muted); background:none; border:none; cursor:pointer; }
   .nav-item.active{ color:var(--accent); }
   .nav-item span{ font-size:11px; }
 </style>
@@ -70,49 +85,22 @@
 
 <div class="wrap">
   <div class="header">
-    <p class="title" data-i18n="blog.title">커뮤니티</p>
-    <div class="right">
-      <button id="langToggle" aria-label="언어 전환">
-        <span class="cur" id="langCur">한국어</span> / <span id="langOther">EN</span>
-      </button>
-      <button aria-label="검색">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-      </button>
-    </div>
-  </div>
-
-  <div class="chips">
-    <button class="chip active" data-cat="all" data-i18n="blog.cat.all">전체</button>
-    <button class="chip" data-cat="story" data-i18n="blog.cat.story">한국 이주 이야기</button>
-    <button class="chip" data-cat="tips" data-i18n="blog.cat.tips">학습 팁</button>
-    <button class="chip" data-cat="interview" data-i18n="blog.cat.interview">튜터 인터뷰</button>
-  </div>
-
-  <div class="post-list">
-    <button class="post-card" onclick="location.href='article-golf-course-questions.html'">
-      <p class="post-tag" data-i18n="blog.cat.story">한국 이주 이야기</p>
-      <p class="post-title" data-i18n="blog.post0.title">필리핀 골프장에서 20년, 가장 많이 받은 질문</p>
-      <p class="post-meta" data-i18n="blog.post0.meta">읽는 시간 3분</p>
-    </button>
-
-    <button class="post-card" onclick="location.href='article.html?id=why-korea'">
-      <p class="post-tag" data-i18n="blog.cat.story">한국 이주 이야기</p>
-      <p class="post-title" data-i18n="blog.post1.title">외국인 전문직들이 한국을 선택하는 이유</p>
-      <p class="post-meta" data-i18n="blog.post1.meta">읽는 시간 4분</p>
-    </button>
-
-    <button class="post-card" onclick="location.href='article.html?id=honorifics'">
-      <p class="post-tag" data-i18n="blog.cat.tips">학습 팁</p>
-      <p class="post-title" data-i18n="blog.post2.title">비즈니스 한국어, 존댓말부터 넘어야 하는 이유</p>
-      <p class="post-meta" data-i18n="blog.post2.meta">읽는 시간 3분</p>
-    </button>
-
-    <button class="post-card" onclick="location.href='article.html?id=tutor-jieun'">
-      <p class="post-tag" data-i18n="blog.cat.interview">튜터 인터뷰</p>
-      <p class="post-title" data-i18n="blog.post3.title">지은 튜터가 말하는 좋은 학습자의 태도</p>
-      <p class="post-meta" data-i18n="blog.post3.meta">읽는 시간 5분</p>
+    <p class="title" data-i18n="blog.title">💬 말문 커뮤니티</p>
+    <button id="langToggle" aria-label="언어 전환">
+      <span class="cur" id="langCur">한국어</span> / <span id="langOther">EN</span>
     </button>
   </div>
+
+  <div class="search-bar">
+    <input type="text" id="search-input" placeholder="궁금한 주제를 검색해보세요" oninput="filterPosts()">
+    <button onclick="filterPosts()">🔍</button>
+  </div>
+
+  <div class="chips" id="chips"></div>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="pg" id="pg"></div>
 </div>
 
 <nav class="bottom-nav">
@@ -138,75 +126,94 @@
   </button>
 </nav>
 
+<script src="posts-data.js"></script>
 <script>
-const TRANSLATIONS = {
-  ko: {
-    "blog.title": "커뮤니티",
-    "blog.cat.all": "전체",
-    "blog.cat.story": "한국 이주 이야기",
-    "blog.cat.tips": "학습 팁",
-    "blog.cat.interview": "튜터 인터뷰",
-    "blog.post1.title": "외국인 전문직들이 한국을 선택하는 이유",
-    "blog.post1.meta": "읽는 시간 4분",
-    "blog.post0.title": "필리핀 골프장에서 20년, 가장 많이 받은 질문",
-    "blog.post0.meta": "읽는 시간 3분",
-    "blog.post2.title": "비즈니스 한국어, 존댓말부터 넘어야 하는 이유",
-    "blog.post2.meta": "읽는 시간 3분",
-    "blog.post3.title": "지은 튜터가 말하는 좋은 학습자의 태도",
-    "blog.post3.meta": "읽는 시간 5분",
-    "nav.home": "홈", "nav.tutors": "튜터", "nav.curriculum": "커리큘럼",
-    "nav.community": "커뮤니티", "nav.mypage": "마이페이지"
-  },
-  en: {
-    "blog.title": "Community",
-    "blog.cat.all": "All",
-    "blog.cat.story": "Life in Korea",
-    "blog.cat.tips": "Learning tips",
-    "blog.cat.interview": "Tutor interviews",
-    "blog.post1.title": "Why foreign professionals choose Korea",
-    "blog.post1.meta": "4 min read",
-    "blog.post0.title": "20 years at a Philippine golf course: the question I heard most",
-    "blog.post0.meta": "3 min read",
-    "blog.post2.title": "Why business Korean starts with honorifics",
-    "blog.post2.meta": "3 min read",
-    "blog.post3.title": "Tutor Jieun on what makes a great learner",
-    "blog.post3.meta": "5 min read",
-    "nav.home": "Home", "nav.tutors": "Tutors", "nav.curriculum": "Curriculum",
-    "nav.community": "Community", "nav.mypage": "My page"
-  }
-};
+const PER_PAGE = 12;
+let filtered = [...POSTS];
+let currentPage = 1;
+let currentCat = '전체';
 
+const cats = ['전체', ...new Set(POSTS.map(p => p.cat))];
+const chipsWrap = document.getElementById('chips');
+cats.forEach(c => {
+  const b = document.createElement('button');
+  b.className = 'chip' + (c === '전체' ? ' active' : '');
+  b.textContent = c;
+  b.onclick = () => {
+    currentCat = c;
+    document.querySelectorAll('.chip').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    filterPosts();
+  };
+  chipsWrap.appendChild(b);
+});
+
+function filterPosts(){
+  const q = document.getElementById('search-input').value.trim().toLowerCase();
+  filtered = POSTS.filter(p => {
+    const matchCat = currentCat === '전체' || p.cat === currentCat;
+    const matchQ = !q || p.title.toLowerCase().includes(q) || p.excerpt.toLowerCase().includes(q) || p.cat.toLowerCase().includes(q);
+    return matchCat && matchQ;
+  });
+  currentPage = 1;
+  render();
+}
+
+function render(){
+  const grid = document.getElementById('grid');
+  const start = (currentPage - 1) * PER_PAGE;
+  const items = filtered.slice(start, start + PER_PAGE);
+
+  if(!items.length){
+    grid.innerHTML = '<div class="empty">검색 결과가 없습니다</div>';
+    document.getElementById('pg').innerHTML = '';
+    return;
+  }
+
+  grid.innerHTML = items.map(p => `
+    <a href="blog-${p.id}.html" class="card">
+      <div class="card-thumb">
+        <img src="${p.thumb}" alt="${p.title}" loading="lazy" onerror="this.style.display='none'">
+        <span class="card-cat">${p.cat}</span>
+      </div>
+      <div class="card-body">
+        <div class="card-title">${p.title}</div>
+        <div class="card-meta">${p.date}</div>
+      </div>
+    </a>
+  `).join('');
+
+  const totalPages = Math.ceil(filtered.length / PER_PAGE);
+  const pg = document.getElementById('pg');
+  if(totalPages <= 1){ pg.innerHTML = ''; return; }
+  pg.innerHTML = Array.from({length:totalPages}, (_,i) =>
+    `<button class="pg-btn${i+1===currentPage?' active':''}" onclick="goPage(${i+1})">${i+1}</button>`
+  ).join('');
+}
+
+function goPage(n){ currentPage = n; render(); window.scrollTo({top:0,behavior:'smooth'}); }
+
+render();
+
+const TRANSLATIONS = {
+  ko: { "blog.title":"💬 말문 커뮤니티", "nav.home":"홈","nav.tutors":"튜터","nav.curriculum":"커리큘럼","nav.community":"커뮤니티","nav.mypage":"마이페이지" },
+  en: { "blog.title":"💬 Malmun Community", "nav.home":"Home","nav.tutors":"Tutors","nav.curriculum":"Curriculum","nav.community":"Community","nav.mypage":"My page" }
+};
 function applyLang(lang){
   document.documentElement.lang = lang;
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
     const dict = TRANSLATIONS[lang] || TRANSLATIONS.ko;
-    if(dict[key] !== undefined){
-      el.innerHTML = dict[key];
-    }
+    if(dict[key] !== undefined) el.innerHTML = dict[key];
   });
-  document.getElementById('langCur').textContent = (lang === 'ko') ? '한국어' : 'English';
-  document.getElementById('langOther').textContent = (lang === 'ko') ? 'EN' : '한글';
+  document.getElementById('langCur').textContent = (lang==='ko') ? '한국어' : 'English';
+  document.getElementById('langOther').textContent = (lang==='ko') ? 'EN' : '한글';
   localStorage.setItem('malmun_lang', lang);
 }
-
-(function initLang(){
-  const saved = localStorage.getItem('malmun_lang') || 'ko';
-  applyLang(saved);
-})();
-
+(function(){ applyLang(localStorage.getItem('malmun_lang') || 'ko'); })();
 document.getElementById('langToggle').addEventListener('click', () => {
-  const current = localStorage.getItem('malmun_lang') || 'ko';
-  applyLang(current === 'ko' ? 'en' : 'ko');
-});
-
-const chips = document.querySelectorAll('.chip');
-chips.forEach(chip => {
-  chip.addEventListener('click', () => {
-    chips.forEach(c => c.classList.remove('active'));
-    chip.classList.add('active');
-    // 실제 서비스에서는 chip.dataset.cat 값으로 글 목록 필터링
-  });
+  const cur = localStorage.getItem('malmun_lang') || 'ko';
+  applyLang(cur === 'ko' ? 'en' : 'ko');
 });
 </script>
 
