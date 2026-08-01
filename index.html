@@ -481,10 +481,11 @@
     <p class="section-eyebrow" data-i18n="review.eyebrow">후기</p>
     <p class="section-title" data-i18n="review.title">먼저 경험한 사람들</p>
     <p class="section-desc" data-i18n="review.desc">말로만 좋다고 하지 않아요. 실제로 말문에서 배운 사람들의 이야기를 들어보세요.</p>
-    <div class="review-card" style="margin-bottom:28px;">
+    <div class="review-card" style="margin-bottom:16px;">
       <p class="review-author">M.T. · <span data-i18n="review.hk">홍콩</span></p>
       <p class="review-body" data-i18n="review.body">비즈니스 미팅 준비할 때마다 도움 많이 받았어요. 실제 상황처럼 연습시켜주셔서 좋았습니다.</p>
     </div>
+    <div id="reviewListDynamic"></div>
   </section>
 
   <section>
@@ -805,6 +806,24 @@ auth.onAuthStateChanged(async (user) => {
     const el = document.getElementById(id);
     if(el) el.textContent = line2;
   });
+});
+
+// 홈 화면 후기 섹션 — 승인된(published:true) 후기를 최신순으로 자동 표시
+function escReview(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+db.collection('reviews').where('published','==',true).orderBy('createdAt','desc').limit(12).get().then(snap => {
+  const el = document.getElementById('reviewListDynamic');
+  if(!el) return;
+  el.innerHTML = snap.docs.map(d => {
+    const r = d.data();
+    return `
+      <div class="review-card" style="margin-top:12px;">
+        <p class="review-author">${escReview(r.name)}${r.country ? ' · '+escReview(r.country) : ''}</p>
+        <p class="review-body">${escReview(r.body)}</p>
+      </div>
+    `;
+  }).join('');
+}).catch(err => {
+  console.error('후기 불러오기 실패:', err);
 });
 
 // 홈 화면 "추천 튜터" 섹션에 몇 명까지 보여줄지 - 튜터가 늘어나면 이 숫자만 바꾸면 됩니다.
