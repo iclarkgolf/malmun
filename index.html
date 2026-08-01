@@ -150,7 +150,9 @@
     display:flex; flex-direction:column; justify-content:center;
   }
   .section-eyebrow{ font-size:12px; color:var(--text-muted); margin:0 0 6px; }
-  .section-title{ font-size:18px; font-weight:600; margin:0 0 20px; }
+  .section-title{ font-size:18px; font-weight:600; margin:0 0 10px; }
+  .section-desc{ font-size:13px; color:var(--text-secondary); line-height:1.7; margin:0 0 22px; max-width:520px; }
+  .section-desc b{ color:var(--text); }
 
   .tutor-scroll{
     display:flex; gap:12px; overflow-x:auto; margin:0 -20px; padding:0 20px 4px;
@@ -429,6 +431,7 @@
   <section>
     <p class="section-eyebrow" data-i18n="tutors.eyebrow">추천 튜터</p>
     <p class="section-title" data-i18n="tutors.title">지금 가장 인기 있는 튜터</p>
+    <p class="section-desc" data-i18n="tutors.desc">아무나 튜터가 되지 않아요. <b>전문직·대학졸업 인증</b>을 거치고, 실제 학습자 <b>후기와 평점</b>으로 계속 검증받습니다.</p>
     <div class="tutor-scroll" id="tutorScrollDynamic">
     </div>
   </section>
@@ -436,6 +439,7 @@
   <section>
     <p class="section-eyebrow" data-i18n="curriculum.eyebrow">성장 경로</p>
     <p class="section-title" data-i18n="curriculum.title">초급부터 비즈니스 레벨까지</p>
+    <p class="section-desc" data-i18n="curriculum.desc"><b>첫 수업은 무료 오리엔테이션</b>이에요. 튜터와 만나 뭘 배우고 싶은지 먼저 정하고, 2회차부터 그에 맞는 자료로 시작합니다.</p>
     <div class="curriculum-steps">
       <div class="step">
         <div class="step-num">1</div>
@@ -459,6 +463,7 @@
   <section>
     <p class="section-eyebrow" data-i18n="review.eyebrow">후기</p>
     <p class="section-title" data-i18n="review.title">먼저 경험한 사람들</p>
+    <p class="section-desc" data-i18n="review.desc">말로만 좋다고 하지 않아요. 실제로 말문에서 배운 사람들의 이야기를 들어보세요.</p>
     <div class="review-card" style="margin-bottom:28px;">
       <p class="review-author">M.T. · <span data-i18n="review.hk">홍콩</span></p>
       <p class="review-body" data-i18n="review.body">비즈니스 미팅 준비할 때마다 도움 많이 받았어요. 실제 상황처럼 연습시켜주셔서 좋았습니다.</p>
@@ -466,22 +471,23 @@
 
     <p class="section-eyebrow" data-i18n="pricing.eyebrow">요금제</p>
     <p class="section-title" data-i18n="pricing.title">묶어서 예약하면 더 저렴해요</p>
+    <p class="section-desc" data-i18n="pricing.desc">매번 결제하는 게 번거로우시죠? <b>크레딧을 미리 충전</b>해두고 수업마다 편하게 차감하세요. 유효기간은 1년입니다.</p>
     <div class="pricing-cards">
       <div class="price-card">
         <p class="price-name" data-i18n="pricing.single.name">단건 수업</p>
         <p class="price-sub" data-i18n="pricing.single.sub">부담 없이 한 번만</p>
-        <p class="price-amount">₩28,000<span class="unit" data-i18n="unit.perLesson"> /회</span></p>
+        <p class="price-amount">₩30,000<span class="unit" data-i18n="unit.perLesson"> /회</span></p>
+      </div>
+      <div class="price-card">
+        <p class="price-name" data-i18n="pricing.pack5.name">5회권</p>
+        <p class="price-sub" data-i18n="pricing.pack5.sub">가볍게 시작해보고 싶다면</p>
+        <p class="price-amount">₩150,000<span class="unit" data-i18n="unit.perLesson"> · 회당 ₩30,000</span></p>
       </div>
       <div class="price-card featured">
         <div class="badge" data-i18n="pricing.popular">가장 많이 선택</div>
-        <p class="price-name" data-i18n="pricing.pack4.name">4회 패키지</p>
-        <p class="price-sub" data-i18n="pricing.pack4.sub">한 달 기준 · 회당 12% 할인</p>
-        <p class="price-amount">₩98,560<span class="unit" data-i18n="pricing.pack4.unit"> · 회당 ₩24,640</span></p>
-      </div>
-      <div class="price-card">
-        <p class="price-name" data-i18n="pricing.pack12.name">12회 패키지</p>
-        <p class="price-sub" data-i18n="pricing.pack12.sub">3개월 기준 · 회당 20% 할인</p>
-        <p class="price-amount">₩268,800<span class="unit" data-i18n="pricing.pack12.unit"> · 회당 ₩22,400</span></p>
+        <p class="price-name" data-i18n="pricing.pack10.name">10회권</p>
+        <p class="price-sub" data-i18n="pricing.pack10.sub">10% 할인 · 꾸준히 배우고 싶다면</p>
+        <p class="price-amount">₩270,000<span class="unit" data-i18n="pricing.pack10.unit"> · 회당 ₩27,000</span></p>
       </div>
     </div>
   </section>
@@ -551,6 +557,7 @@ const TRANSLATIONS = {
     "trust.curriculum": "커리큘럼",
     "tutors.eyebrow": "추천 튜터",
     "tutors.title": "지금 가장 인기 있는 튜터",
+    "tutors.desc": "아무나 튜터가 되지 않아요. <b>전문직·대학졸업 인증</b>을 거치고, 실제 학습자 <b>후기와 평점</b>으로 계속 검증받습니다.",
     "tutor.jieun.desc": "전 항공사 승무원 · 비즈니스 한국어",
     "tutor.jieun.reviews": "후기 132개",
     "tutor.hyunwoo.desc": "前 한국어교원 · TOPIK 전문",
@@ -560,6 +567,7 @@ const TRANSLATIONS = {
     "unit.perLesson": "/회",
     "curriculum.eyebrow": "성장 경로",
     "curriculum.title": "초급부터 비즈니스 레벨까지",
+    "curriculum.desc": "<b>첫 수업은 무료 오리엔테이션</b>이에요. 튜터와 만나 뭘 배우고 싶은지 먼저 정하고, 2회차부터 그에 맞는 자료로 시작합니다.",
     "curriculum.s1.title": "초급 · 생존 회화",
     "curriculum.s1.desc": "인사, 주문, 길찾기 등 기본 문형",
     "curriculum.s2.title": "중급 · 일상 심화",
@@ -570,19 +578,20 @@ const TRANSLATIONS = {
     "curriculum.s4.desc": "뉴스 읽기, 원어민 수준 뉘앙스",
     "review.eyebrow": "후기",
     "review.title": "먼저 경험한 사람들",
+    "review.desc": "말로만 좋다고 하지 않아요. 실제로 말문에서 배운 사람들의 이야기를 들어보세요.",
     "review.hk": "홍콩",
     "review.body": "비즈니스 미팅 준비할 때마다 도움 많이 받았어요. 실제 상황처럼 연습시켜주셔서 좋았습니다.",
     "pricing.eyebrow": "요금제",
     "pricing.title": "묶어서 예약하면 더 저렴해요",
+    "pricing.desc": "매번 결제하는 게 번거로우시죠? <b>크레딧을 미리 충전</b>해두고 수업마다 편하게 차감하세요. 유효기간은 1년입니다.",
     "pricing.single.name": "단건 수업",
     "pricing.single.sub": "부담 없이 한 번만",
     "pricing.popular": "가장 많이 선택",
-    "pricing.pack4.name": "4회 패키지",
-    "pricing.pack4.sub": "한 달 기준 · 회당 12% 할인",
-    "pricing.pack4.unit": " · 회당 ₩24,640",
-    "pricing.pack12.name": "12회 패키지",
-    "pricing.pack12.sub": "3개월 기준 · 회당 20% 할인",
-    "pricing.pack12.unit": " · 회당 ₩22,400",
+    "pricing.pack5.name": "5회권",
+    "pricing.pack5.sub": "가볍게 시작해보고 싶다면",
+    "pricing.pack10.name": "10회권",
+    "pricing.pack10.sub": "10% 할인 · 꾸준히 배우고 싶다면",
+    "pricing.pack10.unit": " · 회당 ₩27,000",
     "becomeTutor.title": "한국어 튜터이신가요?",
     "becomeTutor.sub": "말문에서 전 세계 학습자를 만나고<br>수입도 만들어보세요",
     "becomeTutor.cta": "튜터로 등록하기",
@@ -618,6 +627,7 @@ const TRANSLATIONS = {
     "trust.curriculum": "curriculum",
     "tutors.eyebrow": "Featured tutors",
     "tutors.title": "Most popular tutors right now",
+    "tutors.desc": "Not just anyone becomes a tutor. Each one is <b>verified as a professional or university graduate</b>, and stays verified through real learner <b>reviews and ratings</b>.",
     "tutor.jieun.desc": "Former flight attendant · Business Korean",
     "tutor.jieun.reviews": "132 reviews",
     "tutor.hyunwoo.desc": "Former Korean language teacher · TOPIK specialist",
@@ -627,6 +637,7 @@ const TRANSLATIONS = {
     "unit.perLesson": "/lesson",
     "curriculum.eyebrow": "Growth path",
     "curriculum.title": "From beginner to business level",
+    "curriculum.desc": "Your <b>first lesson is a free orientation</b>. Meet your tutor, decide together what you want to learn, and from lesson 2 they'll prepare material for exactly that.",
     "curriculum.s1.title": "Beginner · Survival Korean",
     "curriculum.s1.desc": "Greetings, ordering, directions, and basic patterns",
     "curriculum.s2.title": "Intermediate · Everyday depth",
@@ -637,19 +648,20 @@ const TRANSLATIONS = {
     "curriculum.s4.desc": "Reading news, native-level nuance",
     "review.eyebrow": "Reviews",
     "review.title": "People who came before you",
+    "review.desc": "We won't just tell you it's great. Hear it from people who actually learned with Malmun.",
     "review.hk": "Hong Kong",
     "review.body": "This helped so much every time I prepped for a business meeting. Practicing real scenarios made a huge difference.",
     "pricing.eyebrow": "Pricing",
     "pricing.title": "Bundle lessons for a lower rate",
+    "pricing.desc": "Tired of paying every time? <b>Pre-charge credits</b> and use them lesson by lesson. Valid for 1 year.",
     "pricing.single.name": "Single lesson",
     "pricing.single.sub": "No commitment, just one lesson",
     "pricing.popular": "Most popular",
-    "pricing.pack4.name": "4-lesson pack",
-    "pricing.pack4.sub": "1 month · 12% off per lesson",
-    "pricing.pack4.unit": " · ₩24,640/lesson",
-    "pricing.pack12.name": "12-lesson pack",
-    "pricing.pack12.sub": "3 months · 20% off per lesson",
-    "pricing.pack12.unit": " · ₩22,400/lesson",
+    "pricing.pack5.name": "5-lesson pack",
+    "pricing.pack5.sub": "A light way to start",
+    "pricing.pack10.name": "10-lesson pack",
+    "pricing.pack10.sub": "10% off · For steady learners",
+    "pricing.pack10.unit": " · ₩27,000/lesson",
     "becomeTutor.title": "Are you a Korean tutor?",
     "becomeTutor.sub": "Meet learners from around the world<br>and earn on your own schedule",
     "becomeTutor.cta": "Become a tutor",
