@@ -94,6 +94,22 @@
   .hero-mobile{ padding:16px 20px 32px; min-height:auto; display:block; }
   .door-frame-mobile{ background:#F0E6D2; border-radius:14px; padding:12px; width:128px; margin:0 auto 14px; }
   .hero-desktop{ display:none; }
+
+  .hero-photo-card{
+    position:relative; background:linear-gradient(160deg,#F3E8CE 0%,#EFDFBE 100%);
+    border-radius:20px; overflow:visible;
+  }
+  .hero-photo-card .scene-svg{ display:block; width:100%; height:auto; border-radius:16px; }
+  .hero-photo-card.mobile{ max-width:220px; margin:0 auto 18px; padding:14px; }
+  .greeting-bubble{
+    position:absolute; top:-16px; left:16px; max-width:210px;
+    background:var(--coral); color:#fff; border-radius:14px 14px 14px 4px;
+    padding:10px 14px; box-shadow:0 8px 20px rgba(216,90,48,0.28);
+    font-size:12px; line-height:1.5; font-weight:600; z-index:2;
+  }
+  .hero-photo-card.mobile .greeting-bubble{ top:-12px; left:10px; max-width:150px; font-size:11px; padding:8px 11px; }
+  .greeting-bubble .l2{ font-weight:400; opacity:0.94; }
+  .deco-ring{ position:absolute; pointer-events:none; z-index:0; opacity:0.4; }
   .eyebrow{
     font-size:13px; font-weight:600; color:var(--coral);
     margin:0 0 14px;
@@ -245,6 +261,10 @@
     .hero-visual{ position:relative; display:flex; align-items:center; justify-content:flex-start; }
     .door-frame{ background:#F0E6D2; border-radius:20px; padding:24px; max-width:340px; margin:0; }
     .door-svg{ width:100%; height:auto; display:block; }
+    .hero-photo-card.desktop{ width:420px; padding:16px; }
+    .hero-photo-card.desktop .greeting-bubble{ top:-18px; left:24px; max-width:230px; font-size:13px; padding:11px 16px; }
+    .deco-ring.corner-tl{ top:-30px; left:-40px; width:120px; height:120px; }
+    .deco-ring.corner-br{ bottom:-10px; right:-36px; width:90px; height:90px; }
 
     .hero-copy h1{ font-size:34px; margin:0 0 14px; line-height:1.3; }
     .hero-copy .eyebrow{ font-size:13px; margin-bottom:12px; }
@@ -318,18 +338,39 @@
 </header>
 
 <div class="hero-desktop">
+  <svg class="deco-ring corner-tl" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="46" fill="none" stroke="var(--card-border)" stroke-width="1.5" stroke-dasharray="2 7"/><circle cx="50" cy="50" r="32" fill="none" stroke="var(--card-border)" stroke-width="1.5" stroke-dasharray="2 7"/></svg>
+  <svg class="deco-ring corner-br" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="46" fill="none" stroke="var(--accent-border)" stroke-width="1.5" stroke-dasharray="2 7"/></svg>
   <div class="hero-visual">
-    <div class="door-frame">
-      <svg class="door-svg" viewBox="0 0 240 280" role="img">
-        <title data-i18n="hero.svgTitle">살짝 열린 문 틈으로 빛과 말이 새어나오는 일러스트</title>
-        <rect x="18" y="10" width="204" height="260" rx="6" fill="none" stroke="var(--text)" stroke-width="2.5"/>
-        <rect x="140" y="20" width="76" height="240" rx="3" fill="#E5D9BC"/>
-        <path d="M 30 22 L 128 34 L 128 246 L 30 258 Z" fill="#FDFAF1" stroke="var(--text)" stroke-width="2.5" stroke-linejoin="round"/>
-        <circle cx="112" cy="140" r="5" fill="var(--text)"/>
-        <path d="M162 88 q26 40 0 80" fill="none" stroke="var(--coral)" stroke-width="2.5" stroke-linecap="round" opacity="0.55"/>
-        <path d="M172 104 q18 28 0 56" fill="none" stroke="var(--coral)" stroke-width="2.5" stroke-linecap="round" opacity="0.4"/>
-        <path d="M166 48 h50 a9 9 0 0 1 9 9 v22 a9 9 0 0 1 -9 9 h-34 l-12 13 v-13 h-4 a9 9 0 0 1 -9 -9 v-22 a9 9 0 0 1 9 -9 z" fill="var(--coral)"/>
-        <text x="191" y="72" text-anchor="middle" font-size="15" font-weight="600" fill="#FDFAF1" data-i18n="hero.svgGreeting">안녕!</text>
+    <div class="hero-photo-card desktop">
+      <div class="greeting-bubble">
+        <div data-i18n="hero.greeting1">안녕하세요!</div>
+        <div class="l2"><span id="greetingNameDesktop" data-i18n="hero.greeting2">한국어 배울 준비 되셨나요?</span></div>
+      </div>
+      <svg class="scene-svg" viewBox="0 0 400 300" role="img">
+        <title data-i18n="hero.svgTitle">노트북으로 화상 수업을 하는 학습자의 일러스트</title>
+        <rect width="400" height="300" fill="#F3E8CE" rx="16"/>
+        <line x1="20" y1="34" x2="380" y2="34" stroke="var(--card-border)" stroke-width="2"/>
+        <rect x="30" y="12" width="14" height="22" fill="#C97B4A" opacity="0.75"/>
+        <rect x="46" y="16" width="10" height="18" fill="var(--teal)" opacity="0.7"/>
+        <rect x="58" y="10" width="12" height="24" fill="#D9A441" opacity="0.65"/>
+        <rect x="330" y="14" width="11" height="20" fill="var(--teal)" opacity="0.65"/>
+        <rect x="343" y="10" width="13" height="24" fill="#C97B4A" opacity="0.7"/>
+        <rect x="326" y="52" width="26" height="20" rx="3" fill="#C97B4A"/>
+        <path d="M339 52 C 330 40 322 40 316 30" fill="none" stroke="var(--teal)" stroke-width="4" stroke-linecap="round"/>
+        <path d="M339 52 C 339 38 339 34 339 22" fill="none" stroke="var(--teal)" stroke-width="4" stroke-linecap="round"/>
+        <path d="M339 52 C 348 40 356 40 362 28" fill="none" stroke="var(--teal)" stroke-width="4" stroke-linecap="round"/>
+        <line x1="20" y1="246" x2="380" y2="246" stroke="var(--text)" stroke-width="2.5"/>
+        <path d="M112,247 C112,198 140,178 172,178 C198,178 208,196 208,220 L208,247 Z" fill="#AFC7BB" stroke="var(--text)" stroke-width="2.5" stroke-linejoin="round"/>
+        <circle cx="150" cy="163" r="23" fill="#F2C29B" stroke="var(--text)" stroke-width="2.5"/>
+        <path d="M128,158 Q126,132 150,132 Q176,132 174,158 Q170,142 150,142 Q130,142 128,158 Z" fill="#3A2E22"/>
+        <path d="M150,246 L262,246 L253,258 L159,258 Z" fill="#E5D9BC" stroke="var(--text)" stroke-width="2.5" stroke-linejoin="round"/>
+        <rect x="146" y="152" width="118" height="96" rx="8" fill="#FDFAF1" stroke="var(--text)" stroke-width="2.5"/>
+        <circle cx="205" cy="200" r="30" fill="#F2C29B"/>
+        <circle cx="196" cy="194" r="2.4" fill="var(--text)"/>
+        <circle cx="214" cy="194" r="2.4" fill="var(--text)"/>
+        <path d="M194,206 Q205,214 216,206" fill="none" stroke="var(--text)" stroke-width="2.2" stroke-linecap="round"/>
+        <path d="M180,232 Q205,222 230,232" fill="none" stroke="var(--coral)" stroke-width="10" stroke-linecap="round" opacity="0.9"/>
+        <circle class="live-dot" cx="248" cy="164" r="5" fill="var(--teal)"/>
       </svg>
     </div>
   </div>
@@ -366,17 +407,36 @@
 
   <div class="hero-page">
   <section class="hero-mobile" style="border-top:none; padding-top:8px;">
-    <div class="door-frame-mobile">
-      <svg class="door-svg" viewBox="0 0 240 280" role="img" style="width:100%; height:auto; display:block;">
-        <title data-i18n="hero.svgTitle">살짝 열린 문 틈으로 빛과 말이 새어나오는 일러스트</title>
-        <rect x="18" y="10" width="204" height="260" rx="6" fill="none" stroke="var(--text)" stroke-width="2.5"/>
-        <rect x="140" y="20" width="76" height="240" rx="3" fill="#E5D9BC"/>
-        <path d="M 30 22 L 128 34 L 128 246 L 30 258 Z" fill="#FDFAF1" stroke="var(--text)" stroke-width="2.5" stroke-linejoin="round"/>
-        <circle cx="112" cy="140" r="5" fill="var(--text)"/>
-        <path d="M162 88 q26 40 0 80" fill="none" stroke="var(--coral)" stroke-width="2.5" stroke-linecap="round" opacity="0.55"/>
-        <path d="M172 104 q18 28 0 56" fill="none" stroke="var(--coral)" stroke-width="2.5" stroke-linecap="round" opacity="0.4"/>
-        <path d="M166 48 h50 a9 9 0 0 1 9 9 v22 a9 9 0 0 1 -9 9 h-34 l-12 13 v-13 h-4 a9 9 0 0 1 -9 -9 v-22 a9 9 0 0 1 9 -9 z" fill="var(--coral)"/>
-        <text x="191" y="72" text-anchor="middle" font-size="15" font-weight="600" fill="#FDFAF1" data-i18n="hero.svgGreeting">안녕!</text>
+    <div class="hero-photo-card mobile">
+      <div class="greeting-bubble">
+        <div data-i18n="hero.greeting1">안녕하세요!</div>
+        <div class="l2"><span id="greetingNameMobile" data-i18n="hero.greeting2">한국어 배울 준비 되셨나요?</span></div>
+      </div>
+      <svg class="scene-svg" viewBox="0 0 400 300" role="img">
+        <title data-i18n="hero.svgTitle">노트북으로 화상 수업을 하는 학습자의 일러스트</title>
+        <rect width="400" height="300" fill="#F3E8CE" rx="16"/>
+        <line x1="20" y1="34" x2="380" y2="34" stroke="var(--card-border)" stroke-width="2"/>
+        <rect x="30" y="12" width="14" height="22" fill="#C97B4A" opacity="0.75"/>
+        <rect x="46" y="16" width="10" height="18" fill="var(--teal)" opacity="0.7"/>
+        <rect x="58" y="10" width="12" height="24" fill="#D9A441" opacity="0.65"/>
+        <rect x="330" y="14" width="11" height="20" fill="var(--teal)" opacity="0.65"/>
+        <rect x="343" y="10" width="13" height="24" fill="#C97B4A" opacity="0.7"/>
+        <rect x="326" y="52" width="26" height="20" rx="3" fill="#C97B4A"/>
+        <path d="M339 52 C 330 40 322 40 316 30" fill="none" stroke="var(--teal)" stroke-width="4" stroke-linecap="round"/>
+        <path d="M339 52 C 339 38 339 34 339 22" fill="none" stroke="var(--teal)" stroke-width="4" stroke-linecap="round"/>
+        <path d="M339 52 C 348 40 356 40 362 28" fill="none" stroke="var(--teal)" stroke-width="4" stroke-linecap="round"/>
+        <line x1="20" y1="246" x2="380" y2="246" stroke="var(--text)" stroke-width="2.5"/>
+        <path d="M112,247 C112,198 140,178 172,178 C198,178 208,196 208,220 L208,247 Z" fill="#AFC7BB" stroke="var(--text)" stroke-width="2.5" stroke-linejoin="round"/>
+        <circle cx="150" cy="163" r="23" fill="#F2C29B" stroke="var(--text)" stroke-width="2.5"/>
+        <path d="M128,158 Q126,132 150,132 Q176,132 174,158 Q170,142 150,142 Q130,142 128,158 Z" fill="#3A2E22"/>
+        <path d="M150,246 L262,246 L253,258 L159,258 Z" fill="#E5D9BC" stroke="var(--text)" stroke-width="2.5" stroke-linejoin="round"/>
+        <rect x="146" y="152" width="118" height="96" rx="8" fill="#FDFAF1" stroke="var(--text)" stroke-width="2.5"/>
+        <circle cx="205" cy="200" r="30" fill="#F2C29B"/>
+        <circle cx="196" cy="194" r="2.4" fill="var(--text)"/>
+        <circle cx="214" cy="194" r="2.4" fill="var(--text)"/>
+        <path d="M194,206 Q205,214 216,206" fill="none" stroke="var(--text)" stroke-width="2.2" stroke-linecap="round"/>
+        <path d="M180,232 Q205,222 230,232" fill="none" stroke="var(--coral)" stroke-width="10" stroke-linecap="round" opacity="0.9"/>
+        <circle class="live-dot" cx="248" cy="164" r="5" fill="var(--teal)"/>
       </svg>
     </div>
     <p class="eyebrow" data-i18n="hero.eyebrow">1:1 한국어 튜터 매칭</p>
@@ -523,8 +583,10 @@ const TRANSLATIONS = {
     "hero.cta2": "튜터 둘러보기",
     "hero.d.title1": "말문이 트이면", "hero.d.title2": "한국어", "hero.d.title3": "가 열려요",
     "hero.d.sub": "목표와 일정에 맞춰 레슨을 구성하는 검증된 튜터와 학습을 시작하세요.",
-    "hero.svgTitle": "살짝 열린 문 틈으로 빛과 말이 새어나오는 일러스트",
+    "hero.svgTitle": "노트북으로 화상 수업을 하는 학습자의 일러스트",
     "hero.svgGreeting": "안녕!",
+    "hero.greeting1": "안녕하세요!",
+    "hero.greeting2": "한국어 배울 준비 되셨나요?",
     "hero.purpose.label": "한국어로 뭘 하고 싶나요?",
     "hero.purpose.biz": "돈벌이",
     "hero.purpose.study": "공부",
@@ -588,8 +650,10 @@ const TRANSLATIONS = {
     "hero.cta2": "Browse tutors",
     "hero.d.title1": "Once your malmun opens,", "hero.d.title2": "Korean", "hero.d.title3": " starts to flow",
     "hero.d.sub": "Start learning with a verified tutor who builds lessons around your goals and schedule.",
-    "hero.svgTitle": "A door opening slightly, with light and words flowing through the gap",
+    "hero.svgTitle": "A learner taking a video lesson on a laptop",
     "hero.svgGreeting": "Hi!",
+    "hero.greeting1": "Hi there!",
+    "hero.greeting2": "Ready to learn Korean?",
     "hero.purpose.label": "What do you want to do with Korean?",
     "hero.purpose.biz": "Making money",
     "hero.purpose.study": "Studying",
@@ -717,6 +781,7 @@ document.getElementById('langToggle').addEventListener('click', () => {
 
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script>
 const firebaseConfig = {
   apiKey: "AIzaSyD10IdHCDkCybMrkO5fewo0ksYFBmqwWro",
@@ -728,6 +793,29 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+const auth = firebase.auth();
+
+// 로그인 상태면 말풍선 인사말을 "OO님, 안녕하세요!" 형태로 개인화
+auth.onAuthStateChanged(async (user) => {
+  if(!user) return;
+  const fallback = user.displayName || (user.email ? user.email.split('@')[0] : '');
+  let shownName = fallback;
+  try{
+    const profileDoc = await db.collection('users').doc(user.uid).get();
+    if(profileDoc.exists && profileDoc.data().malmunDisplayName){
+      shownName = profileDoc.data().malmunDisplayName;
+    }
+  }catch(err){
+    console.error('표시 이름 불러오기 실패:', err);
+  }
+  if(!shownName) return;
+  const lang = localStorage.getItem('malmun_lang') || 'ko';
+  const line2 = (lang === 'ko') ? `${shownName}님, 환영해요!` : `Welcome back, ${shownName}!`;
+  ['greetingNameDesktop','greetingNameMobile'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.textContent = line2;
+  });
+});
 
 // 홈 화면 "추천 튜터" 섹션에 몇 명까지 보여줄지 - 튜터가 늘어나면 이 숫자만 바꾸면 됩니다.
 // (가로 스크롤 방식이라 모바일에서는 숫자를 늘려도 레이아웃이 깨지지 않습니다)
