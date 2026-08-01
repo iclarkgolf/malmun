@@ -154,6 +154,26 @@
   .section-desc{ font-size:13px; color:var(--text-secondary); line-height:1.7; margin:0 0 22px; max-width:520px; }
   .section-desc b{ color:var(--text); }
 
+  .pj-intro{
+    display:flex; gap:16px; align-items:flex-start;
+    background:var(--card); border:1px solid var(--card-border); border-radius:16px;
+    padding:20px;
+  }
+  .pj-avatar{
+    width:56px; height:56px; border-radius:50%; flex-shrink:0;
+    background:var(--coral); color:#fff; font-weight:700; font-size:18px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .pj-role{ font-size:12px; color:var(--coral); font-weight:600; margin:0 0 8px; }
+  .pj-bio{ font-size:13px; color:var(--text-secondary); line-height:1.75; margin:0; }
+  .pj-credentials{ display:flex; flex-wrap:wrap; gap:6px; margin-top:12px; }
+  .pj-credentials span{ background:var(--accent-soft); color:var(--accent-text); font-size:11px; font-weight:600; padding:3px 9px; border-radius:8px; }
+  @media (min-width:900px){
+    .pj-intro{ padding:28px; }
+    .pj-avatar{ width:72px; height:72px; font-size:22px; }
+    .pj-bio{ font-size:14px; max-width:640px; }
+  }
+
   .tutor-scroll{
     display:flex; gap:12px; overflow-x:auto; margin:0 -20px; padding:0 20px 4px;
     scrollbar-width:none;
@@ -353,9 +373,9 @@
     </div>
   </div>
   <div class="hero-copy">
-    <p class="eyebrow" data-i18n="hero.eyebrow">1:1 한국어 튜터 매칭</p>
+    <p class="eyebrow" data-i18n="hero.eyebrow">PJ와 함께하는 1:1 한국어</p>
     <h1><span data-i18n="hero.d.title1">말문이 트이면</span><br><span class="hl" data-i18n="hero.d.title2">한국어</span><span data-i18n="hero.d.title3">가 열려요</span></h1>
-    <p data-i18n="hero.d.sub">목표와 일정에 맞춰 레슨을 구성하는 검증된 튜터와 학습을 시작하세요.</p>
+    <p data-i18n="hero.d.sub">여행업 30년, 골프 레슨 20년 — 낯선 사람과 통하는 법을 오래 익혀온 PJ와 시작하세요.</p>
     <p class="purpose-label" data-i18n="hero.purpose.label">한국어로 뭘 하고 싶나요?</p>
     <div class="purpose-dropdown" id="purposeDropdown" onclick="togglePurposeMenu(event)">
       <span data-i18n="hero.purpose.biz" id="purposeLabel">돈벌이</span>
@@ -368,7 +388,6 @@
       </div>
     </div>
     <button class="btn btn-primary" data-i18n="hero.cta1" onclick="goToLevelTest()">무료 레벨테스트 시작</button>
-    <p class="more-link" style="cursor:pointer;" onclick="goToTutors()"><span data-i18n="hero.more1">검증된 튜터</span> <b id="tutorCountNumDesktop">24명</b> <span data-i18n="hero.more3">보기</span></p>
   </div>
   <div class="desktop-trust" style="grid-column:1 / -1; display:flex; gap:48px; padding-top:24px; border-top:1px solid var(--card-border);">
     <div style="display:flex; gap:48px; cursor:pointer;" onclick="location.href='tutors.html'">
@@ -392,9 +411,9 @@
       </div>
       <img class="hero-photo" src="https://images.unsplash.com/photo-1752650733337-cb0189176fb9?fm=jpg&q=80&w=700&auto=format&fit=crop&ixlib=rb-4.1.0" alt="화상 수업을 듣는 학습자">
     </div>
-    <p class="eyebrow" data-i18n="hero.eyebrow">1:1 한국어 튜터 매칭</p>
+    <p class="eyebrow" data-i18n="hero.eyebrow">PJ와 함께하는 1:1 한국어</p>
     <h1 data-i18n="hero.title">한국이 궁금하다면,<br>말부터 트세요.</h1>
-    <p data-i18n="hero.sub">레벨테스트로 시작해서<br>검증된 튜터와 1:1로 배우는 한국어</p>
+    <p data-i18n="hero.sub">레벨테스트로 시작해서<br>PJ와 1:1로 배우는 진짜 한국어</p>
     <button class="btn btn-primary" data-i18n="hero.cta1" onclick="location.href='level-test.html'">무료 레벨테스트 시작</button>
     <a href="tutors.html"><button class="btn btn-secondary" data-i18n="hero.cta2">튜터 둘러보기</button></a>
   </section>
@@ -429,10 +448,21 @@
   </section>
 
   <section>
-    <p class="section-eyebrow" data-i18n="tutors.eyebrow">추천 튜터</p>
-    <p class="section-title" data-i18n="tutors.title">지금 가장 인기 있는 튜터</p>
-    <p class="section-desc" data-i18n="tutors.desc">아무나 튜터가 되지 않아요. <b>전문직·대학졸업 인증</b>을 거치고, 실제 학습자 <b>후기와 평점</b>으로 계속 검증받습니다.</p>
-    <div class="tutor-scroll" id="tutorScrollDynamic">
+    <p class="section-eyebrow" data-i18n="tutors.eyebrow">당신의 튜터</p>
+    <p class="section-title" data-i18n="tutors.title">PJ를 소개합니다</p>
+    <div class="pj-intro">
+      <div class="pj-avatar">PJ</div>
+      <div>
+        <p class="pj-role" data-i18n="tutors.pj.role">여행업 30년 · 해외 골프 레슨 20년</p>
+        <p class="pj-bio" data-i18n="tutors.pj.bio">30년 넘게 여행업에 몸담으며 수많은 나라의 사람들과 그들의 문화를 직접 마주해왔고, 20년 동안 해외에서 골프를 가르치며 "어떻게 하면 진짜로 이해시킬 수 있을까"를 매번 다시 고민해왔습니다. 신학과 철학, 두 개의 전공을 거치며 사람이 언어를 통해 무엇을 붙잡으려 하는지도 오래 들여다봤습니다. 말문은 그 시간의 결과입니다 — 외워서 아는 한국어가 아니라, 입이 저절로 열리는 한국어를 가르칩니다.</p>
+        <div class="pj-credentials">
+          <span data-i18n="tutors.pj.tag1">여행업 30년</span>
+          <span data-i18n="tutors.pj.tag2">해외 골프 레슨 20년</span>
+          <span data-i18n="tutors.pj.tag3">신학·철학 전공</span>
+        </div>
+      </div>
+    </div>
+    <div class="tutor-scroll" id="tutorScrollDynamic" style="margin-top:16px;">
     </div>
   </section>
 
@@ -494,9 +524,9 @@
 
   <section>
     <div class="become-tutor">
-      <p class="t" data-i18n="becomeTutor.title">한국어 튜터이신가요?</p>
-      <p class="s" data-i18n="becomeTutor.sub">말문에서 전 세계 학습자를 만나고<br>수입도 만들어보세요</p>
-      <button data-i18n="becomeTutor.cta" onclick="location.href='tutor-apply.html'">튜터로 등록하기</button>
+      <p class="t" data-i18n="becomeTutor.title">튜터 모십니다</p>
+      <p class="s" data-i18n="becomeTutor.sub">PJ가 직접 만나보고, 믿을 수 있는 분만 소개합니다</p>
+      <button data-i18n="becomeTutor.cta" onclick="location.href='tutor-apply.html'">지원하기</button>
     </div>
   </section>
 
@@ -533,13 +563,13 @@
 <script>
 const TRANSLATIONS = {
   ko: {
-    "hero.eyebrow": "1:1 한국어 튜터 매칭",
+    "hero.eyebrow": "PJ와 함께하는 1:1 한국어",
     "hero.title": "한국이 궁금하다면,<br>말부터 트세요.",
-    "hero.sub": "레벨테스트로 시작해서<br>검증된 튜터와 1:1로 배우는 한국어",
+    "hero.sub": "레벨테스트로 시작해서<br>PJ와 1:1로 배우는 진짜 한국어",
     "hero.cta1": "무료 레벨테스트 시작",
     "hero.cta2": "튜터 둘러보기",
     "hero.d.title1": "말문이 트이면", "hero.d.title2": "한국어", "hero.d.title3": "가 열려요",
-    "hero.d.sub": "목표와 일정에 맞춰 레슨을 구성하는 검증된 튜터와 학습을 시작하세요.",
+    "hero.d.sub": "여행업 30년, 골프 레슨 20년 — 낯선 사람과 통하는 법을 오래 익혀온 PJ와 시작하세요.",
     "hero.svgTitle": "노트북으로 화상 수업을 하는 학습자의 일러스트",
     "hero.svgGreeting": "안녕!",
     "hero.greeting1": "안녕하세요!",
@@ -549,15 +579,19 @@ const TRANSLATIONS = {
     "hero.purpose.study": "공부",
     "hero.purpose.move": "살아보기",
     "hero.purpose.travel": "유행따라가기",
-    "hero.more1": "검증된 튜터", "hero.more2": "24명", "hero.more3": "보기",
+    "hero.more1": "PJ 소개", "hero.more3": "더 보기",
     "trust.rating": "평균 평점",
     "trust.verified": "검증된",
     "trust.pro": "전문직 튜터",
     "trust.stages": "4단계",
     "trust.curriculum": "커리큘럼",
-    "tutors.eyebrow": "추천 튜터",
-    "tutors.title": "지금 가장 인기 있는 튜터",
-    "tutors.desc": "아무나 튜터가 되지 않아요. <b>전문직·대학졸업 인증</b>을 거치고, 실제 학습자 <b>후기와 평점</b>으로 계속 검증받습니다.",
+    "tutors.eyebrow": "당신의 튜터",
+    "tutors.title": "PJ를 소개합니다",
+    "tutors.pj.role": "여행업 30년 · 해외 골프 레슨 20년",
+    "tutors.pj.bio": "30년 넘게 여행업에 몸담으며 수많은 나라의 사람들과 그들의 문화를 직접 마주해왔고, 20년 동안 해외에서 골프를 가르치며 \"어떻게 하면 진짜로 이해시킬 수 있을까\"를 매번 다시 고민해왔습니다. 신학과 철학, 두 개의 전공을 거치며 사람이 언어를 통해 무엇을 붙잡으려 하는지도 오래 들여다봤습니다. 말문은 그 시간의 결과입니다 — 외워서 아는 한국어가 아니라, 입이 저절로 열리는 한국어를 가르칩니다.",
+    "tutors.pj.tag1": "여행업 30년",
+    "tutors.pj.tag2": "해외 골프 레슨 20년",
+    "tutors.pj.tag3": "신학·철학 전공",
     "tutor.jieun.desc": "전 항공사 승무원 · 비즈니스 한국어",
     "tutor.jieun.reviews": "후기 132개",
     "tutor.hyunwoo.desc": "前 한국어교원 · TOPIK 전문",
@@ -592,9 +626,9 @@ const TRANSLATIONS = {
     "pricing.pack10.name": "10회권",
     "pricing.pack10.sub": "10% 할인 · 꾸준히 배우고 싶다면",
     "pricing.pack10.unit": " · 회당 ₩27,000",
-    "becomeTutor.title": "한국어 튜터이신가요?",
-    "becomeTutor.sub": "말문에서 전 세계 학습자를 만나고<br>수입도 만들어보세요",
-    "becomeTutor.cta": "튜터로 등록하기",
+    "becomeTutor.title": "튜터 모십니다",
+    "becomeTutor.sub": "PJ가 직접 만나보고, 믿을 수 있는 분만 소개합니다",
+    "becomeTutor.cta": "지원하기",
     "brand.svgTitle": "말문 브랜드 일러스트레이션",
     "brand.svgDesc": "문이 살짝 열리며 그 틈 사이로 말풍선 모양의 말들이 흘러나오는 모습",
     "brand.title": "왜 \"말문\"일까요?",
@@ -603,13 +637,13 @@ const TRANSLATIONS = {
     "nav.community": "커뮤니티", "nav.mypage": "마이페이지", "mypage.pricing": "요금제·패키지", "nav.tutorApply": "튜터 지원하기"
   },
   en: {
-    "hero.eyebrow": "1:1 Korean tutor matching",
+    "hero.eyebrow": "1:1 Korean with PJ",
     "hero.title": "Curious about Korea?<br>Start with the words.",
-    "hero.sub": "Start with a level test,<br>then learn 1:1 with a verified tutor",
+    "hero.sub": "Start with a level test,<br>then learn real Korean 1:1 with PJ",
     "hero.cta1": "Start free level test",
     "hero.cta2": "Browse tutors",
     "hero.d.title1": "Once your malmun opens,", "hero.d.title2": "Korean", "hero.d.title3": " starts to flow",
-    "hero.d.sub": "Start learning with a verified tutor who builds lessons around your goals and schedule.",
+    "hero.d.sub": "30 years in travel, 20 years teaching golf abroad — start with PJ, who has spent a lifetime learning how to actually connect with strangers.",
     "hero.svgTitle": "A learner taking a video lesson on a laptop",
     "hero.svgGreeting": "Hi!",
     "hero.greeting1": "Hi there!",
@@ -619,15 +653,19 @@ const TRANSLATIONS = {
     "hero.purpose.study": "Studying",
     "hero.purpose.move": "Living here",
     "hero.purpose.travel": "Following the trend",
-    "hero.more1": "See", "hero.more2": "24", "hero.more3": "verified tutors",
+    "hero.more1": "Meet", "hero.more3": "PJ",
     "trust.rating": "avg. rating",
     "trust.verified": "Verified",
     "trust.pro": "professional tutors",
     "trust.stages": "4 stages",
     "trust.curriculum": "curriculum",
-    "tutors.eyebrow": "Featured tutors",
-    "tutors.title": "Most popular tutors right now",
-    "tutors.desc": "Not just anyone becomes a tutor. Each one is <b>verified as a professional or university graduate</b>, and stays verified through real learner <b>reviews and ratings</b>.",
+    "tutors.eyebrow": "Your tutor",
+    "tutors.title": "Meet PJ",
+    "tutors.pj.role": "30 years in travel · 20 years teaching golf abroad",
+    "tutors.pj.bio": "Over 30 years in the travel industry, meeting people from countless countries and their cultures firsthand, and 20 years teaching golf abroad, constantly asking \"how do I actually make this click?\" Two degrees, in theology and philosophy, taught him to look closely at what people are really reaching for through language. Malmun is the result of that time — not memorized Korean, but Korean that comes out on its own.",
+    "tutors.pj.tag1": "30 years in travel",
+    "tutors.pj.tag2": "20 years teaching golf abroad",
+    "tutors.pj.tag3": "Theology & philosophy",
     "tutor.jieun.desc": "Former flight attendant · Business Korean",
     "tutor.jieun.reviews": "132 reviews",
     "tutor.hyunwoo.desc": "Former Korean language teacher · TOPIK specialist",
@@ -662,9 +700,9 @@ const TRANSLATIONS = {
     "pricing.pack10.name": "10-lesson pack",
     "pricing.pack10.sub": "10% off · For steady learners",
     "pricing.pack10.unit": " · ₩27,000/lesson",
-    "becomeTutor.title": "Are you a Korean tutor?",
-    "becomeTutor.sub": "Meet learners from around the world<br>and earn on your own schedule",
-    "becomeTutor.cta": "Become a tutor",
+    "becomeTutor.title": "Tutors wanted",
+    "becomeTutor.sub": "PJ personally meets and vouches for every tutor",
+    "becomeTutor.cta": "Apply",
     "brand.svgTitle": "Malmun brand illustration",
     "brand.svgDesc": "A door opening slightly, with speech-bubble shapes flowing out through the gap",
     "brand.title": "Why \"Malmun\"?",
