@@ -163,7 +163,9 @@
     width:56px; height:56px; border-radius:50%; flex-shrink:0;
     background:var(--coral); color:#fff; font-weight:700; font-size:18px;
     display:flex; align-items:center; justify-content:center;
+    overflow:hidden;
   }
+  .pj-avatar img{ width:100%; height:100%; object-fit:cover; display:block; }
   .pj-role{ font-size:12px; color:var(--coral); font-weight:600; margin:0 0 8px; }
   .pj-bio{ font-size:13px; color:var(--text-secondary); line-height:1.75; margin:0; }
   .pj-credentials{ display:flex; flex-wrap:wrap; gap:6px; margin-top:12px; }
@@ -369,7 +371,7 @@
         <div data-i18n="hero.greeting1">안녕하세요!</div>
         <div class="l2"><span id="greetingNameDesktop" data-i18n="hero.greeting2">한국어 배울 준비 되셨나요?</span></div>
       </div>
-      <img class="hero-photo" src="https://images.unsplash.com/photo-1752650733337-cb0189176fb9?fm=jpg&q=80&w=1000&auto=format&fit=crop&ixlib=rb-4.1.0" alt="화상 수업을 듣는 학습자">
+      <img class="hero-photo" src="pj-hero.jpg" alt="PJ">
     </div>
   </div>
   <div class="hero-copy">
@@ -409,7 +411,7 @@
         <div data-i18n="hero.greeting1">안녕하세요!</div>
         <div class="l2"><span id="greetingNameMobile" data-i18n="hero.greeting2">한국어 배울 준비 되셨나요?</span></div>
       </div>
-      <img class="hero-photo" src="https://images.unsplash.com/photo-1752650733337-cb0189176fb9?fm=jpg&q=80&w=700&auto=format&fit=crop&ixlib=rb-4.1.0" alt="화상 수업을 듣는 학습자">
+      <img class="hero-photo" src="pj-hero.jpg" alt="PJ">
     </div>
     <p class="eyebrow" data-i18n="hero.eyebrow">PJ와 함께하는 1:1 한국어</p>
     <h1 data-i18n="hero.title">한국이 궁금하다면,<br>말부터 트세요.</h1>
@@ -451,7 +453,7 @@
     <p class="section-eyebrow" data-i18n="tutors.eyebrow">당신의 튜터</p>
     <p class="section-title" data-i18n="tutors.title">PJ를 소개합니다</p>
     <div class="pj-intro">
-      <div class="pj-avatar">PJ</div>
+      <div class="pj-avatar"><img src="pj-avatar.jpg" alt="PJ"></div>
       <div>
         <p class="pj-role" data-i18n="tutors.pj.role">여행업 30년 · 해외 골프 레슨 20년</p>
         <p class="pj-bio" data-i18n="tutors.pj.bio">30년 넘게 여행업에 몸담으며 수많은 나라의 사람들과 그들의 문화를 직접 마주해왔고, 20년 동안 해외에서 골프를 가르치며 "어떻게 하면 진짜로 이해시킬 수 있을까"를 매번 다시 고민해왔습니다. 신학과 철학, 두 개의 전공을 거치며 사람이 언어를 통해 무엇을 붙잡으려 하는지도 오래 들여다봤습니다. 말문은 그 시간의 결과입니다 — 외워서 아는 한국어가 아니라, 입이 저절로 열리는 한국어를 가르칩니다.</p>
