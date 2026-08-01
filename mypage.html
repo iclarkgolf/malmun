@@ -66,6 +66,11 @@
   .history-date{ font-size:11px; color:var(--accent); font-weight:600; margin:0 0 4px; }
   .history-text{ font-size:13px; color:var(--text); margin:0 0 3px; }
   .history-sub{ font-size:12px; color:var(--text-secondary); margin:0; }
+  .summary-block{ margin-top:8px; }
+  .summary-label{ font-size:11px; color:var(--text-muted); font-weight:600; margin:8px 0 4px; }
+  .summary-chips{ display:flex; flex-wrap:wrap; gap:6px; }
+  .summary-chip{ background:var(--accent-soft); color:var(--accent-text); font-size:11px; padding:3px 9px; border-radius:8px; }
+  .summary-goal{ font-size:12px; color:var(--text-secondary); margin:6px 0 0; }
 
   body{ padding-bottom:76px; }
   .bottom-nav{
@@ -146,6 +151,7 @@
   <div class="stats">
     <div class="stat-card"><p class="num" id="statLessonCount">0</p><p class="label" data-i18n="mypage.completed">예약한 수업</p></div>
     <div class="stat-card"><p class="num" id="statProgress">0%</p><p class="label" id="statProgressLabel">진도율</p></div>
+    <div class="stat-card"><p class="num" id="statStreak">0주</p><p class="label" data-i18n="mypage.streak">연속 출석</p></div>
   </div>
 
   <p style="font-size:12px;color:var(--text-muted);margin:0 0 10px;" data-i18n="mypage.historyTitle">나의 학습 히스토리</p>
@@ -219,6 +225,42 @@ function formatDate(ts){
   return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
 }
 
+// 그 날짜가 속한 주의 월요일 자정을 반환 (주 단위 스트릭 계산용)
+function getMonday(date){
+  const d = new Date(date);
+  const day = d.getDay(); // 0=일 ... 6=토
+  const diff = (day === 0 ? -6 : 1) - day;
+  d.setDate(d.getDate() + diff);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+// "수업 정리" 기록이 남은 주(week)들을 보고, 이번 주(또는 지난 주)부터 몇 주 연속인지 계산
+function computeStreak(summaryEntries){
+  const weekTimes = new Set();
+  summaryEntries.forEach(e => {
+    if(!e.createdAt) return;
+    const d = e.createdAt.toDate ? e.createdAt.toDate() : new Date(e.createdAt);
+    weekTimes.add(getMonday(d).getTime());
+  });
+  const sorted = Array.from(weekTimes).sort((a, b) => b - a);
+  if(sorted.length === 0) return 0;
+  const oneWeek = 7 * 24 * 60 * 60 * 1000;
+  const thisMonday = getMonday(new Date()).getTime();
+  const lastMonday = thisMonday - oneWeek;
+  // 가장 최근 기록이 이번 주도 지난 주도 아니면 스트릭이 끊긴 것으로 봄
+  if(sorted[0] !== thisMonday && sorted[0] !== lastMonday) return 0;
+  let streak = 1;
+  for(let i = 1; i < sorted.length; i++){
+    if(sorted[i - 1] - sorted[i] === oneWeek){
+      streak++;
+    }else{
+      break;
+    }
+  }
+  return streak;
+}
+
 function renderHistoryEntry(entry){
   const div = document.createElement('div');
   div.className = 'history-item';
@@ -231,15 +273,40 @@ function renderHistoryEntry(entry){
     text = entry.text || '학습 활동';
     sub = entry.sub || '';
   }
+
+  let summaryHtml = '';
+  if(entry.type === 'lesson_summary'){
+    const vocab = entry.vocab || [];
+    const grammar = entry.grammar || [];
+    summaryHtml = '<div class="summary-block">';
+    if(vocab.length){
+      summaryHtml += `<p class="summary-label">📚 오늘의 단어</p><div class="summary-chips">${vocab.map(v => `<span class="summary-chip">${escapeHtml(v)}</span>`).join('')}</div>`;
+    }
+    if(grammar.length){
+      summaryHtml += `<p class="summary-label">✏️ 오늘의 표현</p><div class="summary-chips">${grammar.map(v => `<span class="summary-chip">${escapeHtml(v)}</span>`).join('')}</div>`;
+    }
+    if(entry.nextGoal){
+      summaryHtml += `<p class="summary-goal">🎯 다음 목표: ${escapeHtml(entry.nextGoal)}</p>`;
+    }
+    summaryHtml += '</div>';
+  }
+
   div.innerHTML = `
     <div class="history-dot"></div>
     <div class="history-card">
       <p class="history-date">${formatDate(entry.createdAt)}</p>
       <p class="history-text">${text}</p>
       <p class="history-sub">${sub}</p>
+      ${summaryHtml}
     </div>
   `;
   return div;
+}
+
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str == null ? '' : String(str);
+  return div.innerHTML;
 }
 
 async function loadHistory(uid){
@@ -262,6 +329,11 @@ async function loadHistory(uid){
     // ── 예약한 수업 수: 실제 예약(booking) 기록 개수 ──
     const bookings = entries.filter(e => e.type === 'booking');
     document.getElementById('statLessonCount').textContent = bookings.length;
+
+    // ── 연속 출석 스트릭: 튜터가 남긴 "수업 정리"(lesson_summary) 기록 기준 ──
+    // 예약만으로는 실제로 수업을 들었는지 알 수 없어서, 튜터가 수업 후 노트를 남긴 주(week) 기준으로 계산합니다.
+    const summaries = entries.filter(e => e.type === 'lesson_summary');
+    document.getElementById('statStreak').textContent = computeStreak(summaries) + '주';
 
     // ── 다음 수업: 가장 최근 예약 기록을 그대로 사용 (진짜 데이터) ──
     if(bookings.length > 0){
@@ -405,6 +477,7 @@ const TRANSLATIONS = {
     "mypage.noCreditSub": "충전하러 가기 →",
     "mypage.monthly": "이번 달 학습 현황",
     "mypage.completed": "예약한 수업",
+    "mypage.streak": "연속 출석",
     "mypage.history": "수업 내역",
     "mypage.historyTitle": "나의 학습 히스토리",
     "mypage.historyEmpty": "아직 기록이 없어요. 레벨테스트나 수업을 완료하면 여기 쌓입니다.",
@@ -424,6 +497,7 @@ const TRANSLATIONS = {
     "mypage.noCreditSub": "Get credits →",
     "mypage.monthly": "This month's progress",
     "mypage.completed": "Lessons booked",
+    "mypage.streak": "Week streak",
     "mypage.history": "Lesson history",
     "mypage.historyTitle": "My learning history",
     "mypage.historyEmpty": "No entries yet. Complete a level test or lesson to start building your history.",
