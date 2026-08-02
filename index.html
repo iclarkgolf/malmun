@@ -100,13 +100,14 @@
     border-radius:20px; overflow:visible;
   }
   .hero-photo-card .scene-svg, .hero-photo-card .hero-photo{ display:block; width:100%; height:auto; border-radius:16px; }
-  .hero-photo-card .hero-photo{ aspect-ratio:16/9; object-fit:cover; }
+  .hero-photo-card .hero-photo{ aspect-ratio:685/920; object-fit:cover; }
   .hero-photo-card.mobile{ max-width:220px; margin:0 auto 18px; padding:14px; }
   .greeting-bubble{
     position:absolute; top:-16px; left:16px; max-width:210px;
     background:var(--coral); color:#fff; border-radius:14px 14px 14px 4px;
     padding:10px 14px; box-shadow:0 8px 20px rgba(216,90,48,0.28);
     font-size:12px; line-height:1.5; font-weight:600; z-index:2;
+    overflow:hidden; white-space:normal;
   }
   .hero-photo-card.mobile .greeting-bubble{ top:-12px; left:10px; max-width:150px; font-size:11px; padding:8px 11px; }
   .greeting-bubble .l2{ font-weight:400; opacity:0.94; }
@@ -368,10 +369,6 @@
   <svg class="deco-ring corner-br" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="46" fill="none" stroke="var(--accent-border)" stroke-width="1.5" stroke-dasharray="2 7"/></svg>
   <div class="hero-visual">
     <div class="hero-photo-card desktop">
-      <div class="greeting-bubble">
-        <div data-i18n="hero.greeting1">안녕하세요!</div>
-        <div class="l2"><span id="greetingNameDesktop" data-i18n="hero.greeting2">한국어 배울 준비 되셨나요?</span></div>
-      </div>
       <img class="hero-photo" src="pj-hero.jpg" alt="PJ">
     </div>
   </div>
@@ -408,10 +405,6 @@
   <div class="hero-page">
   <section class="hero-mobile" style="border-top:none; padding-top:8px;">
     <div class="hero-photo-card mobile">
-      <div class="greeting-bubble">
-        <div data-i18n="hero.greeting1">안녕하세요!</div>
-        <div class="l2"><span id="greetingNameMobile" data-i18n="hero.greeting2">한국어 배울 준비 되셨나요?</span></div>
-      </div>
       <img class="hero-photo" src="pj-hero.jpg" alt="PJ">
     </div>
     <p class="eyebrow" data-i18n="hero.eyebrow">PJ와 함께하는 1:1 한국어</p>
@@ -714,6 +707,7 @@ function applyLang(lang){
   document.getElementById('langCur').textContent = (lang === 'ko') ? '한국어' : 'English';
   document.getElementById('langOther').textContent = (lang === 'ko') ? 'EN' : '한글';
   localStorage.setItem('malmun_lang', lang);
+  if(typeof applyGreetingPersonalization === 'function') applyGreetingPersonalization();
 }
 
 // ── 목적 드롭다운: 실제 클릭으로 열리고 선택되는 기능 ──
@@ -787,6 +781,19 @@ const db = firebase.firestore();
 const auth = firebase.auth();
 
 // 로그인 상태면 말풍선 인사말을 "OO님, 안녕하세요!" 형태로 개인화
+// (이름은 window._malmunGreetingName에 저장해두고, 언어전환(applyLang) 때마다
+//  이 함수를 다시 호출해서 번역 시스템이 기본 문구로 덮어쓰지 않도록 함)
+function applyGreetingPersonalization(){
+  const shownName = window._malmunGreetingName;
+  if(!shownName) return;
+  const lang = localStorage.getItem('malmun_lang') || 'ko';
+  const line2 = (lang === 'ko') ? `${shownName}님, 환영해요!` : `Welcome back, ${shownName}!`;
+  ['greetingNameDesktop','greetingNameMobile'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.textContent = line2;
+  });
+}
+
 auth.onAuthStateChanged(async (user) => {
   if(!user) return;
   const fallback = user.displayName || (user.email ? user.email.split('@')[0] : '');
@@ -800,12 +807,8 @@ auth.onAuthStateChanged(async (user) => {
     console.error('표시 이름 불러오기 실패:', err);
   }
   if(!shownName) return;
-  const lang = localStorage.getItem('malmun_lang') || 'ko';
-  const line2 = (lang === 'ko') ? `${shownName}님, 환영해요!` : `Welcome back, ${shownName}!`;
-  ['greetingNameDesktop','greetingNameMobile'].forEach(id => {
-    const el = document.getElementById(id);
-    if(el) el.textContent = line2;
-  });
+  window._malmunGreetingName = shownName;
+  applyGreetingPersonalization();
 });
 
 // 홈 화면 후기 섹션 — 승인된(published:true) 후기를 최신순으로 자동 표시
