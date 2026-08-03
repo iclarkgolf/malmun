@@ -101,7 +101,10 @@
   }
   .hero-photo-card .scene-svg, .hero-photo-card .hero-photo{ display:block; width:100%; height:auto; border-radius:16px; }
   .hero-photo-card .hero-photo{ aspect-ratio:685/920; object-fit:cover; }
-  .hero-photo-card.mobile{ max-width:220px; margin:0 auto 18px; padding:14px; }
+  .hero-photo-card.mobile{
+    max-width:100%; margin:0 auto 18px; padding:0; background:none; border-radius:0;
+  }
+  .hero-photo-card.mobile .hero-photo{ border-radius:0; }
   .greeting-bubble{
     position:absolute; top:-16px; left:16px; max-width:210px;
     background:var(--coral); color:#fff; border-radius:14px 14px 14px 4px;
