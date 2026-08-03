@@ -177,9 +177,20 @@ function guideHtml(){
   `;
 }
 
-function formHtml(user, prefillName){
+function guideEntryHtml(){
   return `
     ${guideHtml()}
+    <button type="button" class="submit-btn" id="startApplyBtn">지원서 작성하기</button>
+  `;
+}
+
+function formHtml(user, prefillName){
+  return `
+    <div class="header">
+      <p class="tag">말문 튜터 지원</p>
+      <p class="title">지원서를 작성해주세요</p>
+      <p class="sub">아래 내용을 채워서 제출해주세요.</p>
+    </div>
     <form id="applyForm">
       <div class="form-section">
         <label>본인 사진 <span class="required-mark">*필수</span></label>
@@ -331,12 +342,34 @@ function checkFormValid(){
   document.getElementById('submitBtn').disabled = !(name && email && intro && photoURL);
 }
 
-auth.onAuthStateChanged(async (user) => {
-  if(!user){
+let currentUser = null;
+let authResolved = false;
+let applyIntentPending = false;
+
+function wireStartButton(){
+  const btn = document.getElementById('startApplyBtn');
+  if(!btn) return;
+  btn.addEventListener('click', () => {
+    if(!authResolved){
+      btn.disabled = true;
+      btn.textContent = '확인 중...';
+      applyIntentPending = true;
+      return;
+    }
+    proceedAfterAuthCheck();
+  });
+}
+
+function proceedAfterAuthCheck(){
+  if(!currentUser){
+    sessionStorage.setItem('malmunApplyIntent', '1');
     location.href = 'login.html?next=tutor-apply';
     return;
   }
+  showApplicationFlow(currentUser);
+}
 
+async function showApplicationFlow(user){
   // 이미 지원한 적 있는지 확인
   try{
     const snap = await db.collection('tutorApplications').where('uid', '==', user.uid).limit(1).get();
@@ -363,6 +396,28 @@ auth.onAuthStateChanged(async (user) => {
     document.getElementById(id).addEventListener('input', checkFormValid);
   });
   document.getElementById('applyForm').addEventListener('submit', (e) => handleSubmit(e, user));
+}
+
+// 가이드 화면은 로그인 여부와 상관없이 바로 보여줌
+document.getElementById('content').innerHTML = guideEntryHtml();
+wireStartButton();
+
+// 로그인 상태는 백그라운드에서 확인 (버튼 클릭 시 사용)
+auth.onAuthStateChanged((user) => {
+  currentUser = user;
+  authResolved = true;
+
+  if(applyIntentPending){
+    applyIntentPending = false;
+    proceedAfterAuthCheck();
+    return;
+  }
+
+  // 로그인 화면 갔다가 돌아온 경우, 자동으로 지원서 작성 이어서 진행
+  if(user && sessionStorage.getItem('malmunApplyIntent') === '1'){
+    sessionStorage.removeItem('malmunApplyIntent');
+    proceedAfterAuthCheck();
+  }
 });
 </script>
 
