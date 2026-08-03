@@ -139,7 +139,7 @@ const ADMIN_PW = "admin0115";
 
 // 공지 이메일 발송용 Google Apps Script 웹앱 URL — 배포 후 여기에 붙여넣으세요.
 // 비워두면 공지는 정상 저장되고, 이메일 발송만 건너뜁니다.
-const EMAIL_WEBHOOK_URL = "";
+const EMAIL_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwpKuWSh3qwOEnd6WdBOdigPe0QFLNsHqdFgXJdH0NJAxSKtHHtMw9oYmL2pgJNB4XryA/exec";
 
 document.getElementById('pwBtn').addEventListener('click', tryUnlock);
 document.getElementById('pwInput').addEventListener('keydown', e => { if(e.key === 'Enter') tryUnlock(); });
