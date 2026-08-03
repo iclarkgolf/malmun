@@ -5,6 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>튜터 지원하기 | 말문</title>
 <meta name="description" content="말문에서 한국어 튜터로 활동해보세요. 지원 전 준비사항을 확인하고 간단한 지원서를 제출할 수 있어요.">
+<!-- Google Analytics (GA4) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-SBV742CE8W"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-SBV742CE8W');
+</script>
 <style>
   :root{
     --bg: #FFF9F0;
@@ -325,6 +333,7 @@ async function handleSubmit(e, user){
       status: 'pending',
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
+    if(window.gtag){ gtag('event', 'tutor_apply_submit'); }
     document.getElementById('content').innerHTML = doneHtml('pending');
   }catch(err){
     console.error('지원서 제출 실패:', err);
@@ -350,6 +359,7 @@ function wireStartButton(){
   const btn = document.getElementById('startApplyBtn');
   if(!btn) return;
   btn.addEventListener('click', () => {
+    if(window.gtag){ gtag('event', 'tutor_apply_start_click'); }
     if(!authResolved){
       btn.disabled = true;
       btn.textContent = '확인 중...';
@@ -390,6 +400,7 @@ async function showApplicationFlow(user){
 
   const prefillName = userDoc.malmunDisplayName || user.displayName || '';
   document.getElementById('content').innerHTML = formHtml(user, prefillName);
+  if(window.gtag){ gtag('event', 'tutor_apply_form_view'); }
   wireDayChips();
   wirePhotoUpload(user);
   ['fName','fEmail','fIntro'].forEach(id => {
@@ -400,6 +411,7 @@ async function showApplicationFlow(user){
 
 // 가이드 화면은 로그인 여부와 상관없이 바로 보여줌
 document.getElementById('content').innerHTML = guideEntryHtml();
+if(window.gtag){ gtag('event', 'tutor_apply_guide_view'); }
 wireStartButton();
 
 // 로그인 상태는 백그라운드에서 확인 (버튼 클릭 시 사용)
