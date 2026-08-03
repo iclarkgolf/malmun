@@ -70,6 +70,13 @@
   }
   .terms{ font-size:12px; color:var(--text-muted); text-align:center; margin:0; }
 </style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-SBV742CE8W"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-SBV742CE8W');
+</script>
 </head>
 <body>
 
@@ -207,6 +214,7 @@ function updateSubmitBtnText(){
 
 function switchTab(mode){
   currentMode = mode;
+  if(mode === 'signup' && window.gtag){ gtag('event', 'student_signup_start'); }
   document.getElementById('tabLogin').classList.toggle('active', mode === 'login');
   document.getElementById('tabSignup').classList.toggle('active', mode === 'signup');
   updateSubmitBtnText();
@@ -260,6 +268,9 @@ async function handleOAuth(provider){
     const result = await auth.signInWithPopup(googleProvider);
     await saveUserProfile(result.user);
     await migratePendingHistory(result.user.uid);
+    if(window.gtag && result.additionalUserInfo && result.additionalUserInfo.isNewUser){
+      gtag('event', 'student_signup_complete');
+    }
     afterLogin();
   }catch(err){
     console.error(err);
@@ -279,6 +290,7 @@ async function handleEmailLogin(){
       const result = await auth.createUserWithEmailAndPassword(email, password);
       await saveUserProfile(result.user);
       await migratePendingHistory(result.user.uid);
+      if(window.gtag){ gtag('event', 'student_signup_complete'); }
       afterLogin();
     }catch(err){
       if(err.code === 'auth/email-already-in-use'){

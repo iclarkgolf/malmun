@@ -73,6 +73,13 @@
 
   .section-label{ font-size:12px; font-weight:600; color:var(--text-muted); margin:0 0 12px; }
 
+  .audience-tabs{ display:flex; gap:8px; margin-bottom:16px; }
+  .audience-tab{
+    flex:1; padding:10px; border-radius:10px; border:1px solid var(--card-border);
+    background:#fff; font-size:13px; font-weight:600; color:var(--text-secondary); cursor:pointer;
+  }
+  .audience-tab.active{ background:var(--accent); color:var(--accent-text); border-color:var(--accent); }
+
   .notice-card{
     background:var(--card); border:1px solid var(--card-border); border-radius:14px;
     padding:16px 18px; margin-bottom:12px;
@@ -101,22 +108,27 @@
   <div class="wrap">
     <p style="margin:0 0 10px;"><a href="admin.html" style="font-size:12px; color:var(--text-muted);">← 관리자 홈</a></p>
     <h1>공지사항 관리</h1>
-    <p class="sub">여기서 작성하면 튜터들이 예약 관리 화면(tutor-bookings.html) 상단에서 바로 확인할 수 있어요. "중요" 체크하면 이메일도 같이 발송돼요.</p>
+    <p class="sub" id="subText">여기서 작성하면 튜터들이 예약 관리 화면(tutor-bookings.html) 상단에서 바로 확인할 수 있어요. "중요" 체크하면 이메일도 같이 발송돼요.</p>
+
+    <div class="audience-tabs">
+      <button class="audience-tab active" id="tabTutor" onclick="switchAudience('tutor')">튜터 공지</button>
+      <button class="audience-tab" id="tabStudent" onclick="switchAudience('student')">학생 공지</button>
+    </div>
 
     <div class="write-card">
       <label>제목</label>
       <input type="text" id="fTitle" placeholder="예: 8월 셋째 주 수업시간 안내">
       <label>내용</label>
-      <textarea id="fBody" placeholder="튜터들에게 전달할 내용을 적어주세요"></textarea>
+      <textarea id="fBody" placeholder="전달할 내용을 적어주세요"></textarea>
       <div class="important-row">
         <input type="checkbox" id="fImportant">
-        <label for="fImportant" class="txt" style="margin:0;">중요 공지 — 저장 시 승인된 튜터 전원에게 이메일도 자동 발송</label>
+        <label for="fImportant" class="txt" id="importantLabel" style="margin:0;">중요 공지 — 저장 시 승인된 튜터 전원에게 이메일도 자동 발송</label>
       </div>
       <button class="submit-btn" id="submitBtn">공지 등록하기</button>
       <p class="status-msg" id="statusMsg"></p>
     </div>
 
-    <p class="section-label">등록된 공지 (최신순)</p>
+    <p class="section-label" id="listLabel">등록된 튜터 공지 (최신순)</p>
     <div id="list"><p class="loading">불러오는 중...</p></div>
   </div>
 </div>
@@ -163,10 +175,25 @@ if(sessionStorage.getItem('malmun_admin_ok') === '1'){
 }
 
 let allNotices = [];
+let currentAudience = 'tutor';
+
+function switchAudience(aud){
+  currentAudience = aud;
+  document.getElementById('tabTutor').classList.toggle('active', aud === 'tutor');
+  document.getElementById('tabStudent').classList.toggle('active', aud === 'student');
+  document.getElementById('subText').textContent = aud === 'tutor'
+    ? '여기서 작성하면 튜터들이 예약 관리 화면(tutor-bookings.html) 상단에서 바로 확인할 수 있어요. "중요" 체크하면 이메일도 같이 발송돼요.'
+    : '여기서 작성하면 학생들이 마이페이지(mypage.html) 상단에서 바로 확인할 수 있어요. "중요" 체크하면 이메일도 같이 발송돼요.';
+  document.getElementById('importantLabel').textContent = aud === 'tutor'
+    ? '중요 공지 — 저장 시 승인된 튜터 전원에게 이메일도 자동 발송'
+    : '중요 공지 — 저장 시 가입한 학생 전원에게 이메일도 자동 발송';
+  document.getElementById('listLabel').textContent = aud === 'tutor' ? '등록된 튜터 공지 (최신순)' : '등록된 학생 공지 (최신순)';
+  render();
+}
 
 async function loadNotices(){
   try{
-    const snap = await db.collection('notices').orderBy('createdAt', 'desc').limit(50).get();
+    const snap = await db.collection('notices').orderBy('createdAt', 'desc').limit(100).get();
     allNotices = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     render();
   }catch(err){
@@ -177,6 +204,11 @@ async function loadNotices(){
 
 async function getApprovedTutorEmails(){
   const snap = await db.collection('tutorApplications').where('status', '==', 'approved').get();
+  return snap.docs.map(d => d.data().email).filter(Boolean);
+}
+
+async function getStudentEmails(){
+  const snap = await db.collection('users').get();
   return snap.docs.map(d => d.data().email).filter(Boolean);
 }
 
@@ -217,13 +249,16 @@ document.getElementById('submitBtn').addEventListener('click', async () => {
   try{
     await db.collection('notices').add({
       title, body, important,
+      audience: currentAudience,
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
 
     if(important){
       btn.textContent = '이메일 발송 중...';
       try{
-        const emails = await getApprovedTutorEmails();
+        const emails = currentAudience === 'tutor'
+          ? await getApprovedTutorEmails()
+          : await getStudentEmails();
         await sendEmailNotice(title, body, emails);
       }catch(mailErr){
         console.error('이메일 발송 실패:', mailErr);
@@ -267,11 +302,12 @@ async function deleteNotice(id){
 
 function render(){
   const list = document.getElementById('list');
-  if(allNotices.length === 0){
+  const filtered = allNotices.filter(n => (n.audience || 'tutor') === currentAudience);
+  if(filtered.length === 0){
     list.innerHTML = `<p class="empty">아직 등록된 공지가 없어요.</p>`;
     return;
   }
-  list.innerHTML = allNotices.map(n => {
+  list.innerHTML = filtered.map(n => {
     const date = n.createdAt && n.createdAt.toDate ? n.createdAt.toDate().toLocaleDateString('ko-KR') : '';
     return `
       <div class="notice-card">

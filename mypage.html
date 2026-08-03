@@ -51,6 +51,19 @@
   .stat-card .num{ font-size:20px; font-weight:600; margin:0; }
   .stat-card .label{ font-size:11px; color:var(--text-muted); margin:4px 0 0; }
 
+  .notice-box{
+    background:var(--card); border:1px solid var(--card-border); border-radius:16px;
+    padding:16px 18px; margin-bottom:16px;
+  }
+  .notice-box h2{ font-size:13px; margin:0 0 12px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.03em; }
+  .notice-item{ padding:10px 0; border-top:1px solid var(--card-border); }
+  .notice-item:first-of-type{ border-top:none; padding-top:0; }
+  .notice-item-title{ font-size:13px; font-weight:700; margin:0 0 3px; display:flex; align-items:center; gap:6px; }
+  .notice-new-dot{ width:6px; height:6px; border-radius:50%; background:var(--accent); display:inline-block; }
+  .notice-item-body{ font-size:12px; color:var(--text-secondary); line-height:1.6; white-space:pre-wrap; margin:0; }
+  .notice-item-date{ font-size:11px; color:var(--text-muted); margin-top:4px; }
+  .notice-empty{ font-size:12px; color:var(--text-muted); }
+
   .menu-item{
     display:flex; justify-content:space-between; align-items:center;
     padding:14px 0; border-bottom:1px solid var(--card-border);
@@ -105,6 +118,11 @@
       </button>
       <p class="sub" id="userLevelLine">-</p>
     </div>
+  </div>
+
+  <div class="notice-box">
+    <h2>공지사항</h2>
+    <div id="noticeList"><p class="notice-empty">불러오는 중...</p></div>
   </div>
 
   <button class="next-lesson" id="nextLessonCard" style="display:none;">
@@ -388,7 +406,42 @@ auth.onAuthStateChanged((user) => {
   loadDisplayName(user);
   loadHistory(user.uid);
   loadCreditBalance(user.uid);
+  loadNotices();
 });
+
+async function loadNotices(){
+  try{
+    const snap = await db.collection('notices')
+      .where('audience', '==', 'student')
+      .orderBy('createdAt', 'desc')
+      .limit(5)
+      .get();
+    const notices = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const lastSeen = Number(localStorage.getItem('malmun_student_notice_last_seen') || 0);
+    const el = document.getElementById('noticeList');
+    if(notices.length === 0){
+      el.innerHTML = `<p class="notice-empty">등록된 공지가 없어요.</p>`;
+      return;
+    }
+    el.innerHTML = notices.map(n => {
+      const ts = n.createdAt && n.createdAt.toMillis ? n.createdAt.toMillis() : 0;
+      const isNew = ts > lastSeen;
+      const date = n.createdAt && n.createdAt.toDate ? n.createdAt.toDate().toLocaleDateString('ko-KR') : '';
+      return `
+        <div class="notice-item">
+          <p class="notice-item-title">${isNew ? '<span class="notice-new-dot"></span>' : ''}${escapeHtml(n.title || '')}</p>
+          <p class="notice-item-body">${escapeHtml(n.body || '')}</p>
+          <p class="notice-item-date">${date}</p>
+        </div>
+      `;
+    }).join('');
+    const latestTs = notices[0].createdAt && notices[0].createdAt.toMillis ? notices[0].createdAt.toMillis() : Date.now();
+    localStorage.setItem('malmun_student_notice_last_seen', String(latestTs));
+  }catch(err){
+    console.error('공지 불러오기 실패:', err);
+    document.getElementById('noticeList').innerHTML = `<p class="notice-empty">공지를 불러오지 못했어요.</p>`;
+  }
+}
 
 function fmtCreditDate(d){
   return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;

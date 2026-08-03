@@ -78,6 +78,13 @@
   .pay-btn:disabled{ background:#e8e4d8; color:#a8a49a; cursor:not-allowed; }
   .loading{ text-align:center; color:var(--text-muted); font-size:13px; padding:60px 0; }
 </style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-SBV742CE8W"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-SBV742CE8W');
+</script>
 </head>
 <body>
 
@@ -476,6 +483,7 @@ async function handleConfirm(){
     }
 
     alert(currentLang === 'ko' ? '예약이 확정되었습니다!' : 'Your booking is confirmed!');
+    if(window.gtag){ gtag('event', 'student_booking_complete'); }
     location.href = 'mypage.html';
   }catch(err){
     console.error('예약 저장 실패:', err);
@@ -507,6 +515,7 @@ async function loadTutor(){
   renderSlots();
   renderTutorSummary();
   updatePayState();
+  if(window.gtag){ gtag('event', 'student_booking_view'); }
 }
 
 loadTutor();
