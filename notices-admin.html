@@ -93,6 +93,21 @@
 
   .empty{ text-align:center; color:var(--text-muted); font-size:13px; padding:40px 0; }
   .loading{ text-align:center; color:var(--text-muted); font-size:13px; padding:40px 0; }
+
+  .n-stats{ margin-top:8px; }
+  .stat-btn{
+    background:var(--accent-soft); border:1px solid #F0D9A8; color:var(--accent-text);
+    font-size:11px; font-weight:600; padding:5px 10px; border-radius:20px; cursor:pointer;
+  }
+  .reader-list{
+    margin-top:10px; border-top:1px dashed var(--card-border); padding-top:10px;
+    max-height:180px; overflow-y:auto;
+  }
+  .reader-row{
+    display:flex; justify-content:space-between; align-items:center;
+    font-size:12px; padding:5px 0; color:var(--text-secondary);
+  }
+  .reader-email{ color:var(--text-muted); font-size:11px; }
 </style>
 </head>
 <body>
@@ -309,6 +324,9 @@ function render(){
   }
   list.innerHTML = filtered.map(n => {
     const date = n.createdAt && n.createdAt.toDate ? n.createdAt.toDate().toLocaleDateString('ko-KR') : '';
+    const statBtn = currentAudience === 'student'
+      ? `<button class="stat-btn" id="stat-${n.id}" onclick="toggleReaders('${n.id}')">읽음 확인 중...</button>`
+      : `<span class="stat-btn" style="cursor:default;">조회 ${n.viewCount || 0}회</span>`;
     return `
       <div class="notice-card">
         <div class="n-top">
@@ -320,9 +338,58 @@ function render(){
           <span>${date}</span>
           <button class="del-btn" onclick="deleteNotice('${n.id}')">삭제</button>
         </div>
+        <div class="n-stats">${statBtn}</div>
+        <div class="reader-list" id="readers-${n.id}" style="display:none;"></div>
       </div>
     `;
   }).join('');
+
+  if(currentAudience === 'student'){
+    filtered.forEach(n => loadReadCount(n.id));
+  }
+}
+
+async function loadReadCount(noticeId){
+  try{
+    const snap = await db.collection('noticeReads').where('noticeId', '==', noticeId).get();
+    const btn = document.getElementById(`stat-${noticeId}`);
+    if(btn) btn.textContent = `읽음 ${snap.size}명 (눌러서 보기)`;
+  }catch(err){
+    console.error('읽음수 불러오기 실패:', err);
+    const btn = document.getElementById(`stat-${noticeId}`);
+    if(btn) btn.textContent = '읽음수 확인 실패';
+  }
+}
+
+async function toggleReaders(noticeId){
+  const box = document.getElementById(`readers-${noticeId}`);
+  if(box.style.display === 'block'){
+    box.style.display = 'none';
+    return;
+  }
+  box.style.display = 'block';
+  box.innerHTML = `<p class="notice-empty">불러오는 중...</p>`;
+  try{
+    const snap = await db.collection('noticeReads').where('noticeId', '==', noticeId).get();
+    if(snap.empty){
+      box.innerHTML = `<p class="notice-empty">아직 아무도 읽지 않았어요.</p>`;
+      return;
+    }
+    const readers = snap.docs.map(d => d.data()).sort((a, b) => {
+      const at = a.readAt && a.readAt.toMillis ? a.readAt.toMillis() : 0;
+      const bt = b.readAt && b.readAt.toMillis ? b.readAt.toMillis() : 0;
+      return bt - at;
+    });
+    box.innerHTML = readers.map(r => `
+      <div class="reader-row">
+        <span>${escapeHtml(r.name || r.email || '학생')}</span>
+        <span class="reader-email">${escapeHtml(r.email || '')}</span>
+      </div>
+    `).join('');
+  }catch(err){
+    console.error('읽은 사람 목록 불러오기 실패:', err);
+    box.innerHTML = `<p class="notice-empty">불러오지 못했어요: ${err.message}</p>`;
+  }
 }
 
 function escapeHtml(str){

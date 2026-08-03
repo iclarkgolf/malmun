@@ -158,7 +158,11 @@ if(sessionStorage.getItem('malmun_admin_ok') === '1'){
 
 async function loadNotices(){
   try{
-    const snap = await db.collection('notices').orderBy('createdAt', 'desc').limit(5).get();
+    const snap = await db.collection('notices')
+      .where('audience', '==', 'tutor')
+      .orderBy('createdAt', 'desc')
+      .limit(5)
+      .get();
     const notices = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     const lastSeen = Number(localStorage.getItem('malmun_notice_last_seen') || 0);
     const el = document.getElementById('noticeList');
@@ -180,9 +184,26 @@ async function loadNotices(){
     }).join('');
     const latestTs = notices[0].createdAt && notices[0].createdAt.toMillis ? notices[0].createdAt.toMillis() : Date.now();
     localStorage.setItem('malmun_notice_last_seen', String(latestTs));
+    markNoticesViewed(notices);
   }catch(err){
     console.error('공지 불러오기 실패:', err);
     document.getElementById('noticeList').innerHTML = `<p class="notice-empty">공지를 불러오지 못했어요.</p>`;
+  }
+}
+
+// 튜터는 공용 비밀번호로 접속하는 화면이라 "누가" 봤는지는 구분할 수 없어서,
+// 대신 이 화면이 새로고침될 때마다 열람 횟수만 누적 기록합니다.
+async function markNoticesViewed(notices){
+  try{
+    const batch = db.batch();
+    notices.forEach(n => {
+      batch.set(db.collection('notices').doc(n.id), {
+        viewCount: firebase.firestore.FieldValue.increment(1)
+      }, { merge: true });
+    });
+    await batch.commit();
+  }catch(err){
+    console.error('조회수 기록 실패:', err);
   }
 }
 
