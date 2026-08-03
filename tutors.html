@@ -29,6 +29,7 @@
 
   .header{ padding:24px 0 14px; display:flex; justify-content:space-between; align-items:flex-start; }
   .header p.sub{ font-size:12px; color:var(--text-muted); margin:0 0 4px; }
+  .header p.philosophy{ font-size:12px; color:var(--text-muted); margin:4px 0 0; line-height:1.5; max-width:520px; }
   .header p.title{ font-size:17px; font-weight:600; margin:0; }
   #langToggle{
     background:none; border:1px solid var(--card-border); color:var(--text-secondary);
@@ -88,6 +89,7 @@
     <div>
       <p class="sub" data-i18n="tutors.level">내 등급: 중급 2단계</p>
       <p class="title" id="tutorCountTitle" data-i18n="tutors.count">튜터를 불러오는 중...</p>
+      <p class="philosophy" data-i18n="tutors.philosophy">여러 튜터를 늘어놓지 않아요. 직접 만나보고 확신이 선 사람만 소개해요.</p>
     </div>
     <button id="langToggle" aria-label="언어 전환">
       <span class="cur" id="langCur">한국어</span> / <span id="langOther">EN</span>
@@ -150,6 +152,7 @@ let tutorDocs = []; // { id, data }
 const TRANSLATIONS = {
   ko: {
     "tutors.level": "내 등급: 중급 2단계",
+    "tutors.philosophy": "여러 튜터를 늘어놓지 않아요. 직접 만나보고 확신이 선 사람만 소개해요.",
     "tutors.f.all": "전체", "tutors.f.rating": "평점순", "tutors.f.exam": "시험 대비", "tutors.f.biz": "비즈니스",
     "unit.perLesson": "/회",
     "tutors.empty": "아직 등록된 튜터가 없어요. 곧 만나요!",
@@ -158,6 +161,7 @@ const TRANSLATIONS = {
   },
   en: {
     "tutors.level": "Your level: Intermediate stage 2",
+    "tutors.philosophy": "We don't list every tutor we can find. We meet each one in person and only introduce the ones we trust.",
     "tutors.f.all": "All", "tutors.f.rating": "Top rated", "tutors.f.exam": "Exam prep", "tutors.f.biz": "Business",
     "unit.perLesson": "/lesson",
     "tutors.empty": "No tutors yet — check back soon!",
