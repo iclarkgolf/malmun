@@ -6,6 +6,16 @@
 <title>튜터 지원하기 | 말문</title>
 <meta name="description" content="말문에서 한국어 튜터로 활동해보세요. 지원 전 준비사항을 확인하고 간단한 지원서를 제출할 수 있어요.">
 <!-- Google Analytics (GA4) -->
+<script>
+(function(){
+  var params = new URLSearchParams(location.search);
+  if(params.get("optout") === "1"){ localStorage.setItem("malmun_ga_optout","1"); }
+  if(params.get("optout") === "0"){ localStorage.removeItem("malmun_ga_optout"); }
+  if(localStorage.getItem("malmun_ga_optout") === "1"){
+    window["ga-disable-G-SBV742CE8W"] = true;
+  }
+})();
+</script>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-SBV742CE8W"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
