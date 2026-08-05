@@ -29,12 +29,27 @@
 
   .topbar{ padding:24px 0 20px; display:flex; align-items:center; justify-content:space-between; }
   .topbar button{ background:none; border:none; color:var(--text-secondary); cursor:pointer; padding:0; display:flex; }
+  .lang-dropdown{ position:relative; }
   #langToggle{
     background:none; border:1px solid var(--card-border); color:var(--text-secondary);
     border-radius:16px; padding:6px 12px; font-size:12px; font-weight:600;
     cursor:pointer; display:flex; align-items:center; gap:4px;
   }
   #langToggle .cur{ color:var(--text); }
+  #langToggle .caret{ font-size:10px; color:var(--text-muted); }
+  .lang-menu{
+    position:absolute; top:38px; right:0; z-index:30;
+    background:var(--card); border:1px solid var(--card-border); border-radius:14px;
+    box-shadow:0 8px 24px rgba(44,44,42,0.12); min-width:120px; padding:6px;
+    display:none;
+  }
+  .lang-menu.open{ display:block; }
+  .lang-menu .lang-option{
+    display:block; padding:8px 10px; border-radius:8px;
+    font-size:13px; color:var(--text); font-weight:500; cursor:pointer;
+  }
+  .lang-menu .lang-option:hover{ background:var(--accent-soft); }
+  .lang-menu .lang-option.active{ color:var(--accent-text); background:var(--accent-soft); }
 
   .header{ padding:0 0 20px; }
   .header .title{ font-size:17px; font-weight:600; margin:0 0 6px; }
@@ -108,9 +123,16 @@
     <button onclick="location.href='mypage.html'" aria-label="뒤로가기">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
     </button>
-    <button id="langToggle" aria-label="언어 전환">
-      <span class="cur" id="langCur">한국어</span> / <span id="langOther">EN</span>
-    </button>
+    <div class="lang-dropdown" id="langDropdown">
+      <button id="langToggle" aria-label="언어 전환" onclick="toggleLangMenu(event)">
+        <span class="cur" id="langCur">한국어</span> <span class="caret">▾</span>
+      </button>
+      <div class="lang-menu" id="langMenu">
+        <div class="lang-option" data-lang="ko" onclick="setLang(event,'ko')">한국어</div>
+        <div class="lang-option" data-lang="en" onclick="setLang(event,'en')">English</div>
+        <div class="lang-option" data-lang="ja" onclick="setLang(event,'ja')">日本語</div>
+      </div>
+    </div>
   </div>
 
   <div class="header">
@@ -244,6 +266,31 @@ const TRANSLATIONS = {
     "pricing.modal.cancel": "Cancel",
     "pricing.loginNeeded": "Please log in first to purchase",
     "pricing.purchaseDone": "Credits added!"
+  },
+  ja: {
+    "pricing.h.title": "料金・パッケージ",
+    "pricing.h.sub": "まとめてチャージすると1回あたりの単価が下がります",
+    "pricing.hint.new": "💬 気軽に始めてみる？",
+    "pricing.hint.refill": "💬 また補充する？",
+    "pricing.balance.label": "保有クレジット",
+    "pricing.balance.unit": "回",
+    "pricing.pack5.name": "5回パック",
+    "pricing.pack5.sub": "気軽に始めたい方に",
+    "pricing.pack5.unit": "・1回あたり₩30,000",
+    "pricing.popular": "一番人気",
+    "pricing.pack10.name": "10回パック",
+    "pricing.pack10.sub": "10%オフ・じっくり学びたい方に",
+    "pricing.pack10.unit": "・1回あたり₩27,000",
+    "pricing.note1": "クレジットはどの講師とも自由に使え、チャージ日から1年間有効です。",
+    "pricing.note2": "途中解約の場合、使用済み分は正規料金（1回₩30,000）で計算・控除した後、残額のみ返金されます。",
+    "pricing.modal.regular": "定価",
+    "pricing.modal.discount": "割引",
+    "pricing.modal.pay": "決済金額",
+    "pricing.modal.testNote": "※ まだ事業者登録前のため、実際の決済は連携されていません。今クリックするとテストとしてクレジットがすぐにチャージされます（実際の決済連携後、この文言は表示されなくなります）。",
+    "pricing.modal.confirm": "テストでチャージする",
+    "pricing.modal.cancel": "キャンセル",
+    "pricing.loginNeeded": "チャージするには先にログインしてください",
+    "pricing.purchaseDone": "クレジットがチャージされました！"
   }
 };
 
@@ -262,18 +309,31 @@ function applyLang(lang){
       el.innerHTML = dict[key];
     }
   });
-  document.getElementById('langCur').textContent = (lang === 'ko') ? '한국어' : 'English';
-  document.getElementById('langOther').textContent = (lang === 'ko') ? 'EN' : '한글';
+  const LANG_LABELS = { ko: '한국어', en: 'English', ja: '日本語' };
+  document.getElementById('langCur').textContent = LANG_LABELS[lang] || LANG_LABELS.ko;
+  document.querySelectorAll('.lang-menu .lang-option').forEach(el => {
+    el.classList.toggle('active', el.getAttribute('data-lang') === lang);
+  });
   localStorage.setItem('malmun_lang', lang);
 }
+
+function toggleLangMenu(e){
+  e.stopPropagation();
+  document.getElementById('langMenu').classList.toggle('open');
+}
+function setLang(e, lang){
+  e.stopPropagation();
+  applyLang(lang);
+  document.getElementById('langMenu').classList.remove('open');
+}
+document.addEventListener('click', () => {
+  const menu = document.getElementById('langMenu');
+  if(menu) menu.classList.remove('open');
+});
 
 (function initLang(){
   applyLang(currentLang);
 })();
-
-document.getElementById('langToggle').addEventListener('click', () => {
-  applyLang(currentLang === 'ko' ? 'en' : 'ko');
-});
 
 function openPurchaseModal(packId, evt){
   selectedPackage = packId;
@@ -285,11 +345,13 @@ function openPurchaseModal(packId, evt){
   const discount = regular - pack.price;
 
   document.getElementById('modalTitle').textContent =
-    (currentLang === 'ko' ? `${pack.sessions}회권 구매` : `Buy ${pack.sessions}-lesson pack`);
+    ({ ko: `${pack.sessions}회권 구매`, en: `Buy ${pack.sessions}-lesson pack`, ja: `${pack.sessions}回パック購入` })[currentLang] || `${pack.sessions}회권 구매`;
   document.getElementById('modalDesc').textContent =
-    (currentLang === 'ko'
-      ? `${pack.sessions}회분 크레딧이 충전되고, 충전일로부터 1년간 사용할 수 있어요.`
-      : `${pack.sessions} lesson credits will be added, valid for 1 year from today.`);
+    ({
+      ko: `${pack.sessions}회분 크레딧이 충전되고, 충전일로부터 1년간 사용할 수 있어요.`,
+      en: `${pack.sessions} lesson credits will be added, valid for 1 year from today.`,
+      ja: `${pack.sessions}回分のクレジットがチャージされ、チャージ日から1年間使用できます。`
+    })[currentLang];
   document.getElementById('modalRegular').textContent = fmtKRW(regular);
   if(discount > 0){
     document.getElementById('modalDiscountLine').style.display = 'flex';
@@ -332,9 +394,11 @@ async function confirmPurchase(){
 
     await db.collection('users').doc(user.uid).collection('history').add({
       type: 'credit_purchase',
-      text: currentLang === 'ko'
-        ? `${pack.sessions}회권 충전 완료 (테스트)`
-        : `Purchased ${pack.sessions}-lesson pack (test)`,
+      text: ({
+        ko: `${pack.sessions}회권 충전 완료 (테스트)`,
+        en: `Purchased ${pack.sessions}-lesson pack (test)`,
+        ja: `${pack.sessions}回パックのチャージ完了（テスト）`
+      })[currentLang],
       sub: fmtKRW(pack.price),
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
@@ -344,7 +408,7 @@ async function confirmPurchase(){
     loadBalance();
   }catch(err){
     console.error('크레딧 충전 실패:', err);
-    alert((currentLang === 'ko' ? '오류가 발생했어요: ' : 'Something went wrong: ') + err.message);
+    alert(({ ko: '오류가 발생했어요: ', en: 'Something went wrong: ', ja: 'エラーが発生しました：' })[currentLang] + err.message);
   }finally{
     btn.disabled = false;
   }
@@ -394,7 +458,11 @@ async function loadBalance(){
       document.getElementById('balanceNum').textContent = total;
       if(nearestExpiry){
         document.getElementById('balanceExpiry').textContent =
-          (currentLang === 'ko' ? `가장 빠른 만료일: ${fmtDate(nearestExpiry)}` : `Earliest expiry: ${fmtDate(nearestExpiry)}`);
+          ({
+            ko: `가장 빠른 만료일: ${fmtDate(nearestExpiry)}`,
+            en: `Earliest expiry: ${fmtDate(nearestExpiry)}`,
+            ja: `最短有効期限：${fmtDate(nearestExpiry)}`
+          })[currentLang];
       }
     }
   }catch(err){
