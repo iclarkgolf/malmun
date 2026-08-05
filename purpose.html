@@ -17,7 +17,14 @@
 
   .topbar{ display:flex; align-items:center; justify-content:space-between; padding:20px 0; }
   .topbar button{ background:none; border:none; color:var(--text-secondary); cursor:pointer; padding:0; display:flex; }
-  #langToggle{ background:none; border:1px solid var(--card-border); color:var(--text-secondary); border-radius:16px; padding:6px 12px; font-size:12px; font-weight:600; cursor:pointer; }
+  .lang-dropdown{ position:relative; }
+  #langToggle{ background:none; border:1px solid var(--card-border); color:var(--text-secondary); border-radius:16px; padding:6px 12px; font-size:12px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:4px; }
+  #langToggle .caret{ font-size:10px; color:var(--text-muted); }
+  .lang-menu{ position:absolute; top:38px; right:0; z-index:30; background:var(--card); border:1px solid var(--card-border); border-radius:14px; box-shadow:0 8px 24px rgba(44,44,42,0.12); min-width:120px; padding:6px; display:none; }
+  .lang-menu.open{ display:block; }
+  .lang-menu .lang-option{ display:block; padding:8px 10px; border-radius:8px; font-size:13px; color:var(--text); font-weight:500; cursor:pointer; }
+  .lang-menu .lang-option:hover{ background:var(--accent-soft); }
+  .lang-menu .lang-option.active{ color:var(--accent-text); background:var(--accent-soft); }
 
   .eyebrow{ font-size:12px; font-weight:700; color:var(--coral); margin:0 0 10px; }
   .headline{ font-size:24px; font-weight:700; line-height:1.4; margin:0 0 26px; }
@@ -53,7 +60,16 @@
     <button onclick="location.href='index.html'" aria-label="홈으로">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
     </button>
-    <button id="langToggle">한국어 / EN</button>
+    <div class="lang-dropdown" id="langDropdown">
+      <button id="langToggle" aria-label="언어 전환" onclick="toggleLangMenu(event)">
+        <span class="cur" id="langCur">한국어</span> <span class="caret">▾</span>
+      </button>
+      <div class="lang-menu" id="langMenu">
+        <div class="lang-option" data-lang="ko" onclick="setLang(event,'ko')">한국어</div>
+        <div class="lang-option" data-lang="en" onclick="setLang(event,'en')">English</div>
+        <div class="lang-option" data-lang="ja" onclick="setLang(event,'ja')">日本語</div>
+      </div>
+    </div>
   </div>
 
   <div id="content"></div>
@@ -66,11 +82,11 @@
 </div>
 
 <nav class="bottom-nav">
-  <button class="nav-item active" onclick="location.href='index.html'"><span>🏠</span><span>홈</span></button>
-  <button class="nav-item" onclick="location.href='tutors.html'"><span>🔍</span><span>튜터</span></button>
-  <button class="nav-item" onclick="location.href='curriculum.html'"><span>📖</span><span>커리큘럼</span></button>
-  <button class="nav-item" onclick="location.href='blog.html'"><span>💬</span><span>커뮤니티</span></button>
-  <button class="nav-item" onclick="location.href='mypage.html'"><span>👤</span><span>마이페이지</span></button>
+  <button class="nav-item active" onclick="location.href='index.html'"><span>🏠</span><span id="navHome">홈</span></button>
+  <button class="nav-item" onclick="location.href='tutors.html'"><span>🔍</span><span id="navTutors">튜터</span></button>
+  <button class="nav-item" onclick="location.href='curriculum.html'"><span>📖</span><span id="navCurriculum">커리큘럼</span></button>
+  <button class="nav-item" onclick="location.href='blog.html'"><span>💬</span><span id="navCommunity">커뮤니티</span></button>
+  <button class="nav-item" onclick="location.href='mypage.html'"><span>👤</span><span id="navMypage">마이페이지</span></button>
 </nav>
 
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -95,7 +111,10 @@ const CONTENT = {
       topics:["자기소개와 이력 말하기","면접에서 자주 나오는 질문","직장 예절과 존댓말 기본","업무 지시 알아듣기","동료·상사와 대화하기","카톡으로 업무 연락하기"] },
     en:{ eyebrow:"Making money", headline:"One line on your resume — \"I speak Korean\" — can change everything",
       empathy:["Ever frozen when an interviewer suddenly switched to Korean?","Ever stood there while coworkers laughed, with no idea why?"],
-      topics:["Introducing yourself and your background","Common interview questions","Workplace manners and basic honorifics","Understanding instructions at work","Talking with coworkers and bosses","Work messages on KakaoTalk"] }
+      topics:["Introducing yourself and your background","Common interview questions","Workplace manners and basic honorifics","Understanding instructions at work","Talking with coworkers and bosses","Work messages on KakaoTalk"] },
+    ja:{ eyebrow:"仕事・収入", headline:"履歴書の一行「韓国語ができます」が人生を変えます",
+      empathy:["面接官に突然韓国語で質問されて、頭が真っ白になったことはありませんか？","同僚がみんなで笑っているのに、自分だけ理由がわからなかった経験はありませんか？"],
+      topics:["自己紹介と経歴を話す","面接でよく聞かれる質問","職場のマナーと基本的な敬語","業務指示を聞き取る","同僚・上司との会話","カカオトークでの業務連絡"] }
   },
   study: {
     icon:"📚",
@@ -104,7 +123,10 @@ const CONTENT = {
       topics:["교실에서 질문하고 발표하기","자주 나오는 시험 표현(TOPIK 등)","학교 행정실에서 쓰는 말","과제·리포트 관련 어휘","교수님께 이메일 쓰기","스터디그룹 대화"] },
     en:{ eyebrow:"Studying", headline:"A TOPIK score matters less than Korean you can actually use",
       empathy:["Known the answer but couldn't get the words out for your professor?","Felt like the only one lost in a study group?"],
-      topics:["Asking questions and presenting in class","Common test expressions (like TOPIK)","Talking to school administration","Assignment and report vocabulary","Emailing professors","Study group conversations"] }
+      topics:["Asking questions and presenting in class","Common test expressions (like TOPIK)","Talking to school administration","Assignment and report vocabulary","Emailing professors","Study group conversations"] },
+    ja:{ eyebrow:"勉強", headline:"TOPIKの点数より大事なのは、本当に使える韓国語",
+      empathy:["教授の質問に答えはわかるのに、言葉が出てこなかったことはありませんか？","スタディグループで自分だけ話についていけない気がしたこと、ありますよね？"],
+      topics:["教室での質問・発表","よく出る試験表現（TOPIKなど）","学校事務室で使う言葉","課題・レポート関連の語彙","教授へのメールの書き方","スタディグループでの会話"] }
   },
   move: {
     icon:"🏠",
@@ -113,7 +135,10 @@ const CONTENT = {
       topics:["편의점·마트에서 쓰는 말","병원·약국 이용하기","집 구하고 계약하기","은행·통신사 업무 보기","이웃과 인사 나누기","배달앱 주문하기"] },
     en:{ eyebrow:"Living here", headline:"Ever panicked because you couldn't understand the convenience store clerk?",
       empathy:["Struggled to explain your symptoms at the hospital?","Felt anxious not knowing what a contract actually said?"],
-      topics:["Convenience store and grocery Korean","Going to the hospital or pharmacy","Finding and signing for housing","Banking and phone plan errands","Greeting neighbors","Ordering on delivery apps"] }
+      topics:["Convenience store and grocery Korean","Going to the hospital or pharmacy","Finding and signing for housing","Banking and phone plan errands","Greeting neighbors","Ordering on delivery apps"] },
+    ja:{ eyebrow:"韓国で暮らす", headline:"コンビニ店員の言葉が聞き取れず戸惑ったこと、ありますよね",
+      empathy:["病院で症状をうまく説明できず、もどかしかったことはありませんか？","契約書に何が書いてあるのかわからず不安だった瞬間、ありますよね？"],
+      topics:["コンビニ・スーパーで使う言葉","病院・薬局の利用","住まい探しと契約","銀行・携帯電話の手続き","近所の人との挨拶","配達アプリでの注文"] }
   },
   travel: {
     icon:"✨",
@@ -122,7 +147,10 @@ const CONTENT = {
       topics:["드라마·예능에서 자주 나오는 표현","좋아하는 가수·배우 이야기하기","SNS 신조어와 줄임말","노래 가사 이해하기","팬 커뮤니티에서 대화하기","한국 친구와 톡하기"] },
     en:{ eyebrow:"Following the trend", headline:"Want to understand that scene, that line, without subtitles?",
       empathy:["Wished you could watch your favorite idol's V Live without subtitles?","Wanted to really talk with Korean fans in the community?"],
-      topics:["Common expressions from K-dramas and variety shows","Talking about your favorite singer or actor","Slang and abbreviations on social media","Understanding song lyrics","Chatting in fan communities","Texting with Korean friends"] }
+      topics:["Common expressions from K-dramas and variety shows","Talking about your favorite singer or actor","Slang and abbreviations on social media","Understanding song lyrics","Chatting in fan communities","Texting with Korean friends"] },
+    ja:{ eyebrow:"トレンドを楽しむ", headline:"字幕なしでそのシーン、そのセリフを理解したいなら",
+      empathy:["好きなアイドルのVライブを字幕なしで見たいと思ったことはありませんか？","ファンコミュニティで韓国のファンと本当に会話したかった瞬間、ありますよね？"],
+      topics:["ドラマ・バラエティでよく出る表現","好きな歌手・俳優について話す","SNSの新造語・略語","歌詞の理解","ファンコミュニティでの会話","韓国人の友達とのトーク"] }
   }
 };
 
@@ -136,23 +164,48 @@ function render(){
   const lang = localStorage.getItem('malmun_lang') || 'ko';
   const c = CONTENT[currentType][lang] || CONTENT[currentType].ko;
   const icon = CONTENT[currentType].icon;
+  const UI = {
+    ko: { learnTitle: '이런 걸 배우게 돼요', ctaBtn: '무료 레벨테스트 시작', ctaSub: '1분이면 끝나요. 결과 보고 나서 결정해도 늦지 않아요.', tutorTitle: '먼저 만나볼 튜터', navHome: '홈', navTutors: '튜터', navCurriculum: '커리큘럼', navCommunity: '커뮤니티', navMypage: '마이페이지' },
+    en: { learnTitle: "What you'll learn", ctaBtn: 'Start free level test', ctaSub: 'Takes about a minute — decide after you see your result.', tutorTitle: 'Meet a tutor first', navHome: 'Home', navTutors: 'Tutors', navCurriculum: 'Curriculum', navCommunity: 'Community', navMypage: 'My page' },
+    ja: { learnTitle: 'こんなことを学びます', ctaBtn: '無料レベルテストを始める', ctaSub: '1分で終わります。結果を見てから決めても遅くありません。', tutorTitle: '先に講師を見てみる', navHome: 'ホーム', navTutors: '講師', navCurriculum: 'カリキュラム', navCommunity: 'コミュニティ', navMypage: 'マイページ' }
+  };
+  const u = UI[lang] || UI.ko;
   document.getElementById('content').innerHTML = `
     <p class="eyebrow">${icon} ${c.eyebrow}</p>
     <h1 class="headline">${c.headline}</h1>
     ${c.empathy.map(e => `<div class="empathy-card"><span class="mark">💬</span><p>${e}</p></div>`).join('')}
-    <p class="sec-title">${lang==='ko' ? '이런 걸 배우게 돼요' : "What you'll learn"}</p>
+    <p class="sec-title">${u.learnTitle}</p>
     <div class="topics"><ul>${c.topics.map(t => `<li>${t}</li>`).join('')}</ul></div>
   `;
-  document.getElementById('ctaBtn').textContent = lang==='ko' ? '무료 레벨테스트 시작' : 'Start free level test';
-  document.getElementById('langToggle').textContent = lang==='ko' ? '한국어 / EN' : 'English / 한글';
-  document.querySelector('[data-i18n="p.tutorTitle"]').textContent = lang==='ko' ? '먼저 만나볼 튜터' : 'Meet a tutor first';
-  document.querySelector('[data-i18n="p.ctaSub"]').textContent = lang==='ko' ? '1분이면 끝나요. 결과 보고 나서 결정해도 늦지 않아요.' : "Takes about a minute — decide after you see your result.";
+  document.getElementById('ctaBtn').textContent = u.ctaBtn;
+  const LANG_LABELS = { ko: '한국어', en: 'English', ja: '日本語' };
+  document.getElementById('langCur').textContent = LANG_LABELS[lang] || LANG_LABELS.ko;
+  document.querySelectorAll('.lang-menu .lang-option').forEach(el => {
+    el.classList.toggle('active', el.getAttribute('data-lang') === lang);
+  });
+  document.querySelector('[data-i18n="p.tutorTitle"]').textContent = u.tutorTitle;
+  document.querySelector('[data-i18n="p.ctaSub"]').textContent = u.ctaSub;
+  document.getElementById('navHome').textContent = u.navHome;
+  document.getElementById('navTutors').textContent = u.navTutors;
+  document.getElementById('navCurriculum').textContent = u.navCurriculum;
+  document.getElementById('navCommunity').textContent = u.navCommunity;
+  document.getElementById('navMypage').textContent = u.navMypage;
 }
 
-document.getElementById('langToggle').addEventListener('click', () => {
-  const cur = localStorage.getItem('malmun_lang') || 'ko';
-  localStorage.setItem('malmun_lang', cur === 'ko' ? 'en' : 'ko');
+function toggleLangMenu(e){
+  e.stopPropagation();
+  document.getElementById('langMenu').classList.toggle('open');
+}
+function setLang(e, lang){
+  e.stopPropagation();
+  localStorage.setItem('malmun_lang', lang);
+  document.getElementById('langMenu').classList.remove('open');
   render();
+  loadTutorPreview();
+}
+document.addEventListener('click', () => {
+  const menu = document.getElementById('langMenu');
+  if(menu) menu.classList.remove('open');
 });
 
 function goNext(){
@@ -169,8 +222,8 @@ async function loadTutorPreview(){
     wrap.innerHTML = snap.docs.map(doc => {
       const data = doc.data();
       const ko = data.ko || {};
-      const en = data.en || {};
-      const name = (lang==='en' && en.name) ? en.name : ko.name;
+      const localized = data[lang] || {};
+      const name = localized.name || ko.name;
       const bg = data.avatarImage ? `background-image:url('${data.avatarImage}')` : `background:${data.avatarColor||'#3b5f8f'}`;
       return `
         <div class="tutor-mini" onclick="location.href='tutor-profile.html?id=${doc.id}'">
