@@ -197,6 +197,9 @@ function blankTutor(order){
       rating: '5.0', reviewCount: '0', lessonCount: '0',
       reviewAuthor: '', reviewLoc: '', reviewBody: ''
     },
+    ja: {
+      name: '', role: '', intro: '', tags: ['', '', '']
+    },
     availability: emptyAvailability(),
     bookedSlots: emptyAvailability()
   };
@@ -254,6 +257,10 @@ function renderCard(id, data){
         <label>이름 (영문, 선택)</label>
         <input type="text" class="f-name-en" placeholder="e.g. Jieun" value="${escapeHtml(data.en.name || '')}">
       </div>
+      <div>
+        <label>이름 (일본어, 선택)</label>
+        <input type="text" class="f-name-ja" placeholder="例: PJ先生" value="${escapeHtml((data.ja || {}).name || '')}">
+      </div>
     </div>
     <div class="row">
       <div>
@@ -263,6 +270,10 @@ function renderCard(id, data){
       <div>
         <label>소개 한 줄 (영문, 선택)</label>
         <input type="text" class="f-role-en" placeholder="e.g. Former flight attendant" value="${escapeHtml(data.en.role || '')}">
+      </div>
+      <div>
+        <label>소개 한 줄 (일본어, 선택)</label>
+        <input type="text" class="f-role-ja" placeholder="例: 旅行業30年・ゴルフ講師20年" value="${escapeHtml((data.ja || {}).role || '')}">
       </div>
     </div>
     <div class="row">
@@ -294,6 +305,10 @@ function renderCard(id, data){
         <label>상세 소개 (영문, 선택)</label>
         <textarea class="f-intro-en">${escapeHtml(data.en.intro || '')}</textarea>
       </div>
+      <div>
+        <label>상세 소개 (일본어, 선택)</label>
+        <textarea class="f-intro-ja">${escapeHtml((data.ja || {}).intro || '')}</textarea>
+      </div>
     </div>
     <div class="row">
       <div>
@@ -303,6 +318,10 @@ function renderCard(id, data){
       <div>
         <label>태그 3개 (쉼표로 구분, 영문 선택)</label>
         <input type="text" class="f-tags-en" value="${escapeHtml((data.en.tags || []).join(', '))}">
+      </div>
+      <div>
+        <label>태그 3개 (쉼표로 구분, 일본어 선택)</label>
+        <input type="text" class="f-tags-ja" value="${escapeHtml(((data.ja || {}).tags || []).join(', '))}">
       </div>
     </div>
     <div class="row">
@@ -429,6 +448,7 @@ async function saveCard(id, el){
 
   const tagsKo = el.querySelector('.f-tags-ko').value.split(',').map(s => s.trim()).filter(Boolean);
   const tagsEn = el.querySelector('.f-tags-en').value.split(',').map(s => s.trim()).filter(Boolean);
+  const tagsJa = el.querySelector('.f-tags-ja').value.split(',').map(s => s.trim()).filter(Boolean);
 
   const data = {
     order: tutorsCache[id] ? tutorsCache[id].order : 0,
@@ -458,6 +478,12 @@ async function saveCard(id, el){
       reviewAuthor: '',
       reviewLoc: '',
       reviewBody: ''
+    },
+    ja: {
+      name: el.querySelector('.f-name-ja').value,
+      role: el.querySelector('.f-role-ja').value,
+      intro: el.querySelector('.f-intro-ja').value,
+      tags: tagsJa
     },
     availability: availability,
     bookedSlots: (tutorsCache[id] && tutorsCache[id].bookedSlots) || emptyAvailability()
