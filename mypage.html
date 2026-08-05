@@ -27,12 +27,27 @@
 
   .profile-row{ display:flex; align-items:center; gap:12px; padding:0 0 20px; }
   .top-row{ display:flex; justify-content:flex-end; padding:0 0 12px; }
+  .lang-dropdown{ position:relative; }
   #langToggle{
     background:none; border:1px solid var(--card-border); color:var(--text-secondary);
     border-radius:16px; padding:6px 12px; font-size:12px; font-weight:600;
     cursor:pointer; display:flex; align-items:center; gap:4px;
   }
   #langToggle .cur{ color:var(--text); }
+  #langToggle .caret{ font-size:10px; color:var(--text-muted); }
+  .lang-menu{
+    position:absolute; top:38px; right:0; z-index:30;
+    background:var(--card, #fff); border:1px solid var(--card-border); border-radius:14px;
+    box-shadow:0 8px 24px rgba(44,44,42,0.12); min-width:120px; padding:6px;
+    display:none;
+  }
+  .lang-menu.open{ display:block; }
+  .lang-menu .lang-option{
+    display:block; padding:8px 10px; border-radius:8px;
+    font-size:13px; color:var(--text); font-weight:500; cursor:pointer;
+  }
+  .lang-menu .lang-option:hover{ background:var(--accent-soft); }
+  .lang-menu .lang-option.active{ color:var(--accent-text); background:var(--accent-soft); }
   .avatar{ width:44px; height:44px; border-radius:50%; background:var(--accent); display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:600; color:var(--accent-text); }
   .profile-row .name{ font-size:15px; font-weight:600; margin:0; }
   .profile-row .sub{ font-size:12px; color:var(--text-muted); margin:2px 0 0; }
@@ -104,9 +119,16 @@
 
 <div class="wrap">
   <div class="top-row">
-    <button id="langToggle" aria-label="언어 전환">
-      <span class="cur" id="langCur">한국어</span> / <span id="langOther">EN</span>
-    </button>
+    <div class="lang-dropdown" id="langDropdown">
+      <button id="langToggle" aria-label="언어 전환" onclick="toggleLangMenu(event)">
+        <span class="cur" id="langCur">한국어</span> <span class="caret">▾</span>
+      </button>
+      <div class="lang-menu" id="langMenu">
+        <div class="lang-option" data-lang="ko" onclick="setLang(event,'ko')">한국어</div>
+        <div class="lang-option" data-lang="en" onclick="setLang(event,'en')">English</div>
+        <div class="lang-option" data-lang="ja" onclick="setLang(event,'ja')">日本語</div>
+      </div>
+    </div>
   </div>
 
   <div class="profile-row">
@@ -121,8 +143,8 @@
   </div>
 
   <div class="notice-box">
-    <h2>공지사항</h2>
-    <div id="noticeList"><p class="notice-empty">불러오는 중...</p></div>
+    <h2 data-i18n="mypage.noticeTitle">공지사항</h2>
+    <div id="noticeList"><p class="notice-empty" id="noticeLoading">불러오는 중...</p></div>
   </div>
 
   <button class="next-lesson" id="nextLessonCard" style="display:none;">
@@ -177,7 +199,7 @@
     <p style="font-size:13px;color:var(--text-muted);" id="historyEmpty" data-i18n="mypage.historyEmpty">아직 기록이 없어요. 레벨테스트나 수업을 완료하면 여기 쌓입니다.</p>
   </div>
 
-  <button class="menu-item" onclick="alert('수업 내역/후기작성 화면으로 이동합니다.')">
+  <button class="menu-item" onclick="alertPlaceholder('history')">
     <span data-i18n="mypage.history">수업 내역</span>
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7a7871" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
   </button>
@@ -189,7 +211,7 @@
     <span data-i18n="mypage.tutorApply">튜터 지원하기</span>
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7a7871" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
   </button>
-  <button class="menu-item" onclick="alert('결제 수단 관리 화면으로 이동합니다.')">
+  <button class="menu-item" onclick="alertPlaceholder('payment')">
     <span data-i18n="mypage.payment">결제 수단</span>
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7a7871" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
   </button>
@@ -243,6 +265,23 @@ function formatDate(ts){
   return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
 }
 
+function alertPlaceholder(kind){
+  const lang = localStorage.getItem('malmun_lang') || 'ko';
+  const MSG = {
+    history: {
+      ko: '수업 내역/후기작성 화면으로 이동합니다.',
+      en: 'Taking you to lesson history / review screen.',
+      ja: '受講履歴・レビュー作成画面に移動します。'
+    },
+    payment: {
+      ko: '결제 수단 관리 화면으로 이동합니다.',
+      en: 'Taking you to payment method settings.',
+      ja: '支払い方法管理画面に移動します。'
+    }
+  };
+  alert(MSG[kind][lang] || MSG[kind].ko);
+}
+
 // 그 날짜가 속한 주의 월요일 자정을 반환 (주 단위 스트릭 계산용)
 function getMonday(date){
   const d = new Date(date);
@@ -280,17 +319,26 @@ function computeStreak(summaryEntries){
 }
 
 function renderHistoryEntry(entry){
+  const lang = localStorage.getItem('malmun_lang') || 'ko';
   const div = document.createElement('div');
   div.className = 'history-item';
   let text = '';
   let sub = '';
   if(entry.type === 'level_test'){
-    text = `레벨테스트 완료 — ${entry.level} ${entry.stage}`;
+    const prefix = ({ ko: '레벨테스트 완료 — ', en: 'Level test complete — ', ja: 'レベルテスト完了 — ' })[lang];
+    text = `${prefix}${entry.level} ${entry.stage}`;
     sub = entry.desc || '';
   } else {
-    text = entry.text || '학습 활동';
+    text = entry.text || ({ ko: '학습 활동', en: 'Learning activity', ja: '学習アクティビティ' })[lang];
     sub = entry.sub || '';
   }
+
+  const SUMMARY_LABELS = {
+    ko: { vocab: '📚 오늘의 단어', grammar: '✏️ 오늘의 표현', goal: '🎯 다음 목표: ' },
+    en: { vocab: "📚 Today's words", grammar: "✏️ Today's expressions", goal: '🎯 Next goal: ' },
+    ja: { vocab: '📚 今日の単語', grammar: '✏️ 今日の表現', goal: '🎯 次の目標：' }
+  };
+  const sl = SUMMARY_LABELS[lang] || SUMMARY_LABELS.ko;
 
   let summaryHtml = '';
   if(entry.type === 'lesson_summary'){
@@ -298,13 +346,13 @@ function renderHistoryEntry(entry){
     const grammar = entry.grammar || [];
     summaryHtml = '<div class="summary-block">';
     if(vocab.length){
-      summaryHtml += `<p class="summary-label">📚 오늘의 단어</p><div class="summary-chips">${vocab.map(v => `<span class="summary-chip">${escapeHtml(v)}</span>`).join('')}</div>`;
+      summaryHtml += `<p class="summary-label">${sl.vocab}</p><div class="summary-chips">${vocab.map(v => `<span class="summary-chip">${escapeHtml(v)}</span>`).join('')}</div>`;
     }
     if(grammar.length){
-      summaryHtml += `<p class="summary-label">✏️ 오늘의 표현</p><div class="summary-chips">${grammar.map(v => `<span class="summary-chip">${escapeHtml(v)}</span>`).join('')}</div>`;
+      summaryHtml += `<p class="summary-label">${sl.grammar}</p><div class="summary-chips">${grammar.map(v => `<span class="summary-chip">${escapeHtml(v)}</span>`).join('')}</div>`;
     }
     if(entry.nextGoal){
-      summaryHtml += `<p class="summary-goal">🎯 다음 목표: ${escapeHtml(entry.nextGoal)}</p>`;
+      summaryHtml += `<p class="summary-goal">${sl.goal}${escapeHtml(entry.nextGoal)}</p>`;
     }
     summaryHtml += '</div>';
   }
@@ -338,10 +386,15 @@ async function loadHistory(uid){
     // ── 등급: 가장 최근 레벨테스트 기록에서 가져옴 (진짜 데이터) ──
     const latestLevelTest = entries.find(e => e.type === 'level_test');
     const levelLine = document.getElementById('userLevelLine');
+    const langNow = localStorage.getItem('malmun_lang') || 'ko';
     if(latestLevelTest){
       levelLine.textContent = `${latestLevelTest.level} ${latestLevelTest.stage}`;
     }else{
-      levelLine.textContent = '레벨테스트를 먼저 진행해보세요';
+      levelLine.textContent = ({
+        ko: '레벨테스트를 먼저 진행해보세요',
+        en: 'Try the level test first',
+        ja: 'まずレベルテストを受けてみましょう'
+      })[langNow];
     }
 
     // ── 예약한 수업 수: 실제 예약(booking) 기록 개수 ──
@@ -356,7 +409,8 @@ async function loadHistory(uid){
     // ── 다음 수업: 가장 최근 예약 기록을 그대로 사용 (진짜 데이터) ──
     if(bookings.length > 0){
       const latest = bookings[0];
-      document.getElementById('nextLessonName').textContent = latest.text || '예약된 수업';
+      document.getElementById('nextLessonName').textContent =
+        latest.text || ({ ko: '예약된 수업', en: 'Booked lesson', ja: '予約済みの授業' })[langNow];
       document.getElementById('nextLessonTime').textContent = latest.sub || '';
       const nextCard = document.getElementById('nextLessonCard');
       nextCard.style.display = 'block';
@@ -372,7 +426,11 @@ async function loadHistory(uid){
         };
       }else{
         // 예전 예약 기록(roomId 없음)은 안내만 표시
-        nextCard.onclick = () => alert('이 예약은 이전 방식이라 화상룸 정보가 없어요. 튜터에게 별도로 문의해주세요.');
+        nextCard.onclick = () => alert(({
+          ko: '이 예약은 이전 방식이라 화상룸 정보가 없어요. 튜터에게 별도로 문의해주세요.',
+          en: "This booking is from an older format without video room info. Please contact your tutor directly.",
+          ja: 'この予約は以前の方式のため、ビデオルーム情報がありません。講師に直接お問い合わせください。'
+        })[langNow]);
       }
     }else{
       document.getElementById('nextLessonCard').style.display = 'none';
@@ -384,7 +442,8 @@ async function loadHistory(uid){
     const progressPct = Math.min(100, bookings.length * 15);
     document.getElementById('statProgress').textContent = progressPct + '%';
     const stageNum = latestLevelTest ? latestLevelTest.stage : '';
-    document.getElementById('statProgressLabel').textContent = stageNum ? `${stageNum} 진도율` : '진도율';
+    const progressLabel = ({ ko: '진도율', en: 'Progress', ja: '進捗率' })[langNow];
+    document.getElementById('statProgressLabel').textContent = stageNum ? `${stageNum} ${progressLabel}` : progressLabel;
 
     if(snapshot.empty){
       return;
@@ -430,6 +489,8 @@ async function markNoticesRead(notices, user){
 }
 
 async function loadNotices(user){
+  const lang = localStorage.getItem('malmun_lang') || 'ko';
+  const dateLocale = { ko: 'ko-KR', en: 'en-US', ja: 'ja-JP' }[lang] || 'ko-KR';
   try{
     const snap = await db.collection('notices')
       .where('audience', '==', 'student')
@@ -440,13 +501,15 @@ async function loadNotices(user){
     const lastSeen = Number(localStorage.getItem('malmun_student_notice_last_seen') || 0);
     const el = document.getElementById('noticeList');
     if(notices.length === 0){
-      el.innerHTML = `<p class="notice-empty">등록된 공지가 없어요.</p>`;
+      el.innerHTML = `<p class="notice-empty">${({
+        ko: '등록된 공지가 없어요.', en: 'No notices yet.', ja: 'まだお知らせはありません。'
+      })[lang]}</p>`;
       return;
     }
     el.innerHTML = notices.map(n => {
       const ts = n.createdAt && n.createdAt.toMillis ? n.createdAt.toMillis() : 0;
       const isNew = ts > lastSeen;
-      const date = n.createdAt && n.createdAt.toDate ? n.createdAt.toDate().toLocaleDateString('ko-KR') : '';
+      const date = n.createdAt && n.createdAt.toDate ? n.createdAt.toDate().toLocaleDateString(dateLocale) : '';
       return `
         <div class="notice-item">
           <p class="notice-item-title">${isNew ? '<span class="notice-new-dot"></span>' : ''}${escapeHtml(n.title || '')}</p>
@@ -460,7 +523,9 @@ async function loadNotices(user){
     if(user){ markNoticesRead(notices, user); }
   }catch(err){
     console.error('공지 불러오기 실패:', err);
-    document.getElementById('noticeList').innerHTML = `<p class="notice-empty">공지를 불러오지 못했어요.</p>`;
+    document.getElementById('noticeList').innerHTML = `<p class="notice-empty">${({
+      ko: '공지를 불러오지 못했어요.', en: 'Could not load notices.', ja: 'お知らせを読み込めませんでした。'
+    })[lang]}</p>`;
   }
 }
 
@@ -489,10 +554,15 @@ async function loadCreditBalance(uid){
     if(total > 0){
       creditCard.style.display = 'block';
       noCreditCard.style.display = 'none';
-      document.getElementById('creditNum').textContent = (lang === 'ko' ? `${total}회 남음` : `${total} lessons left`);
+      document.getElementById('creditNum').textContent =
+        ({ ko: `${total}회 남음`, en: `${total} lessons left`, ja: `残り${total}回` })[lang];
       if(nearestExpiry){
         document.getElementById('creditExpiry').textContent =
-          (lang === 'ko' ? `${fmtCreditDate(nearestExpiry)}까지` : `Valid until ${fmtCreditDate(nearestExpiry)}`);
+          ({
+            ko: `${fmtCreditDate(nearestExpiry)}까지`,
+            en: `Valid until ${fmtCreditDate(nearestExpiry)}`,
+            ja: `${fmtCreditDate(nearestExpiry)}まで`
+          })[lang];
       }
     }else{
       creditCard.style.display = 'none';
@@ -518,7 +588,13 @@ async function loadDisplayName(user){
   document.getElementById('avatarInitial').textContent = shownName.charAt(0).toUpperCase();
 
   document.getElementById('editNameBtn').addEventListener('click', () => {
-    const newName = prompt('말문에서 사용할 이름을 입력하세요', shownName);
+    const lang = localStorage.getItem('malmun_lang') || 'ko';
+    const promptText = ({
+      ko: '말문에서 사용할 이름을 입력하세요',
+      en: 'Enter the name you want to use on Malmun',
+      ja: 'マルムンで使用する名前を入力してください'
+    })[lang];
+    const newName = prompt(promptText, shownName);
     if(newName === null) return;
     const trimmed = newName.trim();
     if(!trimmed) return;
@@ -529,7 +605,7 @@ async function loadDisplayName(user){
       })
       .catch(err => {
         console.error('이름 저장 실패:', err);
-        alert('이름 저장에 실패했습니다: ' + err.message);
+        alert(({ ko: '이름 저장에 실패했습니다: ', en: 'Failed to save name: ', ja: '名前の保存に失敗しました：' })[lang] + err.message);
       });
   });
 }
@@ -559,6 +635,7 @@ const TRANSLATIONS = {
     "mypage.tutorApply": "튜터 지원하기",
     "mypage.payment": "결제 수단",
     "mypage.logout": "로그아웃",
+    "mypage.noticeTitle": "공지사항",
     "nav.home": "홈", "nav.tutors": "튜터", "nav.curriculum": "커리큘럼",
     "nav.community": "커뮤니티", "nav.mypage": "마이페이지"
   },
@@ -579,8 +656,30 @@ const TRANSLATIONS = {
     "mypage.tutorApply": "Become a tutor",
     "mypage.payment": "Payment methods",
     "mypage.logout": "Log out",
+    "mypage.noticeTitle": "Notices",
     "nav.home": "Home", "nav.tutors": "Tutors", "nav.curriculum": "Curriculum",
     "nav.community": "Community", "nav.mypage": "My page"
+  },
+  ja: {
+    "mypage.nextLesson": "次の授業",
+    "mypage.noLesson": "予約された授業がありません",
+    "mypage.noLessonSub": "講師を見に行く →",
+    "mypage.creditTag": "保有クレジット",
+    "mypage.noCredit": "クレジットがありません",
+    "mypage.noCreditSub": "チャージしに行く →",
+    "mypage.monthly": "今月の学習状況",
+    "mypage.completed": "予約した授業",
+    "mypage.streak": "連続出席",
+    "mypage.history": "受講履歴",
+    "mypage.historyTitle": "私の学習履歴",
+    "mypage.historyEmpty": "まだ記録がありません。レベルテストや授業を完了すると、ここに記録されます。",
+    "mypage.pricing": "料金・パッケージ",
+    "mypage.tutorApply": "講師に応募する",
+    "mypage.payment": "支払い方法",
+    "mypage.logout": "ログアウト",
+    "mypage.noticeTitle": "お知らせ",
+    "nav.home": "ホーム", "nav.tutors": "講師", "nav.curriculum": "カリキュラム",
+    "nav.community": "コミュニティ", "nav.mypage": "マイページ"
   }
 };
 
@@ -593,19 +692,35 @@ function applyLang(lang){
       el.innerHTML = dict[key];
     }
   });
-  document.getElementById('langCur').textContent = (lang === 'ko') ? '한국어' : 'English';
-  document.getElementById('langOther').textContent = (lang === 'ko') ? 'EN' : '한글';
+  const LANG_LABELS = { ko: '한국어', en: 'English', ja: '日本語' };
+  document.getElementById('langCur').textContent = LANG_LABELS[lang] || LANG_LABELS.ko;
+  document.querySelectorAll('.lang-menu .lang-option').forEach(el => {
+    el.classList.toggle('active', el.getAttribute('data-lang') === lang);
+  });
   localStorage.setItem('malmun_lang', lang);
 }
+
+function toggleLangMenu(e){
+  e.stopPropagation();
+  document.getElementById('langMenu').classList.toggle('open');
+}
+function setLang(e, lang){
+  e.stopPropagation();
+  applyLang(lang);
+  document.getElementById('langMenu').classList.remove('open');
+}
+document.addEventListener('click', () => {
+  const menu = document.getElementById('langMenu');
+  if(menu) menu.classList.remove('open');
+});
 
 (function initLang(){
   const saved = localStorage.getItem('malmun_lang') || 'ko';
   applyLang(saved);
+  const loadingEl = document.getElementById('noticeLoading');
+  if(loadingEl){
+    loadingEl.textContent = ({ ko: '불러오는 중...', en: 'Loading...', ja: '読み込み中...' })[saved] || '불러오는 중...';
+  }
 })();
-
-document.getElementById('langToggle').addEventListener('click', () => {
-  const current = localStorage.getItem('malmun_lang') || 'ko';
-  applyLang(current === 'ko' ? 'en' : 'ko');
-});
 </script></body>
 </html>
