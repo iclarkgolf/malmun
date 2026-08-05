@@ -16,6 +16,7 @@
     --text-muted: #8A8880;
     --accent: #EF9F27;
     --accent-text: #412402;
+    --accent-soft: #FFF3E0;
     --coral: #D85A30;
   }
   *{ box-sizing:border-box; }
@@ -31,12 +32,27 @@
   .header p.sub{ font-size:12px; color:var(--text-muted); margin:0 0 4px; }
   .header p.philosophy{ font-size:12px; color:var(--text-muted); margin:4px 0 0; line-height:1.5; max-width:520px; }
   .header p.title{ font-size:17px; font-weight:600; margin:0; }
+  .lang-dropdown{ position:relative; flex-shrink:0; }
   #langToggle{
     background:none; border:1px solid var(--card-border); color:var(--text-secondary);
     border-radius:16px; padding:6px 12px; font-size:12px; font-weight:600;
     cursor:pointer; display:flex; align-items:center; gap:4px; flex-shrink:0;
   }
   #langToggle .cur{ color:var(--text); }
+  #langToggle .caret{ font-size:10px; color:var(--text-muted); }
+  .lang-menu{
+    position:absolute; top:38px; right:0; z-index:30;
+    background:var(--card); border:1px solid var(--card-border); border-radius:14px;
+    box-shadow:0 8px 24px rgba(44,44,42,0.12); min-width:120px; padding:6px;
+    display:none;
+  }
+  .lang-menu.open{ display:block; }
+  .lang-menu .lang-option{
+    display:block; padding:8px 10px; border-radius:8px;
+    font-size:13px; color:var(--text); font-weight:500; cursor:pointer;
+  }
+  .lang-menu .lang-option:hover{ background:var(--accent-soft); }
+  .lang-menu .lang-option.active{ color:var(--accent-text); background:var(--accent-soft); }
 
   .chips{ display:flex; gap:8px; overflow-x:auto; padding:0 0 18px; margin:0 -20px; padding-left:20px; padding-right:20px; scrollbar-width:none; }
   .chips::-webkit-scrollbar{ display:none; }
@@ -91,9 +107,16 @@
       <p class="title" id="tutorCountTitle" data-i18n="tutors.count">튜터를 불러오는 중...</p>
       <p class="philosophy" data-i18n="tutors.philosophy">여러 튜터를 늘어놓지 않아요. 직접 만나보고 확신이 선 사람만 소개해요.</p>
     </div>
-    <button id="langToggle" aria-label="언어 전환">
-      <span class="cur" id="langCur">한국어</span> / <span id="langOther">EN</span>
-    </button>
+    <div class="lang-dropdown" id="langDropdown">
+      <button id="langToggle" aria-label="언어 전환" onclick="toggleLangMenu(event)">
+        <span class="cur" id="langCur">한국어</span> <span class="caret">▾</span>
+      </button>
+      <div class="lang-menu" id="langMenu">
+        <div class="lang-option" data-lang="ko" onclick="setLang(event,'ko')">한국어</div>
+        <div class="lang-option" data-lang="en" onclick="setLang(event,'en')">English</div>
+        <div class="lang-option" data-lang="ja" onclick="setLang(event,'ja')">日本語</div>
+      </div>
+    </div>
     <a href="tutor-admin.html" style="width:32px; height:32px; border-radius:50%; background:var(--accent-soft); display:flex; align-items:center; justify-content:center; font-size:14px; margin-left:8px;" aria-label="튜터 관리">⚙️</a>
   </div>
 
@@ -167,6 +190,15 @@ const TRANSLATIONS = {
     "tutors.empty": "No tutors yet — check back soon!",
     "nav.home": "Home", "nav.tutors": "Tutors", "nav.curriculum": "Curriculum",
     "nav.community": "Community", "nav.mypage": "My page"
+  },
+  ja: {
+    "tutors.level": "あなたのレベル：中級ステージ2",
+    "tutors.philosophy": "たくさんの講師を並べません。直接お会いして、信頼できると確信した方だけをご紹介します。",
+    "tutors.f.all": "すべて", "tutors.f.rating": "評価順", "tutors.f.exam": "試験対策", "tutors.f.biz": "ビジネス",
+    "unit.perLesson": "／回",
+    "tutors.empty": "まだ登録された講師がいません。近日公開！",
+    "nav.home": "ホーム", "nav.tutors": "講師", "nav.curriculum": "カリキュラム",
+    "nav.community": "コミュニティ", "nav.mypage": "マイページ"
   }
 };
 
@@ -183,23 +215,32 @@ function renderTutorList(){
 
   if(tutorDocs.length === 0){
     listEl.innerHTML = `<p class="empty">${t('tutors.empty')}</p>`;
-    countEl.textContent = currentLang === 'ko' ? '튜터 목록' : 'Tutors';
+    const emptyTitle = { ko: '튜터 목록', en: 'Tutors', ja: '講師一覧' };
+    countEl.textContent = emptyTitle[currentLang] || emptyTitle.ko;
     return;
   }
 
-  countEl.textContent = currentLang === 'ko'
-    ? `튜터 ${tutorDocs.length}명이 함께하고 있어요`
-    : `${tutorDocs.length} tutors ready to help`;
+  const langCountText = {
+    ko: `튜터 ${tutorDocs.length}명이 함께하고 있어요`,
+    en: `${tutorDocs.length} tutors ready to help`,
+    ja: `${tutorDocs.length}人の講師が在籍しています`
+  };
+  countEl.textContent = langCountText[currentLang] || langCountText.ko;
 
   listEl.innerHTML = '';
   tutorDocs.forEach(({ id, data }) => {
     const ko = data.ko || {};
-    const en = data.en || {};
+    const localized = data[currentLang] || {};
     const d = {
-      name: (currentLang === 'en' && en.name) ? en.name : ko.name,
-      role: (currentLang === 'en' && en.role) ? en.role : ko.role,
+      name: localized.name || ko.name,
+      role: localized.role || ko.role,
       rating: ko.rating,
       reviewCount: ko.reviewCount
+    };
+    const reviewText = {
+      ko: `후기 ${d.reviewCount || 0}개`,
+      en: `${d.reviewCount || 0} reviews`,
+      ja: `レビュー${d.reviewCount || 0}件`
     };
     const card = document.createElement('button');
     card.className = 'tutor-card';
@@ -209,7 +250,7 @@ function renderTutorList(){
       <div class="info">
         <div class="info-top"><p class="name">${d.name}</p><p class="price">${fmtKRW(data.price)}${t('unit.perLesson')}</p></div>
         <p class="desc">${d.role || ''}</p>
-        <div class="meta"><span class="star">★</span> ${d.rating || '5.0'} · ${currentLang === 'ko' ? `후기 ${d.reviewCount || 0}개` : `${d.reviewCount || 0} reviews`}</div>
+        <div class="meta"><span class="star">★</span> ${d.rating || '5.0'} · ${reviewText[currentLang] || reviewText.ko}</div>
       </div>
     `;
     listEl.appendChild(card);
@@ -237,21 +278,33 @@ function applyLang(lang){
       el.innerHTML = dict[key];
     }
   });
-  document.getElementById('langCur').textContent = (lang === 'ko') ? '한국어' : 'English';
-  document.getElementById('langOther').textContent = (lang === 'ko') ? 'EN' : '한글';
+  const LANG_LABELS = { ko: '한국어', en: 'English', ja: '日本語' };
+  document.getElementById('langCur').textContent = LANG_LABELS[lang] || LANG_LABELS.ko;
+  document.querySelectorAll('.lang-menu .lang-option').forEach(el => {
+    el.classList.toggle('active', el.getAttribute('data-lang') === lang);
+  });
   localStorage.setItem('malmun_lang', lang);
   renderTutorList();
 }
+
+function toggleLangMenu(e){
+  e.stopPropagation();
+  document.getElementById('langMenu').classList.toggle('open');
+}
+function setLang(e, lang){
+  e.stopPropagation();
+  applyLang(lang);
+  document.getElementById('langMenu').classList.remove('open');
+}
+document.addEventListener('click', () => {
+  const menu = document.getElementById('langMenu');
+  if(menu) menu.classList.remove('open');
+});
 
 (function initLang(){
   const saved = localStorage.getItem('malmun_lang') || 'ko';
   applyLang(saved);
 })();
-
-document.getElementById('langToggle').addEventListener('click', () => {
-  const current = localStorage.getItem('malmun_lang') || 'ko';
-  applyLang(current === 'ko' ? 'en' : 'ko');
-});
 
 const chips = document.querySelectorAll('.chip');
 chips.forEach(chip => {
