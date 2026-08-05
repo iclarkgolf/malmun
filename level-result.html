@@ -62,37 +62,37 @@
 <body>
 
 <div class="wrap">
-  <div class="topbar"><p>레벨테스트 완료</p></div>
+  <div class="topbar"><p id="topbarLabel">레벨테스트 완료</p></div>
 
   <div class="badge-wrap">
     <div class="badge">
-      <p class="level">중급</p>
-      <p class="stage">2단계</p>
+      <p class="level" id="levelLabel">중급</p>
+      <p class="stage" id="stageLabel">2단계</p>
     </div>
-    <p class="result-desc">일상 대화는 가능하지만<br>문법 정확도가 아쉬운 단계예요</p>
+    <p class="result-desc" id="resultDesc">일상 대화는 가능하지만<br>문법 정확도가 아쉬운 단계예요</p>
   </div>
 
   <div class="skill-block">
     <div class="skill-row">
-      <span class="skill-name">듣기</span>
-      <div class="skill-track"><div class="skill-fill" style="width:75%"></div></div>
-      <span class="skill-pct">75%</span>
+      <span class="skill-name" id="skillNameListening">듣기</span>
+      <div class="skill-track"><div class="skill-fill" id="skillFillListening" style="width:75%"></div></div>
+      <span class="skill-pct" id="skillPctListening">75%</span>
     </div>
     <div class="skill-row">
-      <span class="skill-name">읽기</span>
-      <div class="skill-track"><div class="skill-fill" style="width:60%"></div></div>
-      <span class="skill-pct">60%</span>
+      <span class="skill-name" id="skillNameReading">읽기</span>
+      <div class="skill-track"><div class="skill-fill" id="skillFillReading" style="width:60%"></div></div>
+      <span class="skill-pct" id="skillPctReading">60%</span>
     </div>
     <div class="skill-row">
-      <span class="skill-name">문법</span>
-      <div class="skill-track"><div class="skill-fill" style="width:40%"></div></div>
-      <span class="skill-pct">40%</span>
+      <span class="skill-name" id="skillNameGrammar">문법</span>
+      <div class="skill-track"><div class="skill-fill" id="skillFillGrammar" style="width:40%"></div></div>
+      <span class="skill-pct" id="skillPctGrammar">40%</span>
     </div>
   </div>
 
   <div class="bottom">
-    <button class="btn-primary" onclick="location.href='tutors.html'">내 등급에 맞는 튜터 보기</button>
-    <button class="btn-ghost" onclick="location.href='login.html'">결과 저장하고 나중에 보기</button>
+    <button class="btn-primary" id="btnSeeTutors" onclick="location.href='tutors.html'">내 등급에 맞는 튜터 보기</button>
+    <button class="btn-ghost" id="btnSaveResult" onclick="location.href='login.html'">결과 저장하고 나중에 보기</button>
   </div>
 </div>
 
@@ -100,6 +100,86 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script>
+const UI_LANG = localStorage.getItem('malmun_lang') || 'ko';
+const UI_TEXT = {
+  ko: {
+    topbar: '레벨테스트 완료',
+    skillListening: '듣기', skillReading: '읽기', skillGrammar: '문법',
+    btnTutors: '내 등급에 맞는 튜터 보기', btnSave: '결과 저장하고 나중에 보기',
+    levelNames: { '초급': '초급', '중급': '중급', '고급': '고급' },
+    stageSuffix: '단계'
+  },
+  en: {
+    topbar: 'Level test complete',
+    skillListening: 'Listening', skillReading: 'Reading', skillGrammar: 'Grammar',
+    btnTutors: 'See tutors for my level', btnSave: 'Save result & check later',
+    levelNames: { '초급': 'Beginner', '중급': 'Intermediate', '고급': 'Advanced' },
+    stageSuffix: ' stage'
+  },
+  ja: {
+    topbar: 'レベルテスト完了',
+    skillListening: 'リスニング', skillReading: '読解', skillGrammar: '文法',
+    btnTutors: '自分のレベルに合う講師を見る', btnSave: '結果を保存して後で見る',
+    levelNames: { '초급': '初級', '중급': '中級', '고급': '上級' },
+    stageSuffix: '段階'
+  }
+};
+const DESC_BY_LEVEL = {
+  ko: {
+    '초급': '기본적인 인사와 표현을 익히는 단계예요',
+    '중급': '일상 대화는 가능하지만 문법 정확도가 아쉬운 단계예요',
+    '고급': '자연스러운 대화와 복잡한 표현까지 이해하는 단계예요'
+  },
+  en: {
+    '초급': "You're learning basic greetings and expressions",
+    '중급': 'You can hold everyday conversations, but grammar accuracy needs work',
+    '고급': 'You can follow natural conversation and complex expressions'
+  },
+  ja: {
+    '초급': '基本的な挨拶や表現を身につける段階です',
+    '중급': '日常会話はできますが、文法の正確さが少し課題な段階です',
+    '고급': '自然な会話や複雑な表現まで理解できる段階です'
+  }
+};
+const T = UI_TEXT[UI_LANG] || UI_TEXT.ko;
+
+// ── 실제 레벨테스트 결과 읽기 (level-test.html이 sessionStorage에 저장) ──
+// 결과가 없으면(직접 이 페이지로 들어온 경우 등) 기본 예시값을 사용합니다.
+const DEFAULT_RESULT = {
+  level: '중급', stage: '2단계',
+  desc: '일상 대화는 가능하지만 문법 정확도가 아쉬운 단계예요',
+  skills: { listening: 75, reading: 60, grammar: 40 }
+};
+let savedResult = null;
+try{
+  const raw = sessionStorage.getItem('malmun_level_result');
+  if(raw) savedResult = JSON.parse(raw);
+}catch(err){
+  console.error('레벨테스트 결과 파싱 실패:', err);
+}
+const resultToShow = savedResult || DEFAULT_RESULT;
+const RESULT_LEVEL_KO = resultToShow.level || '중급';
+const RESULT_STAGE_NUM = String(resultToShow.stage || '2단계').replace(/[^0-9]/g, '') || '2';
+const RESULT_SKILLS = resultToShow.skills || DEFAULT_RESULT.skills;
+
+document.getElementById('topbarLabel').textContent = T.topbar;
+document.getElementById('skillNameListening').textContent = T.skillListening;
+document.getElementById('skillNameReading').textContent = T.skillReading;
+document.getElementById('skillNameGrammar').textContent = T.skillGrammar;
+document.getElementById('btnSeeTutors').textContent = T.btnTutors;
+document.getElementById('btnSaveResult').textContent = T.btnSave;
+
+document.getElementById('levelLabel').textContent = T.levelNames[RESULT_LEVEL_KO] || RESULT_LEVEL_KO;
+document.getElementById('stageLabel').textContent = RESULT_STAGE_NUM + T.stageSuffix;
+document.getElementById('resultDesc').innerHTML = (DESC_BY_LEVEL[UI_LANG] || DESC_BY_LEVEL.ko)[RESULT_LEVEL_KO] || resultToShow.desc || '';
+
+document.getElementById('skillFillListening').style.width = RESULT_SKILLS.listening + '%';
+document.getElementById('skillPctListening').textContent = RESULT_SKILLS.listening + '%';
+document.getElementById('skillFillReading').style.width = RESULT_SKILLS.reading + '%';
+document.getElementById('skillPctReading').textContent = RESULT_SKILLS.reading + '%';
+document.getElementById('skillFillGrammar').style.width = RESULT_SKILLS.grammar + '%';
+document.getElementById('skillPctGrammar').textContent = RESULT_SKILLS.grammar + '%';
+
 const firebaseConfig = {
   apiKey: "AIzaSyD10IdHCDkCybMrkO5fewo0ksYFBmqwWro",
   authDomain: "malmun-bca03.firebaseapp.com",
@@ -114,11 +194,11 @@ const db = firebase.firestore();
 
 const levelResult = {
   type: 'level_test',
-  level: '중급',
-  stage: '2단계',
-  desc: '일상 대화는 가능하지만 문법 정확도가 아쉬운 단계예요',
-  skills: { listening: 75, reading: 60, grammar: 40 },
-  dateLabel: new Date().toISOString().slice(0, 10)
+  level: RESULT_LEVEL_KO,
+  stage: RESULT_STAGE_NUM + '단계',
+  desc: resultToShow.desc || DEFAULT_RESULT.desc,
+  skills: RESULT_SKILLS,
+  dateLabel: resultToShow.dateLabel || new Date().toISOString().slice(0, 10)
 };
 
 async function saveHistoryEntry(uid, entry){
