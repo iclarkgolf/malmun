@@ -60,12 +60,27 @@
   header .logo span{ color:var(--coral); }
   header .right{ display:flex; align-items:center; gap:10px; }
 
+  .lang-dropdown{ position:relative; }
   #langToggle{
     background:none; border:1px solid var(--card-border); color:var(--text-secondary);
     border-radius:16px; padding:6px 12px; font-size:12px; font-weight:600;
     cursor:pointer; display:flex; align-items:center; gap:4px;
   }
   #langToggle .cur{ color:var(--text); }
+  #langToggle .caret{ font-size:10px; color:var(--text-muted); }
+  .lang-menu{
+    position:absolute; top:38px; right:0; z-index:30;
+    background:var(--card); border:1px solid var(--card-border); border-radius:14px;
+    box-shadow:0 8px 24px rgba(44,44,42,0.12); min-width:120px; padding:6px;
+    display:none;
+  }
+  .lang-menu.open{ display:block; }
+  .lang-menu .lang-option{
+    display:block; padding:8px 10px; border-radius:8px;
+    font-size:13px; color:var(--text); font-weight:500; cursor:pointer;
+  }
+  .lang-menu .lang-option:hover{ background:var(--accent-soft); }
+  .lang-menu .lang-option.active{ color:var(--accent-text); background:var(--accent-soft); }
 
   header .menu-btn{
     background:none; border:none; color:var(--text-secondary);
@@ -368,9 +383,16 @@
 <header>
   <div class="logo"><span>i</span>말문</div>
   <div class="right">
-    <button id="langToggle" aria-label="언어 전환">
-      <span class="cur" id="langCur">한국어</span> / <span id="langOther">EN</span>
-    </button>
+    <div class="lang-dropdown" id="langDropdown">
+      <button id="langToggle" aria-label="언어 전환" onclick="toggleLangMenu(event)">
+        <span class="cur" id="langCur">한국어</span> <span class="caret">▾</span>
+      </button>
+      <div class="lang-menu" id="langMenu">
+        <div class="lang-option" data-lang="ko" onclick="setLang(event,'ko')">한국어</div>
+        <div class="lang-option" data-lang="en" onclick="setLang(event,'en')">English</div>
+        <div class="lang-option" data-lang="ja" onclick="setLang(event,'ja')">日本語</div>
+      </div>
+    </div>
     <button class="menu-btn" id="siteMenuBtn" aria-label="메뉴 열기" onclick="toggleSiteMenu(event)">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
       <div class="site-menu" id="siteMenu">
@@ -722,6 +744,80 @@ const TRANSLATIONS = {
     "brand.body": "Words come out through the mouth, and the mouth is the \"door\" (mun) within us. Malmun is the moment that door opens — the moment Korean first starts to flow naturally.",
     "nav.home": "Home", "nav.tutors": "Tutors", "nav.curriculum": "Curriculum",
     "nav.community": "Community", "nav.mypage": "My page", "mypage.pricing": "Pricing & packages", "nav.tutorApply": "Become a tutor"
+  },
+  ja: {
+    "hero.eyebrow": "PJ先生と学ぶ1対1韓国語",
+    "hero.title": "韓国が気になるなら、<br>まず話してみましょう。",
+    "hero.sub": "レベルテストから始めて、<br>PJ先生と1対1で学ぶ本物の韓国語",
+    "hero.cta1": "無料レベルテストを始める",
+    "hero.cta2": "講師を見る",
+    "hero.d.title1": "マルムンが開けば、", "hero.d.title2": "韓国語", "hero.d.title3": "の世界が広がります",
+    "hero.d.sub": "旅行業30年、ゴルフレッスン20年 — 初対面の人と心を通わせる方法を長年磨いてきたPJ先生と始めましょう。",
+    "hero.svgTitle": "ノートパソコンでオンライン授業を受ける学習者のイラスト",
+    "hero.svgGreeting": "こんにちは！",
+    "hero.greeting1": "こんにちは！",
+    "hero.greeting2": "韓国語を学ぶ準備はできましたか？",
+    "hero.purpose.label": "韓国語で何がしたいですか？",
+    "hero.purpose.biz": "お金を稼ぐため",
+    "hero.purpose.study": "勉強のため",
+    "hero.purpose.move": "韓国で暮らすため",
+    "hero.purpose.travel": "トレンドを楽しむため",
+    "hero.more1": "PJ先生を", "hero.more3": "もっと見る",
+    "trust.rating": "平均評価",
+    "trust.verified": "認証済み",
+    "trust.pro": "プロ講師",
+    "trust.stages": "4段階",
+    "trust.curriculum": "カリキュラム",
+    "tutors.eyebrow": "あなたの講師",
+    "tutors.title": "PJ先生をご紹介します",
+    "tutors.pj.role": "旅行業30年・海外ゴルフレッスン20年",
+    "tutors.pj.bio": "30年以上旅行業に携わり、数多くの国の人々とその文化に直接向き合ってきました。20年間海外でゴルフを教えながら、「どうすれば本当に伝わるのか」を常に考え続けてきました。神学と哲学、二つの専攻を通じて、人が言葉を通して何をつかもうとしているのかも長く見つめてきました。マルムンはその時間の結果です — 暗記して知っている韓国語ではなく、自然と口から出てくる韓国語を教えます。",
+    "tutors.pj.tag1": "旅行業30年",
+    "tutors.pj.tag2": "海外ゴルフレッスン20年",
+    "tutors.pj.tag3": "神学・哲学専攻",
+    "tutor.jieun.desc": "元客室乗務員・ビジネス韓国語",
+    "tutor.jieun.reviews": "レビュー132件",
+    "tutor.hyunwoo.desc": "元韓国語教師・TOPIK専門",
+    "tutor.hyunwoo.reviews": "レビュー89件",
+    "tutor.soojin.desc": "大学院生・日常会話専門",
+    "tutor.soojin.reviews": "レビュー61件",
+    "unit.perLesson": "／回",
+    "curriculum.eyebrow": "成長プロセス",
+    "curriculum.title": "初級からビジネスレベルまで",
+    "curriculum.desc": "<b>初回授業は無料オリエンテーション</b>です。講師と話して何を学びたいかを決め、2回目からそれに合った教材で始めます。",
+    "curriculum.s1.title": "初級・サバイバル会話",
+    "curriculum.s1.desc": "挨拶、注文、道案内などの基本表現",
+    "curriculum.s2.title": "中級・日常会話の深化",
+    "curriculum.s2.desc": "自由な会話、感情表現",
+    "curriculum.s3.title": "上級・ビジネス会話",
+    "curriculum.s3.desc": "会議、メール、電話対応",
+    "curriculum.s4.title": "上級＋・時事、ニュース",
+    "curriculum.s4.desc": "ニュース読解、ネイティブレベルのニュアンス",
+    "review.eyebrow": "レビュー",
+    "review.title": "先に体験した人たち",
+    "review.desc": "口先だけでは言いません。実際にマルムンで学んだ人たちの声をお聞きください。",
+    "review.hk": "香港",
+    "review.body": "ビジネスミーティングの準備をするたびにとても助けられました。実際の場面のように練習させてもらえて良かったです。",
+    "pricing.eyebrow": "料金プラン",
+    "pricing.title": "まとめて予約すればお得です",
+    "pricing.desc": "毎回決済するのは面倒ですよね？<b>クレジットを事前にチャージ</b>して、授業ごとに気軽に使いましょう。有効期限は1年間です。",
+    "pricing.single.name": "1回のみ授業",
+    "pricing.single.sub": "気軽に1回だけ",
+    "pricing.popular": "一番人気",
+    "pricing.pack5.name": "5回パック",
+    "pricing.pack5.sub": "気軽に始めたい方に",
+    "pricing.pack10.name": "10回パック",
+    "pricing.pack10.sub": "10%オフ・じっくり学びたい方に",
+    "pricing.pack10.unit": "・1回あたり₩27,000",
+    "becomeTutor.title": "講師募集",
+    "becomeTutor.sub": "PJが直接お会いして、信頼できる方だけをご紹介します",
+    "becomeTutor.cta": "応募する",
+    "brand.svgTitle": "マルムンのブランドイラスト",
+    "brand.svgDesc": "扉が少し開き、その隙間から吹き出し型の言葉があふれ出る様子",
+    "brand.title": "なぜ「マルムン」なのでしょう？",
+    "brand.body": "言葉は口を通して出てきます。口は私たちの中にある「扉（ムン）」です。マルムンとは、その扉が開く瞬間 — 韓国語が初めて自然に流れ出す瞬間を意味します。",
+    "nav.home": "ホーム", "nav.tutors": "講師", "nav.curriculum": "カリキュラム",
+    "nav.community": "コミュニティ", "nav.mypage": "マイページ", "mypage.pricing": "料金・パッケージ", "nav.tutorApply": "講師に応募する"
   }
 };
 
@@ -734,8 +830,11 @@ function applyLang(lang){
       el.innerHTML = dict[key];
     }
   });
-  document.getElementById('langCur').textContent = (lang === 'ko') ? '한국어' : 'English';
-  document.getElementById('langOther').textContent = (lang === 'ko') ? 'EN' : '한글';
+  const LANG_LABELS = { ko: '한국어', en: 'English', ja: '日本語' };
+  document.getElementById('langCur').textContent = LANG_LABELS[lang] || LANG_LABELS.ko;
+  document.querySelectorAll('.lang-menu .lang-option').forEach(el => {
+    el.classList.toggle('active', el.getAttribute('data-lang') === lang);
+  });
   localStorage.setItem('malmun_lang', lang);
   if(typeof applyGreetingPersonalization === 'function') applyGreetingPersonalization();
 }
@@ -758,6 +857,16 @@ function toggleSiteMenu(e){
   e.stopPropagation();
   document.getElementById('siteMenu').classList.toggle('open');
 }
+// ── 언어 드롭다운: 한국어/English/日本語 3개 언어 선택 ──
+function toggleLangMenu(e){
+  e.stopPropagation();
+  document.getElementById('langMenu').classList.toggle('open');
+}
+function setLang(e, lang){
+  e.stopPropagation();
+  applyLang(lang);
+  document.getElementById('langMenu').classList.remove('open');
+}
 document.addEventListener('click', () => {
   const dd = document.getElementById('purposeDropdown');
   const menu = document.getElementById('purposeMenu');
@@ -765,6 +874,8 @@ document.addEventListener('click', () => {
   if(menu) menu.classList.remove('open');
   const siteMenu = document.getElementById('siteMenu');
   if(siteMenu) siteMenu.classList.remove('open');
+  const langMenu = document.getElementById('langMenu');
+  if(langMenu) langMenu.classList.remove('open');
 });
 function purposeSlug(){
   const key = localStorage.getItem('malmun_purpose') || 'hero.purpose.biz';
@@ -788,10 +899,6 @@ function goToTutors(){
   applyLang(saved);
 })();
 
-document.getElementById('langToggle').addEventListener('click', () => {
-  const current = localStorage.getItem('malmun_lang') || 'ko';
-  applyLang(current === 'ko' ? 'en' : 'ko');
-});
 </script>
 
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
