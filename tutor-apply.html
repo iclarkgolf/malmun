@@ -150,6 +150,10 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 const storage = firebase.storage();
 
+// 튜터 지원서 접수 시 PJ님께 이메일 알림을 보내는 Apps Script 웹앱 URL
+// script.google.com에서 "말문 튜터지원알림" 스크립트 배포 후, 아래 자리에 배포된 URL을 붙여넣어 주세요.
+const TUTOR_ALERT_WEBAPP_URL = 'https://script.google.com/macros/s/여기에_배포된_URL을_붙여넣으세요/exec';
+
 const DAY_OPTIONS = [
   { id:'mon', label:'월' }, { id:'tue', label:'화' }, { id:'wed', label:'수' },
   { id:'thu', label:'목' }, { id:'fri', label:'금' }, { id:'sat', label:'토' }, { id:'sun', label:'일' }
@@ -334,7 +338,7 @@ async function handleSubmit(e, user){
   btn.textContent = '제출 중...';
 
   try{
-    await db.collection('tutorApplications').add({
+    const applicationData = {
       uid: user.uid,
       photoURL: photoURL,
       name: document.getElementById('fName').value.trim(),
@@ -343,10 +347,26 @@ async function handleSubmit(e, user){
       nativeLevel: document.getElementById('fNative').value,
       credential: document.getElementById('fCredential').value.trim(),
       availableDays: selectedDays,
-      intro: document.getElementById('fIntro').value.trim(),
+      intro: document.getElementById('fIntro').value.trim()
+    };
+    await db.collection('tutorApplications').add({
+      ...applicationData,
       status: 'pending',
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
+
+    // PJ님께 즉시 이메일 알림 (실패해도 지원서 제출 자체는 정상 처리되도록 별도 try/catch)
+    try{
+      fetch(TUTOR_ALERT_WEBAPP_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify(applicationData)
+      });
+    }catch(alertErr){
+      console.error('지원 알림 이메일 발송 실패(지원서 제출은 정상 완료됨):', alertErr);
+    }
+
     if(window.gtag){ gtag('event', 'tutor_apply_submit'); }
     document.getElementById('content').innerHTML = doneHtml('pending');
   }catch(err){
