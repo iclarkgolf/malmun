@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>개인정보처리방침 | 말문 Malmun</title>
+<meta name="description" content="말문(malmunkorean.com)의 개인정보처리방침입니다. 수집하는 개인정보 항목, 이용 목적, 보유기간, 이용자의 권리 등을 안내합니다.">
+<link rel="canonical" href="https://malmunkorean.com/privacy.html">
+<style>
+  :root{
+    --bg: #FFF9F0;
+    --card: #FFFFFF;
+    --card-border: #E8E4D8;
+    --text: #2C2C2A;
+    --text-secondary: #5F5E5A;
+    --text-muted: #8A8880;
+    --accent: #EF9F27;
+    --accent-text: #412402;
+    --accent-soft: #FFF3E0;
+  }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh; display:flex; flex-direction:column;
+  }
+  a{ color:inherit; text-decoration:underline; }
+  .wrap{ max-width:680px; margin:0 auto; width:100%; padding:0 20px; flex:1; }
+
+  .topbar{ display:flex; align-items:center; padding:24px 0 8px; }
+  .topbar button{ background:none; border:none; color:var(--text-secondary); cursor:pointer; padding:0; display:flex; }
+
+  .header{ padding:16px 0 24px; }
+  .header .tag{ font-size:12px; font-weight:600; color:var(--accent); margin:0 0 8px; }
+  .header .title{ font-size:20px; font-weight:700; margin:0; line-height:1.4; }
+  .header .sub{ font-size:12px; color:var(--text-muted); margin:10px 0 0; }
+
+  .card{
+    background:var(--card); border:1px solid var(--card-border); border-radius:12px;
+    padding:18px 18px 16px; margin-bottom:14px;
+  }
+  .card h2{ font-size:14px; font-weight:700; margin:0 0 10px; }
+  .card p{ font-size:13px; color:var(--text-secondary); line-height:1.8; margin:0 0 8px; }
+  .card p:last-child{ margin-bottom:0; }
+  .card ul{ margin:0 0 8px; padding-left:18px; }
+  .card li{ font-size:13px; color:var(--text-secondary); line-height:1.85; }
+  .card table{ width:100%; border-collapse:collapse; font-size:12.5px; margin:8px 0; }
+  .card th, .card td{ border:1px solid var(--card-border); padding:8px 10px; text-align:left; color:var(--text-secondary); }
+  .card th{ background:var(--accent-soft); color:var(--accent-text); font-weight:700; }
+
+  .bottom{ padding:8px 0 40px; text-align:center; }
+  .bottom p{ font-size:12px; color:var(--text-muted); margin:4px 0; }
+
+  body{ padding-bottom:76px; }
+  .bottom-nav{
+    position:fixed; bottom:0; left:0; right:0; z-index:20;
+    background:rgba(255,255,255,0.92); backdrop-filter:blur(10px);
+    border-top:1px solid var(--card-border);
+    display:flex; padding:8px 8px calc(8px + env(safe-area-inset-bottom));
+    max-width:680px; margin:0 auto;
+  }
+  .nav-item{
+    flex:1; display:flex; flex-direction:column; align-items:center; gap:4px;
+    padding:6px 0; color:var(--text-muted); background:none; border:none; cursor:pointer; text-decoration:none;
+  }
+  .nav-item span{ font-size:11px; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="topbar">
+    <button onclick="location.href='index.html'" aria-label="뒤로가기">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    </button>
+  </div>
+
+  <div class="header">
+    <p class="tag">말문 (Malmun)</p>
+    <p class="title">개인정보처리방침</p>
+    <p class="sub">시행일자: 2026년 8월 20일</p>
+  </div>
+
+  <div class="card">
+    <h2>제1조 (총칙)</h2>
+    <p>말문(이하 "회사" 또는 "말문")은 malmunkorean.com에서 제공하는 1:1 한국어 튜터링 서비스(이하 "서비스")를 운영하며, 이용자의 개인정보를 소중히 여기고 「개인정보 보호법」 등 관련 법령을 준수합니다. 본 방침은 회사가 어떤 개인정보를 수집하고, 어떻게 이용·보관·파기하는지 안내합니다.</p>
+  </div>
+
+  <div class="card">
+    <h2>제2조 (수집하는 개인정보 항목 및 수집 방법)</h2>
+    <p>회사는 서비스 제공을 위해 아래와 같은 개인정보를 수집합니다.</p>
+    <table>
+      <tr><th>구분</th><th>수집 항목</th><th>수집 방법</th></tr>
+      <tr><td>회원가입 · 로그인</td><td>이메일 주소, 표시 이름, 비밀번호(암호화 저장)</td><td>이메일 가입 또는 구글 로그인(Firebase Authentication)</td></tr>
+      <tr><td>서비스 이용</td><td>레벨테스트 결과, 예약·수업 이력, 크레딧 충전·사용 내역, 튜터와의 학습 기록</td><td>서비스 이용 과정에서 자동 생성</td></tr>
+      <tr><td>튜터 지원</td><td>이름, 연락처, 지원 사유 등 지원서 기재 내용</td><td>튜터 지원 양식 제출</td></tr>
+      <tr><td>후기 작성</td><td>이름, 국가, 후기 내용</td><td>후기 제출 양식 작성(선택)</td></tr>
+      <tr><td>결제(향후)</td><td>결제수단 정보, 결제·환불 이력</td><td>결제대행사(PG사) 연동 시 해당 PG사를 통해 처리</td></tr>
+      <tr><td>자동 수집</td><td>접속 기기·브라우저 정보, 접속 로그, 쿠키</td><td>Google Analytics(GA4) 등 분석 도구</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>제3조 (개인정보의 이용 목적)</h2>
+    <ul>
+      <li>회원 식별 및 서비스 이용에 따른 본인 확인</li>
+      <li>1:1 한국어 수업 예약·진행·이력 관리</li>
+      <li>크레딧 결제·충전·환불 처리(향후 결제 기능 도입 시)</li>
+      <li>공지사항 및 수업 알림 등 이메일 발송</li>
+      <li>서비스 이용 통계 분석 및 서비스 개선</li>
+      <li>부정 이용 방지 및 분쟁 처리</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>제4조 (개인정보의 보유 및 이용 기간)</h2>
+    <p>회사는 원칙적으로 개인정보 수집·이용 목적이 달성된 후에는 해당 정보를 지체 없이 파기합니다. 다만, 관련 법령에 따라 보존할 필요가 있는 경우 회사는 아래와 같이 관계 법령에서 정한 일정한 기간 동안 회원정보를 보관합니다.</p>
+    <ul>
+      <li>계약 또는 청약철회 등에 관한 기록: 5년 (전자상거래법)</li>
+      <li>대금결제 및 재화 등의 공급에 관한 기록: 5년 (전자상거래법)</li>
+      <li>소비자의 불만 또는 분쟁처리에 관한 기록: 3년 (전자상거래법)</li>
+      <li>웹사이트 방문 기록: 3개월 (통신비밀보호법)</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>제5조 (개인정보의 제3자 제공 및 처리 위탁)</h2>
+    <p>회사는 이용자의 개인정보를 원칙적으로 외부에 제공하지 않으며, 서비스 운영을 위해 아래 업체에 처리를 위탁하고 있습니다.</p>
+    <ul>
+      <li><b>Google LLC (Firebase)</b> — 회원 인증, 데이터베이스(Firestore), 파일 저장(Storage) 운영</li>
+      <li><b>Google LLC (Google Analytics, GA4)</b> — 방문 통계 분석</li>
+      <li><b>Google LLC (Google AdSense)</b> — 광고 게재 및 맞춤형 광고 제공(도입 시)</li>
+      <li>결제대행사(PG사) — 사업자등록 이후 결제 기능 연동 시 결제 처리 목적으로 추가될 예정이며, 추가되는 즉시 본 방침을 통해 고지합니다.</li>
+    </ul>
+    <p>구글 애드센스는 쿠키를 사용하여 이용자의 방문 이력을 기반으로 맞춤형 광고를 게재할 수 있습니다. 이용자는 <a href="https://adssettings.google.com/" target="_blank" rel="noopener">구글 광고 설정</a>에서 맞춤형 광고를 거부할 수 있습니다.</p>
+  </div>
+
+  <div class="card">
+    <h2>제6조 (이용자의 권리와 행사 방법)</h2>
+    <p>이용자는 언제든지 자신의 개인정보를 조회하거나 수정할 수 있으며, 회원 탈퇴를 통해 개인정보 삭제를 요청할 수 있습니다. 개인정보 열람, 정정, 삭제, 처리정지를 원하실 경우 아래 문의처로 연락 주시면 지체 없이 조치합니다.</p>
+  </div>
+
+  <div class="card">
+    <h2>제7조 (개인정보의 파기)</h2>
+    <p>회사는 개인정보 보유기간이 경과하거나 처리 목적이 달성된 경우 해당 개인정보를 지체 없이 파기합니다. 전자적 파일 형태의 정보는 복구할 수 없는 기술적 방법을 사용하여 삭제하며, 종이 문서는 분쇄하거나 소각합니다.</p>
+  </div>
+
+  <div class="card">
+    <h2>제8조 (쿠키의 운영 및 거부)</h2>
+    <p>회사는 이용자에게 맞춤형 서비스를 제공하기 위해 쿠키를 사용할 수 있습니다. 이용자는 브라우저 설정을 통해 쿠키 저장을 거부할 수 있으며, 이 경우 서비스 이용에 일부 제약이 있을 수 있습니다.</p>
+  </div>
+
+  <div class="card">
+    <h2>제9조 (개인정보 보호책임자)</h2>
+    <p>회사는 개인정보 처리에 관한 문의, 불만 처리 등을 위해 아래와 같이 개인정보 보호책임자를 지정하고 있습니다.</p>
+    <ul>
+      <li>성명: PJ (말문 운영자)</li>
+      <li>이메일: 문의는 서비스 내 튜터 지원 페이지 또는 공지사항에 안내된 연락처를 이용해 주세요.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>제10조 (고지의 의무)</h2>
+    <p>본 방침은 관련 법령, 정책 또는 서비스 변경에 따라 개정될 수 있으며, 개정 시 웹사이트 공지사항을 통해 사전 공지합니다.</p>
+  </div>
+
+  <div class="bottom">
+    <p>ⓒ 2026 말문 (Malmun)</p>
+    <p>malmunkorean.com</p>
+  </div>
+</div>
+
+<nav class="bottom-nav">
+  <a class="nav-item" href="index.html">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M9 22V12h6v10"/></svg>
+    <span>홈</span>
+  </a>
+  <a class="nav-item" href="tutors.html">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+    <span>튜터</span>
+  </a>
+  <a class="nav-item" href="curriculum.html">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+    <span>커리큘럼</span>
+  </a>
+  <a class="nav-item" href="blog.html">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+    <span>커뮤니티</span>
+  </a>
+  <a class="nav-item" href="mypage.html">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <span>마이페이지</span>
+  </a>
+</nav>
+
+</body>
+</html>

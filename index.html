@@ -437,7 +437,7 @@
     <button class="btn btn-primary" data-i18n="hero.cta1" onclick="goToLevelTest()">무료 레벨테스트 시작</button>
     <div class="desktop-trust" style="display:flex; gap:48px; padding-top:24px; margin-top:24px; border-top:1px solid var(--card-border);">
       <div style="display:flex; gap:48px; cursor:pointer;" onclick="location.href='tutors.html'">
-        <div><p id="ratingNumDesktop" style="font-size:20px;font-weight:600;margin:0;">4.9</p><p style="font-size:12px;color:var(--text-muted);margin:4px 0 0;" data-i18n="trust.rating">평균 평점</p></div>
+        <div><p id="ratingNumDesktop" style="font-size:20px;font-weight:600;margin:0;">–</p><p style="font-size:12px;color:var(--text-muted);margin:4px 0 0;" data-i18n="trust.rating">받은 후기</p></div>
         <div><p style="font-size:20px;font-weight:600;margin:0;" data-i18n="trust.verified">검증된</p><p style="font-size:12px;color:var(--text-muted);margin:4px 0 0;" data-i18n="trust.pro">전문직 튜터</p></div>
       </div>
       <div style="cursor:pointer;" onclick="location.href='curriculum.html'">
@@ -462,7 +462,7 @@
   </section>
 
   <div class="trust" style="border-top:none;">
-    <div style="cursor:pointer;" onclick="location.href='tutors.html'"><p class="num" id="ratingNumMobile">4.9</p><p class="label" data-i18n="trust.rating">평균 평점</p></div>
+    <div style="cursor:pointer;" onclick="location.href='tutors.html'"><p class="num" id="ratingNumMobile">–</p><p class="label" data-i18n="trust.rating">받은 후기</p></div>
     <div style="cursor:pointer;" onclick="location.href='tutors.html'"><p class="num" data-i18n="trust.verified">검증된</p><p class="label" data-i18n="trust.pro">전문직 튜터</p></div>
     <div style="cursor:pointer;" onclick="location.href='curriculum.html'"><p class="num" data-i18n="trust.stages">4단계</p><p class="label" data-i18n="trust.curriculum">커리큘럼</p></div>
   </div>
@@ -615,7 +615,7 @@ const TRANSLATIONS = {
     "hero.purpose.move": "살아보기",
     "hero.purpose.travel": "유행따라가기",
     "hero.more1": "PJ 소개", "hero.more3": "더 보기",
-    "trust.rating": "평균 평점",
+    "trust.rating": "받은 후기",
     "trust.verified": "검증된",
     "trust.pro": "전문직 튜터",
     "trust.stages": "4단계",
@@ -689,7 +689,7 @@ const TRANSLATIONS = {
     "hero.purpose.move": "Living here",
     "hero.purpose.travel": "Following the trend",
     "hero.more1": "Meet", "hero.more3": "PJ",
-    "trust.rating": "avg. rating",
+    "trust.rating": "reviews",
     "trust.verified": "Verified",
     "trust.pro": "professional tutors",
     "trust.stages": "4 stages",
@@ -763,7 +763,7 @@ const TRANSLATIONS = {
     "hero.purpose.move": "韓国で暮らすため",
     "hero.purpose.travel": "トレンドを楽しむため",
     "hero.more1": "PJ先生を", "hero.more3": "もっと見る",
-    "trust.rating": "平均評価",
+    "trust.rating": "レビュー",
     "trust.verified": "認証済み",
     "trust.pro": "プロ講師",
     "trust.stages": "4段階",
@@ -949,21 +949,39 @@ auth.onAuthStateChanged(async (user) => {
 });
 
 // 홈 화면 후기 섹션 — 승인된(published:true) 후기를 최신순으로 자동 표시
+// + 상단 통계칸의 숫자도 이 실제 후기 개수를 그대로 사용
+// (예전에는 실제 후기가 0개인데도 "4.9 평균 평점"이 하드코딩되어 있어서
+//  튜터 목록 페이지의 "후기 0개"와 서로 모순되는 문제가 있었음 → 실제 개수 기반으로 수정)
 function escReview(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-db.collection('reviews').where('published','==',true).orderBy('createdAt','desc').limit(12).get().then(snap => {
+db.collection('reviews').where('published','==',true).orderBy('createdAt','desc').get().then(snap => {
   const el = document.getElementById('reviewListDynamic');
-  if(!el) return;
-  el.innerHTML = snap.docs.map(d => {
-    const r = d.data();
-    return `
-      <div class="review-card" style="margin-top:12px;">
-        <p class="review-author">${escReview(r.name)}${r.country ? ' · '+escReview(r.country) : ''}</p>
-        <p class="review-body">${escReview(r.body)}</p>
-      </div>
-    `;
-  }).join('');
+  if(el){
+    el.innerHTML = snap.docs.slice(0, 12).map(d => {
+      const r = d.data();
+      return `
+        <div class="review-card" style="margin-top:12px;">
+          <p class="review-author">${escReview(r.name)}${r.country ? ' · '+escReview(r.country) : ''}</p>
+          <p class="review-body">${escReview(r.body)}</p>
+        </div>
+      `;
+    }).join('');
+  }
+  const count = snap.size;
+  const desktopNum = document.getElementById('ratingNumDesktop');
+  const mobileNum = document.getElementById('ratingNumMobile');
+  if(count > 0){
+    countUpText(desktopNum, count, n => n + '개', 800);
+    countUpText(mobileNum, count, n => n + '개', 800);
+  }else{
+    if(desktopNum) desktopNum.textContent = 'NEW';
+    if(mobileNum) mobileNum.textContent = 'NEW';
+  }
 }).catch(err => {
   console.error('후기 불러오기 실패:', err);
+  const desktopNum = document.getElementById('ratingNumDesktop');
+  const mobileNum = document.getElementById('ratingNumMobile');
+  if(desktopNum) desktopNum.textContent = '-';
+  if(mobileNum) mobileNum.textContent = '-';
 });
 
 // 홈 화면 "추천 튜터" 섹션에 몇 명까지 보여줄지 - 튜터가 늘어나면 이 숫자만 바꾸면 됩니다.
@@ -1030,9 +1048,6 @@ function countUpText(el, target, formatFn, duration){
   }
   requestAnimationFrame(tick);
 }
-
-countUp(document.getElementById('ratingNumDesktop'), 4.9, 1, 800);
-countUp(document.getElementById('ratingNumMobile'), 4.9, 1, 800);
 </script>
 
 </body>
