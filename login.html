@@ -314,6 +314,9 @@ function afterLogin(){
     location.href = tutor ? ('booking.html?tutor=' + tutor) : 'booking.html';
   } else if(next === 'tutor-apply'){
     location.href = 'tutor-apply.html';
+  } else if(next === 'instant'){
+    const tutor = params.get('tutor');
+    location.href = tutor ? ('tutor-profile.html?id=' + tutor + '&instant=1') : 'tutors.html';
   } else {
     location.href = 'mypage.html';
   }

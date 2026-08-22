@@ -219,15 +219,22 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
   });
 });
 
-async function loadBookings(){
-  try{
-    const snap = await db.collection('bookings').orderBy('createdAt', 'desc').limit(100).get();
-    allBookings = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    render();
-  }catch(err){
-    console.error('예약 목록 불러오기 실패:', err);
-    document.getElementById('list').innerHTML = `<p class="empty">예약 목록을 불러오지 못했어요.<br>${err.message}</p>`;
-  }
+let unsubscribeBookings = null;
+
+// 새로고침 없이 실시간으로 갱신되도록 onSnapshot 구독 (예전엔 페이지 열 때 한 번만 불러왔음)
+function loadBookings(){
+  if(unsubscribeBookings){ unsubscribeBookings(); }
+  unsubscribeBookings = db.collection('bookings').orderBy('createdAt', 'desc').limit(100)
+    .onSnapshot(
+      snap => {
+        allBookings = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        render();
+      },
+      err => {
+        console.error('예약 목록 실시간 구독 실패:', err);
+        document.getElementById('list').innerHTML = `<p class="empty">예약 목록을 불러오지 못했어요.<br>${err.message}</p>`;
+      }
+    );
 }
 
 // 요일·시간이 "지금 이후"인지 대략적으로 판단 (같은 주 기준 요일 순서 비교)
