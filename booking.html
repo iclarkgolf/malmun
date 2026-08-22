@@ -156,7 +156,7 @@ const db = firebase.firestore();
 
 // 예약 발생 시 PJ님께 즉시 이메일 알림을 보내는 Apps Script 웹앱 주소
 // script.google.com에서 아래 booking-alert.gs 배포 후 나온 웹앱 URL로 교체하세요
-const BOOKING_ALERT_WEBAPP_URL = 'PASTE_YOUR_DEPLOYED_URL_HERE';
+const BOOKING_ALERT_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbz7EANVhq9AoUz-W7cFmXfyZUb0cWCIJG26Rx2TFVrUR7ehRDTRbyT1BdOANqQ7bCsiRQ/exec';
 
 const urlParams = new URLSearchParams(window.location.search);
 const currentTutorId = urlParams.get('tutor') || urlParams.get('id');
