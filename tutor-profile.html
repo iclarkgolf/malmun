@@ -68,6 +68,17 @@
     border:none; border-radius:12px; padding:14px; font-size:14px; font-weight:600; cursor:pointer;
   }
   .loading{ text-align:center; color:var(--text-muted); font-size:13px; padding:60px 0; }
+
+  .instant-box{
+    background:var(--accent-soft); border:1px solid var(--accent); border-radius:12px;
+    padding:14px; margin:0 0 20px; text-align:center;
+  }
+  .instant-box p{ font-size:12.5px; color:var(--accent-text); margin:0 0 10px; line-height:1.5; }
+  .instant-box button{
+    background:#fff; border:1px solid var(--accent); color:var(--accent-text);
+    border-radius:10px; padding:10px 16px; font-size:13px; font-weight:600; cursor:pointer;
+  }
+  .instant-box button:disabled{ opacity:0.6; cursor:default; }
 </style>
 </head>
 <body>
@@ -93,6 +104,7 @@
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script>
 const firebaseConfig = {
@@ -104,17 +116,33 @@ const firebaseConfig = {
   appId: "1:831462084669:web:003a844918b165d5b65a54"
 };
 firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
 const db = firebase.firestore();
+
+// 즉시상담 요청 시 PJ님께 바로 이메일 알림을 보내는 Apps Script 웹앱 주소
+// script.google.com에서 instant-alert.gs 배포 후 나온 웹앱 URL로 교체하세요
+const INSTANT_ALERT_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbz-3-NSaduh4Zn9DVXu-htxCAWFGU_nkn1bHLd66gSGuz60E9HVv0QyBbETsDnvn9ox/exec';
 
 const urlParams = new URLSearchParams(window.location.search);
 const currentTutorId = urlParams.get('id') || urlParams.get('tutor');
+const wantsInstant = urlParams.get('instant') === '1';
 
 let currentLang = localStorage.getItem('malmun_lang') || 'ko';
 let tutorData = null;
 
 const TRANSLATIONS = {
-  ko: { "unit.perLesson": "/회", "profile.book": "수업 예약하기", "profile.notFound": "튜터 정보를 찾을 수 없어요" },
-  en: { "unit.perLesson": "/lesson", "profile.book": "Book a lesson", "profile.notFound": "Could not find this tutor" }
+  ko: {
+    "unit.perLesson": "/회", "profile.book": "수업 예약하기", "profile.notFound": "튜터 정보를 찾을 수 없어요",
+    "instant.desc": "지금 바로 이야기하고 싶으신가요? PJ님께 즉시 알림이 가고, 응답하시면 화상방으로 연결돼요.",
+    "instant.btn": "지금 바로 상담 요청", "instant.sending": "요청 중...",
+    "instant.sent": "요청을 보냈어요! 화상방에서 PJ님을 기다려주세요.", "instant.err": "요청 중 문제가 생겼어요: "
+  },
+  en: {
+    "unit.perLesson": "/lesson", "profile.book": "Book a lesson", "profile.notFound": "Could not find this tutor",
+    "instant.desc": "Want to talk right now? PJ gets notified immediately and you'll be connected in a video room.",
+    "instant.btn": "Request instant chat", "instant.sending": "Requesting...",
+    "instant.sent": "Request sent! Please wait for PJ in the video room.", "instant.err": "Something went wrong: "
+  }
 };
 
 function fmtKRW(n){ return '₩' + Number(n || 0).toLocaleString('en-US'); }
@@ -157,9 +185,65 @@ function renderProfile(){
         <p class="body">${d.reviewBody}</p>
       </div>
     ` : ''}
+    <div class="instant-box">
+      <p>${(TRANSLATIONS[currentLang] || TRANSLATIONS.ko)['instant.desc']}</p>
+      <button id="instantBtn">${(TRANSLATIONS[currentLang] || TRANSLATIONS.ko)['instant.btn']}</button>
+    </div>
   `;
   document.getElementById('tutorPrice').textContent = fmtKRW(tutorData.price);
   document.getElementById('bookBtn').style.display = 'block';
+  const instantBtn = document.getElementById('instantBtn');
+  if(instantBtn){ instantBtn.addEventListener('click', requestInstant); }
+}
+
+async function requestInstant(){
+  const T = TRANSLATIONS[currentLang] || TRANSLATIONS.ko;
+  const user = auth.currentUser;
+  if(!user){
+    location.href = 'login.html?next=instant&tutor=' + currentTutorId;
+    return;
+  }
+  const btn = document.getElementById('instantBtn');
+  if(btn){ btn.disabled = true; btn.textContent = T['instant.sending']; }
+  try{
+    const roomId = `instant-${currentTutorId}-${Date.now().toString(36)}`;
+    const studentName = user.displayName || (user.email ? user.email.split('@')[0] : '학생');
+    await db.collection('instantRequests').add({
+      tutorId: currentTutorId,
+      tutorName: (tutorData && tutorData.ko && tutorData.ko.name) || currentTutorId,
+      studentUid: user.uid,
+      studentName: studentName,
+      studentEmail: user.email || '',
+      roomId: roomId,
+      status: 'pending',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    // PJ님께 즉시 이메일 알림 (실패해도 학생은 화상방으로 이동하도록 별도 try/catch)
+    try{
+      fetch(INSTANT_ALERT_WEBAPP_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({
+          studentName: studentName,
+          studentEmail: user.email || '',
+          tutorName: (tutorData && tutorData.ko && tutorData.ko.name) || currentTutorId,
+          roomId: roomId,
+          joinUrl: `https://malmunkorean.com/classroom.html?room=${roomId}&tutor=${encodeURIComponent((tutorData && tutorData.ko && tutorData.ko.name) || currentTutorId)}&time=${encodeURIComponent(currentLang === 'ko' ? '지금 바로' : 'Right now')}`
+        })
+      });
+    }catch(alertErr){
+      console.error('즉시상담 알림 발송 실패(요청 자체는 정상 완료됨):', alertErr);
+    }
+
+    if(window.gtag){ gtag('event', 'instant_request_sent'); }
+    location.href = `classroom.html?room=${roomId}&tutor=${encodeURIComponent((tutorData && tutorData.ko && tutorData.ko.name) || currentTutorId)}&time=${encodeURIComponent(currentLang === 'ko' ? '지금 바로' : 'Right now')}`;
+  }catch(err){
+    console.error('즉시상담 요청 실패:', err);
+    alert(T['instant.err'] + err.message);
+    if(btn){ btn.disabled = false; btn.textContent = T['instant.btn']; }
+  }
 }
 
 async function loadTutor(){
@@ -207,7 +291,19 @@ document.getElementById('bookBtn').addEventListener('click', () => {
   location.href = 'booking.html?tutor=' + currentTutorId;
 });
 
-loadTutor();
+let instantAutoFired = false;
+loadTutor().then(() => {
+  // 로그인 화면에서 "지금 바로 상담 요청"을 눌러 login.html?next=instant로 갔다가
+  // 돌아온 경우, 로그인이 확인되는 즉시 자동으로 요청을 이어서 보냄
+  if(wantsInstant){
+    auth.onAuthStateChanged(user => {
+      if(user && !instantAutoFired){
+        instantAutoFired = true;
+        requestInstant();
+      }
+    });
+  }
+});
 </script>
 
 </body>
