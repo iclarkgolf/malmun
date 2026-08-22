@@ -73,6 +73,19 @@
   .empty{ text-align:center; color:var(--text-muted); font-size:13px; padding:60px 0; }
   .loading{ text-align:center; color:var(--text-muted); font-size:13px; padding:60px 0; }
 
+  .instant-box{
+    background:var(--accent-soft); border:1px solid var(--accent); border-radius:16px;
+    padding:16px 18px; margin-bottom:22px;
+  }
+  .instant-box h2{ font-size:14px; margin:0 0 4px; color:var(--accent-text); }
+  .instant-box p{ font-size:12px; color:var(--text-secondary); margin:0 0 12px; line-height:1.5; }
+  .instant-row{ display:flex; gap:8px; flex-wrap:wrap; }
+  .instant-btn{
+    flex:1; min-width:140px; padding:12px 14px; border:none; border-radius:10px;
+    background:var(--accent); color:var(--accent-text); font-weight:700; font-size:13px; cursor:pointer;
+  }
+  .instant-btn.secondary{ background:#fff; border:1px solid var(--accent); color:var(--accent-text); }
+
   .notice-box{
     background:var(--card); border:1px solid var(--card-border); border-radius:16px;
     padding:16px 18px; margin-bottom:22px;
@@ -101,6 +114,15 @@
     <p style="margin:0 0 10px;"><a href="admin.html" style="font-size:12px; color:var(--text-muted);">← 관리자 홈</a></p>
     <h1>예약 관리</h1>
     <p class="sub">학생이 예약하면 여기 실시간으로 뜹니다. 시간 맞춰 "화상룸 입장" 버튼으로 학생과 같은 방에 들어가면 돼요.</p>
+
+    <div class="instant-box">
+      <h2>🎥 지금 바로 화상방 열기</h2>
+      <p>예약 없이 즉석으로 학생과 화상통화를 하고 싶을 때 쓰세요. 버튼을 누르면 나는 화상방으로 들어가고, 학생에게 보낼 링크는 자동으로 복사됩니다. 그 링크를 카톡 등으로 학생에게 보내주면 같은 방에서 만나요.</p>
+      <div class="instant-row">
+        <button class="instant-btn" onclick="openInstantRoom()">화상방 입장 + 링크 복사</button>
+        <button class="instant-btn secondary" onclick="copyInstantLink()">링크만 복사</button>
+      </div>
+    </div>
 
     <div class="notice-box">
       <h2>공지사항</h2>
@@ -132,6 +154,21 @@ const db = firebase.firestore();
 
 const ADMIN_PW = "admin0115";
 const DAY_ORDER = { mon:0, tue:1, wed:2, thu:3, fri:4, sat:5, sun:6 };
+const INSTANT_ROOM_ID = 'pj-live';
+const INSTANT_ROOM_URL = `https://malmunkorean.com/classroom.html?room=${INSTANT_ROOM_ID}&tutor=PJ`;
+
+function copyInstantLink(){
+  navigator.clipboard.writeText(INSTANT_ROOM_URL).then(() => {
+    alert('링크가 복사됐어요. 카톡 등으로 학생에게 붙여넣기 해주세요.\n\n' + INSTANT_ROOM_URL);
+  }).catch(() => {
+    prompt('아래 링크를 복사해서 학생에게 보내주세요:', INSTANT_ROOM_URL);
+  });
+}
+
+function openInstantRoom(){
+  copyInstantLink();
+  location.href = 'classroom.html?room=' + INSTANT_ROOM_ID + '&tutor=' + encodeURIComponent('PJ');
+}
 
 document.getElementById('pwBtn').addEventListener('click', tryUnlock);
 document.getElementById('pwInput').addEventListener('keydown', e => { if(e.key === 'Enter') tryUnlock(); });
