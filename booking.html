@@ -579,7 +579,8 @@ async function handleConfirm(){
           dayLabel: dayLabel,
           time: selectedTime,
           price: currentFinalPrice,
-          isFreeOrientation: isFirstLesson
+          isFreeOrientation: isFirstLesson,
+          joinUrl: `https://malmunkorean.com/classroom.html?room=${roomId}&tutor=${encodeURIComponent(tutorName)}&time=${encodeURIComponent(dayLabel + ' ' + selectedTime)}`
         })
       });
     }catch(alertErr){
