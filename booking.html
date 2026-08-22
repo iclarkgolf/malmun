@@ -113,6 +113,7 @@
 </script>
 </head>
 <body>
+<script src="inapp-browser-guard.js"></script>
 
 <div class="wrap">
   <div class="topbar">
@@ -152,6 +153,10 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
+
+// 예약 발생 시 PJ님께 즉시 이메일 알림을 보내는 Apps Script 웹앱 주소
+// script.google.com에서 아래 booking-alert.gs 배포 후 나온 웹앱 URL로 교체하세요
+const BOOKING_ALERT_WEBAPP_URL = 'PASTE_YOUR_DEPLOYED_URL_HERE';
 
 const urlParams = new URLSearchParams(window.location.search);
 const currentTutorId = urlParams.get('tutor') || urlParams.get('id');
@@ -559,6 +564,26 @@ async function handleConfirm(){
       });
     }catch(bookingListErr){
       console.error('튜터용 예약 목록 저장 실패 (학생 예약 자체는 완료됨):', bookingListErr);
+    }
+
+    // PJ님께 즉시 이메일 알림 (실패해도 예약 자체는 정상 처리되도록 별도 try/catch)
+    try{
+      fetch(BOOKING_ALERT_WEBAPP_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({
+          studentName: user.displayName || (user.email ? user.email.split('@')[0] : '학생'),
+          studentEmail: user.email || '',
+          tutorName: tutorName,
+          dayLabel: dayLabel,
+          time: selectedTime,
+          price: currentFinalPrice,
+          isFreeOrientation: isFirstLesson
+        })
+      });
+    }catch(alertErr){
+      console.error('예약 알림 이메일 발송 실패(예약 자체는 정상 완료됨):', alertErr);
     }
 
     // 해당 요일·시간을 다른 학생이 다시 예약하지 못하도록 잠금 처리
