@@ -219,6 +219,13 @@ const DAY_ORDER = { mon:0, tue:1, wed:2, thu:3, fri:4, sat:5, sun:6 };
 const INSTANT_ROOM_ID = 'pj-live';
 const INSTANT_ROOM_URL = `https://malmunkorean.com/classroom.html?room=${INSTANT_ROOM_ID}&tutor=PJ`;
 
+// 상태 변수 — 아래 자동 입장 코드보다 먼저 선언되어야 함 (예전엔 뒤에 있어서 새로고침 시 'before initialization' 오류로 예약 목록이 영영 '불러오는 중'이었음)
+let allBookings = [];
+let doneLessons = [];
+let currentFilter = 'upcoming';
+let doneTarget = null;
+let unsubscribeBookings = null;
+
 function copyInstantLink(){
   navigator.clipboard.writeText(INSTANT_ROOM_URL).then(() => {
     alert('링크가 복사됐어요. 카톡 등으로 학생에게 붙여넣기 해주세요.\n\n' + INSTANT_ROOM_URL);
@@ -312,10 +319,6 @@ async function markNoticesViewed(notices){
   }
 }
 
-let allBookings = [];
-let doneLessons = [];
-let currentFilter = 'upcoming';
-let doneTarget = null;
 
 document.querySelectorAll('.filter-btn').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -326,7 +329,6 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
   });
 });
 
-let unsubscribeBookings = null;
 
 // 새로고침 없이 실시간으로 갱신되도록 onSnapshot 구독 (예전엔 페이지 열 때 한 번만 불러왔음)
 function loadBookings(){
