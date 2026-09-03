@@ -488,8 +488,9 @@ async function confirmDone(){
   const now = firebase.firestore.FieldValue.serverTimestamp();
   try{
     // 1) 완료 기록으로 보관 (원래 예약 내용 + 정리 노트)
+    const { id: _omit, ...bookingData } = b;
     await db.collection('completedLessons').doc(b.id).set({
-      ...b, id: firebase.firestore.FieldValue.delete(),
+      ...bookingData,
       vocab, grammar, nextGoal,
       completedAt: now
     });
