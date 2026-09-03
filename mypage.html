@@ -381,7 +381,32 @@ async function loadHistory(uid){
       .orderBy('createdAt', 'desc').limit(50).get();
     const container = document.getElementById('historyTimeline');
 
-    const entries = snapshot.docs.map(doc => doc.data());
+    let entries = snapshot.docs.map(doc => doc.data());
+
+    // ── 튜터가 "수업 완료" 처리한 기록(completedLessons)을 학습 기록에 합친다 ──
+    //    (튜터 페이지는 로그인 없이 쓰는 구조라 학생 history에 직접 못 쓰므로, 여기서 읽어와 합침)
+    try{
+      const doneSnap = await db.collection('completedLessons')
+        .where('studentUid', '==', uid).get();
+      const doneEntries = doneSnap.docs.map(d => {
+        const b = d.data();
+        return {
+          type: 'lesson_summary',
+          text: `${b.tutorName || 'PJ'} 튜터와 수업 완료`,
+          sub: `${b.dayLabel || b.day || ''} ${b.time || ''}${b.isFreeOrientation ? ' · 무료 오리엔테이션' : ''}`,
+          vocab: b.vocab || [],
+          grammar: b.grammar || [],
+          nextGoal: b.nextGoal || '',
+          bookingId: d.id,
+          createdAt: b.completedAt || b.createdAt || null
+        };
+      });
+      // history에 이미 같은 bookingId의 정리 기록이 있으면 중복 표시하지 않음
+      const seen = new Set(entries.filter(e => e.type === 'lesson_summary' && e.bookingId).map(e => e.bookingId));
+      entries = entries.concat(doneEntries.filter(e => !seen.has(e.bookingId)));
+      const ts = e => (e.createdAt && e.createdAt.toMillis) ? e.createdAt.toMillis() : (e.createdAt ? new Date(e.createdAt).getTime() : 0);
+      entries.sort((a, b) => ts(b) - ts(a));
+    }catch(e){ console.warn('완료 수업 기록 불러오기 실패(무시):', e); }
 
     // ── 등급: 가장 최근 레벨테스트 기록에서 가져옴 (진짜 데이터) ──
     const latestLevelTest = entries.find(e => e.type === 'level_test');
@@ -445,12 +470,12 @@ async function loadHistory(uid){
     const progressLabel = ({ ko: '진도율', en: 'Progress', ja: '進捗率' })[langNow];
     document.getElementById('statProgressLabel').textContent = stageNum ? `${stageNum} ${progressLabel}` : progressLabel;
 
-    if(snapshot.empty){
+    if(entries.length === 0){
       return;
     }
     container.innerHTML = '';
-    snapshot.forEach(doc => {
-      container.appendChild(renderHistoryEntry(doc.data()));
+    entries.forEach(entry => {
+      container.appendChild(renderHistoryEntry(entry));
     });
   }catch(err){
     console.error('히스토리 로딩 실패:', err);
