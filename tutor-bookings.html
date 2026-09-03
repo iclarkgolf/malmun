@@ -69,6 +69,30 @@
     background:var(--accent); color:var(--accent-text); font-weight:600; font-size:12px; cursor:pointer; white-space:nowrap;
   }
   .enter-btn.disabled{ background:#EAE6D8; color:var(--text-muted); cursor:default; }
+  .done-btn{
+    display:flex; align-items:center; gap:6px; padding:8px 14px; border:1px solid var(--accent); border-radius:10px;
+    background:#fff; color:var(--accent-text); font-weight:600; font-size:12px; cursor:pointer; white-space:nowrap;
+  }
+  .done-btn:hover{ background:var(--accent-soft); }
+  .booking-card.done{ background:#F7F6F1; }
+  .tag.done{ color:#2E7D32; background:#E8F5E9; }
+
+  /* ---- 수업 완료 모달 ---- */
+  #doneModal{ display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:50; align-items:center; justify-content:center; padding:20px; }
+  #doneModal.open{ display:flex; }
+  .modal-box{ background:#fff; border-radius:18px; padding:22px 20px; width:100%; max-width:440px; box-shadow:0 10px 40px rgba(0,0,0,.2); }
+  .modal-box h3{ margin:0 0 4px; font-size:16px; }
+  .modal-box .m-sub{ font-size:12px; color:var(--text-muted); margin:0 0 16px; }
+  .modal-box label{ display:block; font-size:12px; font-weight:600; margin:10px 0 4px; color:var(--text-secondary); }
+  .modal-box input, .modal-box textarea{
+    width:100%; padding:10px 12px; border:1px solid var(--card-border); border-radius:10px; font-size:14px; font-family:inherit; box-sizing:border-box;
+  }
+  .modal-box .hint{ font-size:11px; color:var(--text-muted); margin:3px 0 0; }
+  .modal-actions{ display:flex; gap:8px; margin-top:18px; }
+  .modal-actions button{ flex:1; padding:12px; border-radius:10px; font-weight:600; font-size:14px; cursor:pointer; border:none; }
+  .modal-actions .primary{ background:var(--accent); color:var(--accent-text); }
+  .modal-actions .secondary{ background:#F3F1EA; color:var(--text-secondary); }
+  .modal-actions button:disabled{ opacity:.5; cursor:default; }
 
   .empty{ text-align:center; color:var(--text-muted); font-size:13px; padding:60px 0; }
   .loading{ text-align:center; color:var(--text-muted); font-size:13px; padding:60px 0; }
@@ -132,9 +156,30 @@
     <div class="filter-row">
       <button class="filter-btn active" data-filter="upcoming">예정된 예약</button>
       <button class="filter-btn" data-filter="all">전체 보기</button>
+      <button class="filter-btn" data-filter="done">완료된 수업</button>
     </div>
 
     <div id="list"><p class="loading">불러오는 중...</p></div>
+  </div>
+</div>
+
+<!-- 수업 완료 모달 -->
+<div id="doneModal">
+  <div class="modal-box">
+    <h3>✅ 수업 완료 처리</h3>
+    <p class="m-sub" id="doneModalSub"></p>
+    <label>📚 오늘 배운 단어 (선택)</label>
+    <input id="doneVocab" placeholder="예: 안녕하세요, 감사합니다, 괜찮아요">
+    <p class="hint">쉼표(,)로 구분 — 학생 마이페이지에 칩으로 표시돼요</p>
+    <label>✏️ 오늘 배운 표현·문법 (선택)</label>
+    <input id="doneGrammar" placeholder="예: ~고 싶어요, ~(으)ㄹ 수 있어요">
+    <label>🎯 다음 목표 (선택)</label>
+    <input id="doneGoal" placeholder="예: 자기소개 30초 말하기">
+    <p class="hint" style="margin-top:12px;">완료하면 이 예약은 목록에서 "완료된 수업"으로 옮겨지고, 매주 가던 리마인더 이메일이 멈춰요. 학생은 다음 수업을 새로 예약하면 돼요.</p>
+    <div class="modal-actions">
+      <button class="secondary" onclick="closeDoneModal()">취소</button>
+      <button class="primary" id="doneConfirmBtn" onclick="confirmDone()">완료 처리</button>
+    </div>
   </div>
 </div>
 
@@ -180,6 +225,7 @@ function tryUnlock(){
     document.getElementById('app').style.display = 'block';
     sessionStorage.setItem('malmun_admin_ok', '1');
     loadBookings();
+    loadDone();
     loadNotices();
   }else{
     document.getElementById('gateError').style.display = 'block';
@@ -190,6 +236,7 @@ if(sessionStorage.getItem('malmun_admin_ok') === '1'){
   document.getElementById('gate').style.display = 'none';
   document.getElementById('app').style.display = 'block';
   loadBookings();
+  loadDone();
   loadNotices();
 }
 
@@ -245,7 +292,9 @@ async function markNoticesViewed(notices){
 }
 
 let allBookings = [];
+let doneLessons = [];
 let currentFilter = 'upcoming';
+let doneTarget = null;
 
 document.querySelectorAll('.filter-btn').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -289,6 +338,10 @@ function isUpcoming(b){
 
 function render(){
   const list = document.getElementById('list');
+  if(currentFilter === 'done'){
+    renderDone(list);
+    return;
+  }
   let items = allBookings;
   if(currentFilter === 'upcoming'){
     items = items.filter(isUpcoming);
@@ -318,10 +371,113 @@ function render(){
           ${b.roomId
             ? `<button class="enter-btn" onclick="location.href='classroom.html?${params.toString()}'">🎥 화상룸 입장</button>`
             : `<span class="enter-btn disabled">룸 정보 없음</span>`}
+          <button class="done-btn" onclick="openDoneModal('${b.id}')">✅ 수업 완료</button>
         </div>
       </div>
     `;
   }).join('');
+}
+
+/* ───────── 완료된 수업 ───────── */
+function loadDone(){
+  db.collection('completedLessons').orderBy('completedAt', 'desc').limit(200)
+    .onSnapshot(snap => {
+      doneLessons = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      if(currentFilter === 'done') render();
+    }, err => console.error('완료 수업 불러오기 실패:', err));
+}
+
+function fmtDate(ts){
+  if(!ts) return '';
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function renderDone(list){
+  if(doneLessons.length === 0){
+    list.innerHTML = `<p class="empty">아직 완료 처리한 수업이 없어요.</p>`;
+    return;
+  }
+  list.innerHTML = doneLessons.map(b => `
+    <div class="booking-card done">
+      <div class="b-left">
+        <p class="b-student">${escapeHtml(b.studentName || '학생')}</p>
+        <p class="b-meta">${escapeHtml(b.dayLabel || b.day || '')} ${escapeHtml(b.time || '')} · 완료 ${fmtDate(b.completedAt)}</p>
+        <div class="b-tags">
+          <span class="tag done">수업 완료</span>
+          ${b.isFreeOrientation ? '<span class="tag free">무료 오리엔테이션</span>' : `<span class="tag paid">${fmtKRW(b.price)}</span>`}
+          ${b.studentEmail ? `<span class="tag email">${escapeHtml(b.studentEmail)}</span>` : ''}
+        </div>
+        ${(b.vocab && b.vocab.length) || (b.grammar && b.grammar.length) || b.nextGoal ? `
+        <p class="b-meta" style="margin-top:8px;">
+          ${b.vocab && b.vocab.length ? '📚 ' + escapeHtml(b.vocab.join(', ')) + '<br>' : ''}
+          ${b.grammar && b.grammar.length ? '✏️ ' + escapeHtml(b.grammar.join(', ')) + '<br>' : ''}
+          ${b.nextGoal ? '🎯 ' + escapeHtml(b.nextGoal) : ''}
+        </p>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ───────── 수업 완료 모달 ───────── */
+function openDoneModal(id){
+  doneTarget = allBookings.find(b => b.id === id);
+  if(!doneTarget) return;
+  document.getElementById('doneModalSub').textContent =
+    `${doneTarget.studentName || '학생'} · ${doneTarget.dayLabel || doneTarget.day || ''} ${doneTarget.time || ''}`;
+  document.getElementById('doneVocab').value = '';
+  document.getElementById('doneGrammar').value = '';
+  document.getElementById('doneGoal').value = '';
+  document.getElementById('doneConfirmBtn').disabled = false;
+  document.getElementById('doneModal').classList.add('open');
+}
+function closeDoneModal(){
+  document.getElementById('doneModal').classList.remove('open');
+  doneTarget = null;
+}
+function splitList(v){
+  return String(v || '').split(/[,，、\n]/).map(x => x.trim()).filter(Boolean);
+}
+async function confirmDone(){
+  if(!doneTarget) return;
+  const btn = document.getElementById('doneConfirmBtn');
+  btn.disabled = true;
+  btn.textContent = '처리 중...';
+  const b = doneTarget;
+  const vocab = splitList(document.getElementById('doneVocab').value);
+  const grammar = splitList(document.getElementById('doneGrammar').value);
+  const nextGoal = document.getElementById('doneGoal').value.trim();
+  const now = firebase.firestore.FieldValue.serverTimestamp();
+  try{
+    // 1) 완료 기록으로 보관 (원래 예약 내용 + 정리 노트)
+    await db.collection('completedLessons').doc(b.id).set({
+      ...b, id: firebase.firestore.FieldValue.delete(),
+      vocab, grammar, nextGoal,
+      completedAt: now
+    });
+    // 2) 학생 마이페이지 히스토리에 "수업 정리" 남기기 (연속 출석 스트릭 계산에도 쓰임)
+    if(b.studentUid){
+      try{
+        await db.collection('users').doc(b.studentUid).collection('history').add({
+          type: 'lesson_summary',
+          text: `${b.tutorName || 'PJ'} 튜터와 수업 완료`,
+          sub: `${b.dayLabel || b.day || ''} ${b.time || ''}${b.isFreeOrientation ? ' · 무료 오리엔테이션' : ''}`,
+          vocab, grammar, nextGoal,
+          bookingId: b.id,
+          createdAt: now
+        });
+      }catch(e){ console.error('학생 히스토리 기록 실패(완료 처리는 계속 진행):', e); }
+    }
+    // 3) 예약 목록에서 제거 → 매주 가던 리마인더가 멈춤
+    await db.collection('bookings').doc(b.id).delete();
+    closeDoneModal();
+  }catch(e){
+    console.error('수업 완료 처리 실패:', e);
+    alert('완료 처리에 실패했어요. 잠시 후 다시 시도해 주세요.\n' + (e.message || e));
+    btn.disabled = false;
+  }finally{
+    btn.textContent = '완료 처리';
+  }
 }
 
 function fmtKRW(n){
