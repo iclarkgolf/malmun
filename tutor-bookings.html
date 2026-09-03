@@ -198,6 +198,23 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 const ADMIN_PW = "admin0115";
+
+/* ───── 진단용: 오류를 화면에 그대로 보여준다 (콘솔 안 열어도 되게) ───── */
+function showDiag(msg, isError){
+  let box = document.getElementById('diagBox');
+  if(!box){
+    box = document.createElement('div');
+    box.id = 'diagBox';
+    box.style.cssText = 'position:fixed;left:12px;right:12px;bottom:12px;z-index:999;background:#fff3f3;border:1px solid #e57373;border-radius:12px;padding:10px 14px;font-size:12px;color:#b71c1c;white-space:pre-wrap;max-height:40vh;overflow:auto;box-shadow:0 4px 16px rgba(0,0,0,.15);';
+    document.body.appendChild(box);
+  }
+  const line = document.createElement('div');
+  line.textContent = (isError ? '❌ ' : 'ℹ️ ') + new Date().toLocaleTimeString('ko-KR') + ' — ' + msg;
+  box.appendChild(line);
+}
+window.addEventListener('error', e => showDiag('스크립트 오류: ' + (e.message || e), true));
+window.addEventListener('unhandledrejection', e => showDiag('처리되지 않은 오류: ' + ((e.reason && e.reason.message) || e.reason), true));
+
 const DAY_ORDER = { mon:0, tue:1, wed:2, thu:3, fri:4, sat:5, sun:6 };
 const INSTANT_ROOM_ID = 'pj-live';
 const INSTANT_ROOM_URL = `https://malmunkorean.com/classroom.html?room=${INSTANT_ROOM_ID}&tutor=PJ`;
@@ -224,9 +241,9 @@ function tryUnlock(){
     document.getElementById('gate').style.display = 'none';
     document.getElementById('app').style.display = 'block';
     sessionStorage.setItem('malmun_admin_ok', '1');
+    loadNotices();
     loadBookings();
     loadDone();
-    loadNotices();
   }else{
     document.getElementById('gateError').style.display = 'block';
   }
@@ -235,12 +252,13 @@ function tryUnlock(){
 if(sessionStorage.getItem('malmun_admin_ok') === '1'){
   document.getElementById('gate').style.display = 'none';
   document.getElementById('app').style.display = 'block';
+  loadNotices();
   loadBookings();
   loadDone();
-  loadNotices();
 }
 
 async function loadNotices(){
+  const timer = setTimeout(() => showDiag('공지사항: 12초 동안 Firebase 응답이 없어요.', true), 12000);
   try{
     const snap = await db.collection('notices')
       .where('audience', '==', 'tutor')
@@ -271,7 +289,10 @@ async function loadNotices(){
     markNoticesViewed(notices);
   }catch(err){
     console.error('공지 불러오기 실패:', err);
+    showDiag('공지사항 오류: ' + (err.code || '') + ' ' + err.message, true);
     document.getElementById('noticeList').innerHTML = `<p class="notice-empty">공지를 불러오지 못했어요.</p>`;
+  }finally{
+    clearTimeout(timer);
   }
 }
 
@@ -310,17 +331,30 @@ let unsubscribeBookings = null;
 // 새로고침 없이 실시간으로 갱신되도록 onSnapshot 구독 (예전엔 페이지 열 때 한 번만 불러왔음)
 function loadBookings(){
   if(unsubscribeBookings){ unsubscribeBookings(); }
-  unsubscribeBookings = db.collection('bookings').orderBy('createdAt', 'desc').limit(100)
-    .onSnapshot(
-      snap => {
-        allBookings = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        render();
-      },
-      err => {
-        console.error('예약 목록 실시간 구독 실패:', err);
-        document.getElementById('list').innerHTML = `<p class="empty">예약 목록을 불러오지 못했어요.<br>${err.message}</p>`;
-      }
-    );
+  let got = false;
+  const timer = setTimeout(() => {
+    if(!got) showDiag('예약 목록: 12초 동안 Firebase 응답이 없어요. (인터넷 보안 프로그램/공유기/VPN이 firestore.googleapis.com 연결을 막고 있을 가능성)', true);
+  }, 12000);
+  try{
+    unsubscribeBookings = db.collection('bookings').orderBy('createdAt', 'desc').limit(100)
+      .onSnapshot(
+        { includeMetadataChanges: true },
+        snap => {
+          got = true; clearTimeout(timer);
+          allBookings = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+          render();
+        },
+        err => {
+          got = true; clearTimeout(timer);
+          console.error('예약 목록 실시간 구독 실패:', err);
+          showDiag('예약 목록 오류: ' + (err.code || '') + ' ' + err.message, true);
+          document.getElementById('list').innerHTML = `<p class="empty">예약 목록을 불러오지 못했어요.<br>${err.message}</p>`;
+        }
+      );
+  }catch(e){
+    clearTimeout(timer);
+    showDiag('예약 목록 요청 자체가 실패: ' + e.message, true);
+  }
 }
 
 // 요일·시간이 "지금 이후"인지 대략적으로 판단 (같은 주 기준 요일 순서 비교)
@@ -380,11 +414,13 @@ function render(){
 
 /* ───────── 완료된 수업 ───────── */
 function loadDone(){
-  db.collection('completedLessons').orderBy('completedAt', 'desc').limit(200)
-    .onSnapshot(snap => {
-      doneLessons = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      if(currentFilter === 'done') render();
-    }, err => console.error('완료 수업 불러오기 실패:', err));
+  try{
+    db.collection('completedLessons').orderBy('completedAt', 'desc').limit(200)
+      .onSnapshot(snap => {
+        doneLessons = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        if(currentFilter === 'done') render();
+      }, err => { console.error('완료 수업 불러오기 실패:', err); showDiag('완료 수업 오류: ' + (err.code || '') + ' ' + err.message, true); });
+  }catch(e){ showDiag('완료 수업 요청 실패: ' + e.message, true); }
 }
 
 function fmtDate(ts){
