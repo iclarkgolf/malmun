@@ -359,14 +359,18 @@ function loadBookings(){
   }
 }
 
-// 요일·시간이 "지금 이후"인지 대략적으로 판단 (같은 주 기준 요일 순서 비교)
+// 요일·시간이 "지금 이후"인지 판단 — 예약은 매주 반복이라 요일을 '이번 주 안'이 아니라
+// '다음 번 그 요일까지 며칠 남았나'로 순환 계산해야 함.
+// (예전 버그: 오늘보다 요일 순서가 빠르면 무조건 과거로 취급 → 예를 들어 오늘이 일요일인데
+//  예약이 월요일이면, 사실은 내일이라 곧 다가오는데도 "이미 지난 요일"로 잘못 판단해
+//  "예정된 예약" 목록에서 사라져버렸음)
 function isUpcoming(b){
   const now = new Date();
   const todayIdx = (now.getDay() + 6) % 7; // 월=0 ... 일=6
   const bIdx = DAY_ORDER[b.day] ?? 0;
-  if(bIdx > todayIdx) return true;
-  if(bIdx < todayIdx) return false;
-  // 같은 요일이면 시간 비교
+  const daysUntil = (bIdx - todayIdx + 7) % 7; // 0=오늘, 1=내일, ... 6=6일 후 (항상 다음 번 그 요일까지의 거리)
+  if(daysUntil > 0) return true;
+  // daysUntil === 0 → 오늘이 그 요일 → 시간 비교
   const [h, m] = (b.time || '00:00').split(':').map(Number);
   const nowMinutes = now.getHours() * 60 + now.getMinutes();
   return (h * 60 + m) >= nowMinutes;
