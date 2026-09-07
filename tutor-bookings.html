@@ -74,6 +74,13 @@
     background:#fff; color:var(--accent-text); font-weight:600; font-size:12px; cursor:pointer; white-space:nowrap;
   }
   .done-btn:hover{ background:var(--accent-soft); }
+  .cancel-btn{
+    display:flex; align-items:center; gap:6px; padding:8px 14px; border:1px solid var(--card-border); border-radius:10px;
+    background:#fff; color:var(--text-muted); font-weight:600; font-size:12px; cursor:pointer; white-space:nowrap;
+  }
+  .cancel-btn:hover{ background:#F3F1EA; color:var(--danger); border-color:var(--danger); }
+  .cancel-btn:disabled{ opacity:.5; cursor:default; }
+  .btn-legend{ font-size:11px; color:var(--text-muted); margin:0 0 14px; line-height:1.6; }
   .booking-card.done{ background:#F7F6F1; }
   .tag.done{ color:#2E7D32; background:#E8F5E9; }
 
@@ -137,7 +144,7 @@
   <div class="wrap">
     <p style="margin:0 0 10px;"><a href="admin.html" style="font-size:12px; color:var(--text-muted);">← 관리자 홈</a></p>
     <h1>예약 관리</h1>
-    <p class="sub">학생이 예약하면 여기 실시간으로 뜹니다. 시간 맞춰 "화상룸 입장" 버튼으로 학생과 같은 방에 들어가면 돼요.</p>
+    <p class="sub">학생이 예약하면 여기 실시간으로 뜹니다. 시간 맞춰 "화상룸 입장" 버튼으로 학생과 같은 방에 들어가면 돼요. 수업이 끝나면 꼭 이 화면으로 돌아와서 "수업 완료" 버튼을 눌러 마무리해주세요.</p>
 
     <div class="instant-box">
       <h2>🎥 지금 바로 화상방 열기</h2>
@@ -158,6 +165,8 @@
       <button class="filter-btn" data-filter="all">전체 보기</button>
       <button class="filter-btn" data-filter="done">완료된 수업</button>
     </div>
+
+    <p class="btn-legend">✅ 수업 완료 = 실제로 수업을 했을 때 (학생 마이페이지에 수업 기록이 남아요)<br>🚫 취소 = 학생이 안 왔거나 수업이 없었을 때 (학생 기록에 아무것도 안 남고 예약만 조용히 사라져요)</p>
 
     <div id="list"><p class="loading">불러오는 중...</p></div>
   </div>
@@ -412,6 +421,7 @@ function render(){
             ? `<button class="enter-btn" onclick="location.href='classroom.html?${params.toString()}'">🎥 화상룸 입장</button>`
             : `<span class="enter-btn disabled">룸 정보 없음</span>`}
           <button class="done-btn" onclick="openDoneModal('${b.id}')">✅ 수업 완료</button>
+          <button class="cancel-btn" onclick="cancelBooking('${b.id}', this)">🚫 취소</button>
         </div>
       </div>
     `;
@@ -520,6 +530,26 @@ async function confirmDone(){
     btn.disabled = false;
   }finally{
     btn.textContent = '완료 처리';
+  }
+}
+
+/* ───────── 예약 취소 (수업 기록 남기지 않고 조용히 삭제) ───────── */
+async function cancelBooking(id, btnEl){
+  const b = allBookings.find(x => x.id === id);
+  if(!b) return;
+  const ok = confirm(
+    `${b.studentName || '학생'} · ${b.dayLabel || b.day || ''} ${b.time || ''} 예약을 취소할까요?\n\n` +
+    `학생의 수업 기록에는 아무것도 남지 않고, 예약만 조용히 사라져요. (리마인더 이메일도 멈춰요)\n` +
+    `실제로 수업을 했다면 취소 대신 "✅ 수업 완료"를 눌러주세요.`
+  );
+  if(!ok) return;
+  if(btnEl){ btnEl.disabled = true; btnEl.textContent = '취소 중...'; }
+  try{
+    await db.collection('bookings').doc(id).delete();
+  }catch(e){
+    console.error('예약 취소 실패:', e);
+    alert('취소에 실패했어요. 잠시 후 다시 시도해 주세요.\n' + (e.message || e));
+    if(btnEl){ btnEl.disabled = false; btnEl.textContent = '🚫 취소'; }
   }
 }
 
