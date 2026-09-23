@@ -64,6 +64,25 @@
   }
   .btn-primary:disabled{ background:#e8e4d8; color:#a8a49a; cursor:not-allowed; }
   .loading{ text-align:center; color:var(--text-muted); font-size:13px; padding:60px 0; }
+
+  /* ── 프리토킹(말하기) 문항 ── */
+  .speak-hint{ font-size:13px; color:var(--text-muted); line-height:1.5; margin:-14px 0 20px; }
+  .mic-btn{
+    display:flex; align-items:center; justify-content:center; gap:10px; width:100%;
+    padding:16px; border-radius:12px; border:1px solid var(--accent); background:var(--accent-soft);
+    color:var(--accent-text); font-size:15px; font-weight:600; cursor:pointer; margin-bottom:12px;
+  }
+  .mic-btn.recording{ background:#E24B4A; border-color:#E24B4A; color:#fff; }
+  .mic-dot{ width:10px; height:10px; border-radius:50%; background:currentColor; }
+  .mic-btn.recording .mic-dot{ animation:micPulse 1s infinite; }
+  @keyframes micPulse{ 0%,100%{ opacity:1; } 50%{ opacity:.25; } }
+  .speak-status{ font-size:12px; color:var(--text-muted); margin:0 0 8px; min-height:16px; }
+  .speak-answer{
+    width:100%; min-height:120px; resize:vertical; border:1px solid var(--card-border); border-radius:12px;
+    padding:14px; font-size:15px; line-height:1.6; font-family:inherit; color:var(--text); background:var(--card);
+  }
+  .speak-answer:focus{ outline:none; border-color:var(--accent); }
+  .btn-skip{ display:block; width:100%; background:none; border:none; color:var(--text-muted); font-size:13px; padding:14px 0 0; cursor:pointer; text-decoration:underline; }
 </style>
 </head>
 <body>
@@ -80,24 +99,45 @@ const UI = {
     selectAlert: '보기를 선택해주세요.',
     noSpeech: '이 브라우저는 음성 재생을 지원하지 않아요. 문제를 읽고 풀어주세요.',
     back: '뒤로가기',
-    typeLabel: { listening: '듣기', reading: '읽기', grammar: '문법' },
-    diffLabel: { 1: '초급', 2: '중급', 3: '고급' }
+    typeLabel: { listening: '듣기', reading: '읽기', grammar: '문법', speaking: '말하기(프리토킹)' },
+    diffLabel: { 1: '초급', 2: '중급', 3: '고급' },
+    micStart: '눌러서 말하기', micStop: '말하기 끝내기', micRetry: '다시 말하기',
+    listeningNow: '듣고 있어요… 편하게 한국어로 말해보세요',
+    noMic: '이 브라우저는 음성 인식이 안 돼요. 아래 칸에 한국어로 적어주세요.',
+    micDenied: '마이크 사용이 허용되지 않았어요. 아래 칸에 한국어로 적어주세요.',
+    answerPlaceholder: '말한 내용이 여기에 적혀요. 직접 적거나 고칠 수도 있어요.',
+    speakAlert: '한국어로 한두 마디라도 말하거나 적어주세요. 어려우면 "건너뛰기"를 눌러도 돼요.',
+    skip: '잘 모르겠어요 · 건너뛰기'
   },
   en: {
     loading: 'Loading...', playAudio: 'Play audio', next: 'Next question', result: 'See results',
     selectAlert: 'Please select an answer.',
     noSpeech: "This browser doesn't support audio playback. Please read the question instead.",
     back: 'Back',
-    typeLabel: { listening: 'Listening', reading: 'Reading', grammar: 'Grammar' },
-    diffLabel: { 1: 'Beginner', 2: 'Intermediate', 3: 'Advanced' }
+    typeLabel: { listening: 'Listening', reading: 'Reading', grammar: 'Grammar', speaking: 'Speaking (free talk)' },
+    diffLabel: { 1: 'Beginner', 2: 'Intermediate', 3: 'Advanced' },
+    micStart: 'Tap to speak', micStop: 'Stop speaking', micRetry: 'Speak again',
+    listeningNow: "I'm listening… just talk in Korean",
+    noMic: "This browser can't recognize speech. Please type your answer in Korean below.",
+    micDenied: 'Microphone access was blocked. Please type your answer in Korean below.',
+    answerPlaceholder: 'What you say appears here. You can also type or fix it.',
+    speakAlert: 'Please say or type at least a few words in Korean. If it\'s too hard, tap "Skip".',
+    skip: "I'm not sure · Skip"
   },
   ja: {
     loading: '読み込み中...', playAudio: '音声再生', next: '次の問題', result: '結果を見る',
     selectAlert: '選択肢を選んでください。',
     noSpeech: 'このブラウザは音声再生に対応していません。問題文を読んで解答してください。',
     back: '戻る',
-    typeLabel: { listening: 'リスニング', reading: '読解', grammar: '文法' },
-    diffLabel: { 1: '初級', 2: '中級', 3: '上級' }
+    typeLabel: { listening: 'リスニング', reading: '読解', grammar: '文法', speaking: 'スピーキング（フリートーク）' },
+    diffLabel: { 1: '初級', 2: '中級', 3: '上級' },
+    micStart: 'タップして話す', micStop: '話し終える', micRetry: 'もう一度話す',
+    listeningNow: '聞いています… 気軽に韓国語で話してみてください',
+    noMic: 'このブラウザは音声認識に対応していません。下の欄に韓国語で入力してください。',
+    micDenied: 'マイクの使用が許可されませんでした。下の欄に韓国語で入力してください。',
+    answerPlaceholder: '話した内容がここに表示されます。直接入力・修正もできます。',
+    speakAlert: '韓国語で一言でも話すか入力してください。難しければ「スキップ」を押してください。',
+    skip: 'よくわからない · スキップ'
   }
 };
 const L = UI[UI_LANG] || UI.ko;
@@ -175,7 +215,7 @@ const pools = {
   grammar: QUESTIONS.filter(q => q.type === 'grammar')
 };
 const difficulty = { listening: 2, reading: 2, grammar: 2 }; // 1=초급 2=중급 3=고급
-const TOTAL_QUESTIONS = QUESTIONS.length;
+const TOTAL_QUESTIONS = QUESTIONS.length + 3; // 객관식 12 + 프리토킹 3
 let typeCursor = 0;
 let currentQuestion = null;
 
@@ -212,7 +252,7 @@ function renderQuestion(){
   selected = null;
   currentQuestion = pickNextQuestion();
   if(!currentQuestion){
-    finishTest();
+    startSpeakingOrFinish();
     return;
   }
   const q = currentQuestion;
@@ -284,12 +324,13 @@ function handleNext(){
     renderQuestion();
     window.scrollTo(0, 0);
   }else{
-    finishTest();
+    startSpeakingOrFinish();
   }
 }
 
 function goBack(){
   if(window.speechSynthesis) window.speechSynthesis.cancel();
+  if(typeof stopRecognition === 'function') stopRecognition();
   location.href = 'index.html';
 }
 
@@ -310,7 +351,12 @@ function finishTest(){
   const listening = pctFor('listening');
   const reading = pctFor('reading');
   const grammar = pctFor('grammar');
-  const avg = Math.round((listening + reading + grammar) / 3);
+  const speaking = speakingResults.length
+    ? Math.round(speakingResults.reduce((sum, r) => sum + r.score, 0) / speakingResults.length)
+    : null;
+  const avg = speaking === null
+    ? Math.round((listening + reading + grammar) / 3)
+    : Math.round((listening + reading + grammar + speaking) / 4);
   const { level, stage } = levelFor(avg);
 
   const descByLevel = {
@@ -324,12 +370,186 @@ function finishTest(){
     level: level,
     stage: stage + '단계',
     desc: descByLevel[level],
-    skills: { listening, reading, grammar },
+    skills: speaking === null ? { listening, reading, grammar } : { listening, reading, grammar, speaking },
+    speakingAnswers: speakingResults,
     dateLabel: new Date().toISOString().slice(0, 10)
   };
 
   sessionStorage.setItem('malmun_level_result', JSON.stringify(resultData));
   location.href = 'level-result.html';
+}
+
+// ── 프리토킹(말하기) 문항 ──────────────────────────────────
+// 객관식 12문항이 끝나면 이어서 3문항(초급→중급→고급)을 말로 답합니다.
+// 브라우저 음성인식(ko-KR)으로 받아쓰고, 음성인식이 안 되는 브라우저(카카오톡 인앱 등)는
+// 직접 입력 칸으로 대신 답할 수 있습니다. 채점은 규칙 기반(분량·문장 끝맺음·연결 표현)입니다.
+const SPEAKING = [
+  { diff:1,
+    text:'간단하게 자기소개를 해 보세요.',
+    hint:{ ko:'예: 이름, 어느 나라 사람인지, 무슨 일을 하는지', en:'e.g. your name, where you\'re from, what you do', ja:'例：名前、どこの国の人か、何をしているか' } },
+  { diff:2,
+    text:'지난 주말에 무엇을 했는지 이야기해 보세요.',
+    hint:{ ko:'어디에 갔는지, 누구와 있었는지, 어땠는지', en:'Where you went, who you were with, how it was', ja:'どこに行ったか、誰といたか、どうだったか' } },
+  { diff:3,
+    text:'한국어를 배우고 싶은 이유를 자유롭게 말해 보세요.',
+    hint:{ ko:'이유와 앞으로 하고 싶은 일을 함께 말해 보세요', en:'Share your reasons and what you hope to do with Korean', ja:'理由と、これからしたいことを一緒に話してみてください' } }
+];
+const speakingResults = []; // { diff, text, score, method }
+let speakIndex = 0;
+let recognition = null;
+let isRecording = false;
+let usedMic = false;
+
+// 초급/중급/고급별 기대치 — 분량(한글 글자 수)·문장 수·연결 표현 수
+const SPEAK_TARGET = {
+  1: { chars: 12, sentences: 1, connectors: 1 },
+  2: { chars: 25, sentences: 2, connectors: 2 },
+  3: { chars: 40, sentences: 3, connectors: 3 }
+};
+const CONNECTORS = ['그리고','그래서','그런데','하지만','그러나','그러면','왜냐하면','때문에','는데','은데','지만','아서','어서','해서','으면','니까','면서','려고','고 싶','을 때','ㄹ 때','는 것','기 위해','도록','거나'];
+
+function scoreSpeaking(text, diff){
+  const t = (text || '').trim();
+  const hangul = (t.match(/[가-힣]/g) || []).length;
+  if(hangul < 3) return 0;
+  const target = SPEAK_TARGET[diff];
+  const lengthScore = Math.min(1, hangul / target.chars) * 50;
+  const sentences = (t.match(/(요|니다|다|죠|까|네|어|야)(?=[\s.?!,~]|$)/g) || []).length;
+  const sentenceScore = Math.min(1, Math.max(1, sentences) / target.sentences) * 20 * (sentences > 0 ? 1 : 0.5);
+  const found = CONNECTORS.filter(c => t.includes(c)).length;
+  const connectorScore = Math.min(1, found / target.connectors) * 30;
+  return Math.round(Math.min(100, lengthScore + sentenceScore + connectorScore));
+}
+
+function getRecognitionClass(){
+  return window.SpeechRecognition || window.webkitSpeechRecognition || null;
+}
+
+function stopRecognition(){
+  isRecording = false;
+  if(recognition){
+    try{ recognition.stop(); }catch(e){}
+  }
+}
+
+function startSpeakingOrFinish(){
+  if(speakIndex < SPEAKING.length) renderSpeaking();
+  else finishTest();
+}
+
+function renderSpeaking(){
+  const q = SPEAKING[speakIndex];
+  const pct = Math.round((answeredCount / TOTAL_QUESTIONS) * 100);
+  const isLast = speakIndex === SPEAKING.length - 1;
+  const RecClass = getRecognitionClass();
+  usedMic = false;
+
+  const wrap = document.getElementById('testWrap');
+  wrap.innerHTML = `
+    <div class="topbar">
+      <button class="back" onclick="goBack()" aria-label="${L.back}">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      </button>
+      <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+      <span class="progress-label">${answeredCount + 1} / ${TOTAL_QUESTIONS}</span>
+    </div>
+
+    <div>
+      <p class="q-tag">💬 ${L.typeLabel.speaking} · ${L.diffLabel[q.diff]}</p>
+      <p class="q-text">${q.text}</p>
+      <p class="speak-hint">${q.hint[UI_LANG] || q.hint.ko}</p>
+
+      ${RecClass ? `
+        <button class="mic-btn" id="micBtn"><span class="mic-dot"></span><span id="micLabel">${L.micStart}</span></button>
+      ` : ''}
+      <p class="speak-status" id="speakStatus">${RecClass ? '' : L.noMic}</p>
+      <textarea class="speak-answer" id="speakAnswer" placeholder="${L.answerPlaceholder}"></textarea>
+    </div>
+
+    <div class="bottom">
+      <button class="btn-primary" id="nextBtn">${isLast ? L.result : L.next}</button>
+      <button class="btn-skip" id="skipBtn">${L.skip}</button>
+    </div>
+  `;
+
+  if(RecClass){
+    document.getElementById('micBtn').addEventListener('click', () => toggleRecording(RecClass));
+  }
+  document.getElementById('nextBtn').addEventListener('click', () => handleSpeakingNext(false));
+  document.getElementById('skipBtn').addEventListener('click', () => handleSpeakingNext(true));
+}
+
+function toggleRecording(RecClass){
+  const btn = document.getElementById('micBtn');
+  const label = document.getElementById('micLabel');
+  const status = document.getElementById('speakStatus');
+  const box = document.getElementById('speakAnswer');
+
+  if(isRecording){
+    stopRecognition();
+    return;
+  }
+
+  if(window.speechSynthesis) window.speechSynthesis.cancel();
+  recognition = new RecClass();
+  recognition.lang = 'ko-KR';
+  recognition.continuous = true;
+  recognition.interimResults = true;
+  const baseText = box.value.trim() ? box.value.trim() + ' ' : '';
+  let finalText = '';
+
+  recognition.onresult = (event) => {
+    let interim = '';
+    for(let i = event.resultIndex; i < event.results.length; i++){
+      const piece = event.results[i][0].transcript;
+      if(event.results[i].isFinal) finalText += piece + ' ';
+      else interim += piece;
+    }
+    box.value = (baseText + finalText + interim).trim();
+    usedMic = true;
+  };
+  recognition.onerror = (event) => {
+    if(event.error === 'not-allowed' || event.error === 'service-not-allowed'){
+      status.textContent = L.micDenied;
+    }
+  };
+  recognition.onend = () => {
+    isRecording = false;
+    btn.classList.remove('recording');
+    label.textContent = box.value.trim() ? L.micRetry : L.micStart;
+    if(status.textContent === L.listeningNow) status.textContent = '';
+  };
+
+  try{
+    recognition.start();
+    isRecording = true;
+    btn.classList.add('recording');
+    label.textContent = L.micStop;
+    status.textContent = L.listeningNow;
+  }catch(e){
+    status.textContent = L.noMic;
+  }
+}
+
+function handleSpeakingNext(skipped){
+  const q = SPEAKING[speakIndex];
+  const text = skipped ? '' : (document.getElementById('speakAnswer').value || '').trim();
+  if(!skipped && (text.match(/[가-힣]/g) || []).length < 1){
+    alert(L.speakAlert);
+    return;
+  }
+  stopRecognition();
+  speakingResults.push({
+    diff: q.diff,
+    question: q.text,
+    text: text,
+    score: scoreSpeaking(text, q.diff),
+    method: skipped ? 'skip' : (usedMic ? 'voice' : 'typed')
+  });
+  speakIndex++;
+  answeredCount++;
+  window.scrollTo(0, 0);
+  startSpeakingOrFinish();
 }
 
 renderQuestion();

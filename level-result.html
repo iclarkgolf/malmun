@@ -88,6 +88,11 @@
       <div class="skill-track"><div class="skill-fill" id="skillFillGrammar" style="width:40%"></div></div>
       <span class="skill-pct" id="skillPctGrammar">40%</span>
     </div>
+    <div class="skill-row" id="skillRowSpeaking" style="display:none;">
+      <span class="skill-name" id="skillNameSpeaking">말하기</span>
+      <div class="skill-track"><div class="skill-fill" id="skillFillSpeaking" style="width:0%"></div></div>
+      <span class="skill-pct" id="skillPctSpeaking">0%</span>
+    </div>
   </div>
 
   <div class="bottom">
@@ -104,21 +109,21 @@ const UI_LANG = localStorage.getItem('malmun_lang') || 'ko';
 const UI_TEXT = {
   ko: {
     topbar: '레벨테스트 완료',
-    skillListening: '듣기', skillReading: '읽기', skillGrammar: '문법',
+    skillListening: '듣기', skillReading: '읽기', skillGrammar: '문법', skillSpeaking: '말하기',
     btnTutors: '내 등급에 맞는 튜터 보기', btnSave: '결과 저장하고 나중에 보기',
     levelNames: { '초급': '초급', '중급': '중급', '고급': '고급' },
     stageSuffix: '단계'
   },
   en: {
     topbar: 'Level test complete',
-    skillListening: 'Listening', skillReading: 'Reading', skillGrammar: 'Grammar',
+    skillListening: 'Listening', skillReading: 'Reading', skillGrammar: 'Grammar', skillSpeaking: 'Speaking',
     btnTutors: 'See tutors for my level', btnSave: 'Save result & check later',
     levelNames: { '초급': 'Beginner', '중급': 'Intermediate', '고급': 'Advanced' },
     stageSuffix: ' stage'
   },
   ja: {
     topbar: 'レベルテスト完了',
-    skillListening: 'リスニング', skillReading: '読解', skillGrammar: '文法',
+    skillListening: 'リスニング', skillReading: '読解', skillGrammar: '文法', skillSpeaking: '会話',
     btnTutors: '自分のレベルに合う講師を見る', btnSave: '結果を保存して後で見る',
     levelNames: { '초급': '初級', '중급': '中級', '고급': '上級' },
     stageSuffix: '段階'
@@ -179,6 +184,13 @@ document.getElementById('skillFillReading').style.width = RESULT_SKILLS.reading 
 document.getElementById('skillPctReading').textContent = RESULT_SKILLS.reading + '%';
 document.getElementById('skillFillGrammar').style.width = RESULT_SKILLS.grammar + '%';
 document.getElementById('skillPctGrammar').textContent = RESULT_SKILLS.grammar + '%';
+// 프리토킹(말하기) 점수는 새 레벨테스트 결과에만 있으므로, 있을 때만 4번째 줄을 보여줌
+if(typeof RESULT_SKILLS.speaking === 'number'){
+  document.getElementById('skillRowSpeaking').style.display = '';
+  document.getElementById('skillNameSpeaking').textContent = T.skillSpeaking;
+  document.getElementById('skillFillSpeaking').style.width = RESULT_SKILLS.speaking + '%';
+  document.getElementById('skillPctSpeaking').textContent = RESULT_SKILLS.speaking + '%';
+}
 
 const firebaseConfig = {
   apiKey: "AIzaSyD10IdHCDkCybMrkO5fewo0ksYFBmqwWro",
@@ -198,6 +210,7 @@ const levelResult = {
   stage: RESULT_STAGE_NUM + '단계',
   desc: resultToShow.desc || DEFAULT_RESULT.desc,
   skills: RESULT_SKILLS,
+  speakingAnswers: resultToShow.speakingAnswers || [],
   dateLabel: resultToShow.dateLabel || new Date().toISOString().slice(0, 10)
 };
 
