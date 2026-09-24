@@ -125,6 +125,8 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
+// 필리핀 통신망·카카오톡 등 인앱브라우저에서 Firestore 연결 실패 방지 (롱폴링 강제)
+try{ db.settings({ experimentalForceLongPolling: true, experimentalAutoDetectLongPolling: false, merge: true }); }catch(e){ console.warn('firestore settings', e); }
 
 // 새 요청이 오면 PJ님께 이메일 알림 (예약 알림과 같은 Apps Script 재사용)
 const BOOKING_ALERT_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbz7EANVhq9AoUz-W7cFmXfyZUb0cWCIJG26Rx2TFVrUR7ehRDTRbyT1BdOANqQ7bCsiRQ/exec';

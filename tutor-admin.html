@@ -143,6 +143,8 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+// 필리핀 통신망·카카오톡 등 인앱브라우저에서 Firestore 연결 실패 방지 (롱폴링 강제)
+try{ db.settings({ experimentalForceLongPolling: true, experimentalAutoDetectLongPolling: false, merge: true }); }catch(e){ console.warn('firestore settings', e); }
 const storage = firebase.storage();
 
 const ADMIN_PW = "admin0115";

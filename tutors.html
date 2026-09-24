@@ -167,6 +167,8 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+// 필리핀 통신망·카카오톡 등 인앱브라우저에서 Firestore 연결 실패 방지 (롱폴링 강제)
+try{ db.settings({ experimentalForceLongPolling: true, experimentalAutoDetectLongPolling: false, merge: true }); }catch(e){ console.warn('firestore settings', e); }
 
 let currentLang = localStorage.getItem('malmun_lang') || 'ko';
 let tutorDocs = []; // { id, data }
@@ -177,6 +179,7 @@ const TRANSLATIONS = {
     "tutors.f.all": "전체", "tutors.f.rating": "평점순", "tutors.f.exam": "시험 대비", "tutors.f.biz": "비즈니스",
     "unit.perLesson": "/회",
     "tutors.empty": "아직 등록된 튜터가 없어요. 곧 만나요!",
+    "tutors.error": "연결이 잠시 불안정해요. 다시 시도해 주세요.", "tutors.retry": "다시 불러오기", "tutors.loading": "불러오는 중...",
     "nav.home": "홈", "nav.tutors": "튜터", "nav.curriculum": "커리큘럼",
     "nav.community": "커뮤니티", "nav.mypage": "마이페이지"
   },
@@ -185,6 +188,7 @@ const TRANSLATIONS = {
     "tutors.f.all": "All", "tutors.f.rating": "Top rated", "tutors.f.exam": "Exam prep", "tutors.f.biz": "Business",
     "unit.perLesson": "/lesson",
     "tutors.empty": "No tutors yet — check back soon!",
+    "tutors.error": "Connection problem — please try again.", "tutors.retry": "Try again", "tutors.loading": "Loading...",
     "nav.home": "Home", "nav.tutors": "Tutors", "nav.curriculum": "Curriculum",
     "nav.community": "Community", "nav.mypage": "My page"
   },
@@ -193,6 +197,7 @@ const TRANSLATIONS = {
     "tutors.f.all": "すべて", "tutors.f.rating": "評価順", "tutors.f.exam": "試験対策", "tutors.f.biz": "ビジネス",
     "unit.perLesson": "／回",
     "tutors.empty": "まだ登録された講師がいません。近日公開！",
+    "tutors.error": "接続が不安定です。もう一度お試しください。", "tutors.retry": "再読み込み", "tutors.loading": "読み込み中...",
     "nav.home": "ホーム", "nav.tutors": "講師", "nav.curriculum": "カリキュラム",
     "nav.community": "コミュニティ", "nav.mypage": "マイページ"
   }
@@ -209,6 +214,12 @@ function renderTutorList(){
   const listEl = document.getElementById('tutorList');
   const countEl = document.getElementById('tutorCountTitle');
 
+  if(tutorDocs.length === 0 && loadFailed){
+    listEl.innerHTML = `<p class="empty">${t('tutors.error')}<br><button type="button" onclick="retryLoadTutors()" style="margin-top:14px;padding:10px 20px;border-radius:999px;border:1px solid #E8A33D;background:#fff;color:#8a5a12;font-size:14px;font-weight:600;cursor:pointer;">${t('tutors.retry')}</button></p>`;
+    const errTitle = { ko: '튜터 목록', en: 'Tutors', ja: '講師一覧' };
+    countEl.textContent = errTitle[currentLang] || errTitle.ko;
+    return;
+  }
   if(tutorDocs.length === 0){
     listEl.innerHTML = `<p class="empty">${t('tutors.empty')}</p>`;
     const emptyTitle = { ko: '튜터 목록', en: 'Tutors', ja: '講師一覧' };
@@ -253,15 +264,23 @@ function renderTutorList(){
   });
 }
 
-async function loadTutors(){
+let loadFailed = false;
+async function loadTutors(attempt = 1){
   try{
-    const snap = await db.collection('tutors').orderBy('order', 'asc').get();
+    const snap = await db.collection('tutors').orderBy('order', 'asc').get({ source: 'server' });
     tutorDocs = snap.docs.map(doc => ({ id: doc.id, data: doc.data() }));
+    loadFailed = false;
   }catch(err){
-    console.error('튜터 목록 로드 실패:', err);
+    console.error('튜터 목록 로드 실패 (시도 ' + attempt + '):', err);
+    if(attempt < 3){ setTimeout(() => loadTutors(attempt + 1), 1500 * attempt); return; }
     tutorDocs = [];
+    loadFailed = true;
   }
   renderTutorList();
+}
+function retryLoadTutors(){
+  document.getElementById('tutorList').innerHTML = `<p class="empty">${t('tutors.loading')}</p>`;
+  loadTutors(1);
 }
 
 function applyLang(lang){
