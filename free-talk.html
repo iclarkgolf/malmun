@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>무료 대화 요청 | 말문</title>
+<meta name="description" content="레벨테스트 없이도 괜찮아요. 편한 요일과 시간을 골라 PJ에게 무료 대화를 먼저 요청해 보세요.">
+<style>
+  :root{
+    --bg: #FFF9F0;
+    --card: #FFFFFF;
+    --card-border: #E8E4D8;
+    --text: #2C2C2A;
+    --text-secondary: #5F5E5A;
+    --text-muted: #8A8880;
+    --accent: #EF9F27;
+    --accent-text: #412402;
+    --accent-soft: #FFF3E0;
+    --danger: #D85A30;
+    --ok: #2E7D32;
+  }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", sans-serif;
+    -webkit-font-smoothing:antialiased; min-height:100vh;
+  }
+  .wrap{ max-width:480px; margin:0 auto; padding:0 20px 40px; }
+  .topbar{ display:flex; align-items:center; justify-content:space-between; padding:20px 0 12px; }
+  .back{ background:none; border:none; color:var(--text-secondary); cursor:pointer; padding:0; display:flex; }
+  .lang-row{ display:flex; gap:4px; }
+  .lang-row button{ background:none; border:1px solid var(--card-border); border-radius:14px; padding:4px 10px; font-size:12px; color:var(--text-muted); cursor:pointer; }
+  .lang-row button.active{ border-color:var(--accent); color:var(--accent-text); background:var(--accent-soft); }
+
+  .eyebrow{ font-size:12px; font-weight:700; color:var(--accent); margin:8px 0 8px; }
+  h1{ font-size:22px; line-height:1.4; margin:0 0 10px; }
+  .lead{ font-size:14px; line-height:1.65; color:var(--text-secondary); margin:0 0 22px; }
+
+  .steps{ background:var(--card); border:1px solid var(--card-border); border-radius:14px; padding:14px 16px; margin-bottom:24px; }
+  .steps p{ margin:0; font-size:13px; line-height:1.9; color:var(--text-secondary); }
+
+  .label{ font-size:13px; font-weight:700; margin:0 0 10px; }
+  .days{ display:grid; grid-template-columns:repeat(7,1fr); gap:6px; margin-bottom:20px; }
+  .day{ border:1px solid var(--card-border); background:var(--card); border-radius:10px; padding:10px 0; font-size:13px; cursor:pointer; color:var(--text); }
+  .day.selected{ border-color:var(--accent); background:var(--accent-soft); color:var(--accent-text); font-weight:700; }
+  select, textarea{
+    width:100%; border:1px solid var(--card-border); border-radius:12px; padding:13px 14px; font-size:15px;
+    font-family:inherit; background:var(--card); color:var(--text); margin-bottom:6px;
+  }
+  select:focus, textarea:focus{ outline:none; border-color:var(--accent); }
+  .hint{ font-size:12px; color:var(--text-muted); margin:0 0 20px; }
+  textarea{ min-height:90px; resize:vertical; }
+
+  .btn-primary{
+    display:block; width:100%; text-align:center; padding:16px; border-radius:12px;
+    font-size:15px; font-weight:700; cursor:pointer; border:none; background:var(--accent); color:var(--accent-text); margin-top:6px;
+  }
+  .btn-primary:disabled{ background:#e8e4d8; color:#a8a49a; cursor:not-allowed; }
+
+  .status-card{ background:var(--card); border:1px solid var(--card-border); border-radius:14px; padding:16px; margin-bottom:22px; }
+  .status-card .st{ font-size:12px; font-weight:700; margin:0 0 6px; }
+  .status-card .st.pending{ color:var(--accent); }
+  .status-card .st.accepted{ color:var(--ok); }
+  .status-card .st.declined{ color:var(--danger); }
+  .status-card .when{ font-size:15px; font-weight:700; margin:0 0 4px; }
+  .status-card .desc{ font-size:13px; color:var(--text-secondary); margin:0; line-height:1.6; }
+  .status-card .enter{ margin-top:12px; }
+  .loading{ text-align:center; color:var(--text-muted); font-size:13px; padding:40px 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <button class="back" onclick="history.length > 1 ? history.back() : location.href='index.html'" aria-label="back">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    </button>
+    <div class="lang-row">
+      <button data-lang="ko" onclick="setLang('ko')">한국어</button>
+      <button data-lang="en" onclick="setLang('en')">EN</button>
+      <button data-lang="ja" onclick="setLang('ja')">日本語</button>
+    </div>
+  </div>
+
+  <p class="eyebrow" id="tEyebrow"></p>
+  <h1 id="tTitle"></h1>
+  <p class="lead" id="tLead"></p>
+
+  <div id="statusArea"></div>
+
+  <div id="formArea">
+    <div class="steps"><p id="tSteps"></p></div>
+
+    <p class="label" id="tDayLabel"></p>
+    <div class="days" id="days"></div>
+
+    <p class="label" id="tTimeLabel"></p>
+    <select id="timeSelect"></select>
+    <p class="hint" id="tTimeHint"></p>
+
+    <p class="label" id="tMsgLabel"></p>
+    <textarea id="msgInput"></textarea>
+    <p class="hint" id="tMsgHint"></p>
+
+    <button class="btn-primary" id="sendBtn"></button>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script>
+// ── 무료 대화 요청 ─────────────────────────────────────────
+// 학생이 레벨테스트·결제와 상관없이 편한 요일·시간을 골라 "무료 대화"를 먼저 요청합니다.
+// 요청은 freeTalkRequests 컬렉션에 status:'pending'으로 저장되고,
+// 수락/거절은 튜터가 tutor-bookings.html에서 결정합니다(튜터 권한).
+// 수락되면 bookings에 예약이 생기고, 학생은 이 페이지나 마이페이지에서 화상룸에 들어갑니다.
+const firebaseConfig = {
+  apiKey: "AIzaSyD10IdHCDkCybMrkO5fewo0ksYFBmqwWro",
+  authDomain: "malmun-bca03.firebaseapp.com",
+  projectId: "malmun-bca03",
+  storageBucket: "malmun-bca03.firebasestorage.app",
+  messagingSenderId: "831462084669",
+  appId: "1:831462084669:web:003a844918b165d5b65a54"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+// 새 요청이 오면 PJ님께 이메일 알림 (예약 알림과 같은 Apps Script 재사용)
+const BOOKING_ALERT_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbz7EANVhq9AoUz-W7cFmXfyZUb0cWCIJG26Rx2TFVrUR7ehRDTRbyT1BdOANqQ7bCsiRQ/exec';
+
+const DAYS = [
+  { id:'mon', ko:'월', en:'Mon', ja:'月' }, { id:'tue', ko:'화', en:'Tue', ja:'火' },
+  { id:'wed', ko:'수', en:'Wed', ja:'水' }, { id:'thu', ko:'목', en:'Thu', ja:'木' },
+  { id:'fri', ko:'금', en:'Fri', ja:'金' }, { id:'sat', ko:'토', en:'Sat', ja:'土' },
+  { id:'sun', ko:'일', en:'Sun', ja:'日' }
+];
+const DAY_KO_FULL = { mon:'월요일', tue:'화요일', wed:'수요일', thu:'목요일', fri:'금요일', sat:'토요일', sun:'일요일' };
+const TIMES = [];
+for(let h = 9; h <= 23; h++){ TIMES.push(String(h).padStart(2,'0') + ':00'); }
+
+const T = {
+  ko: {
+    eyebrow:'💬 무료 대화 요청',
+    title:'레벨테스트 안 해도 괜찮아요.<br>일단 편하게 이야기해요.',
+    lead:'편한 요일과 시간을 골라 먼저 요청해 주세요. 튜터가 확인하고 수락하면 화상으로 만나요. 비용은 들지 않아요.',
+    steps:'① 요일·시간 고르고 요청 보내기<br>② 튜터가 확인 후 수락 (보통 하루 안에)<br>③ 이 페이지나 마이페이지에서 "화상룸 입장"',
+    dayLabel:'희망 요일', timeLabel:'희망 시간', timeHint:'한국 시간(KST) 기준이에요.',
+    msgLabel:'튜터에게 한마디 (선택)', msgHint:'예: 한국 드라마 이야기 하고 싶어요 / 영어로 조금 도와주세요',
+    msgPh:'자유롭게 적어주세요', send:'무료 대화 요청 보내기', sending:'보내는 중...',
+    pickDay:'요일을 골라주세요.', sent:'요청을 보냈어요! 튜터가 수락하면 여기와 마이페이지에 표시돼요.',
+    err:'요청 중 문제가 생겼어요: ',
+    stPending:'⏳ 튜터가 확인 중이에요', stAccepted:'✅ 수락됐어요!', stDeclined:'🙏 이번 시간은 어렵대요',
+    descPending:'수락되면 여기에 "화상룸 입장" 버튼이 생겨요. 조금만 기다려 주세요.',
+    descAccepted:'약속한 시간에 아래 버튼으로 들어오세요.',
+    descDeclined:'다른 요일·시간으로 다시 요청해 주세요.',
+    enter:'🎥 화상룸 입장', tutorPrefix:'튜터: '
+  },
+  en: {
+    eyebrow:'💬 Free talk request',
+    title:"No level test needed.<br>Let's just talk first.",
+    lead:"Pick a day and time that works for you and send a request. Once the tutor accepts, you'll meet by video. It's free.",
+    steps:'① Pick a day & time and send a request<br>② The tutor reviews and accepts (usually within a day)<br>③ Tap "Enter video room" here or on My page',
+    dayLabel:'Preferred day', timeLabel:'Preferred time', timeHint:'Times are in Korea time (KST).',
+    msgLabel:'A note for the tutor (optional)', msgHint:'e.g. I want to talk about K-dramas / Please help me a little in English',
+    msgPh:'Write anything you like', send:'Send free talk request', sending:'Sending...',
+    pickDay:'Please pick a day.', sent:"Request sent! You'll see it here and on My page once the tutor accepts.",
+    err:'Something went wrong: ',
+    stPending:'⏳ Waiting for the tutor', stAccepted:'✅ Accepted!', stDeclined:"🙏 That time doesn't work",
+    descPending:'An "Enter video room" button will appear here once accepted.',
+    descAccepted:'Join with the button below at the agreed time.',
+    descDeclined:'Please send a new request with another day or time.',
+    enter:'🎥 Enter video room', tutorPrefix:'Tutor: '
+  },
+  ja: {
+    eyebrow:'💬 無料トークのリクエスト',
+    title:'レベルテストはなくても大丈夫。<br>まずは気軽に話しましょう。',
+    lead:'都合のいい曜日と時間を選んでリクエストしてください。講師が確認して承認すると、ビデオで会えます。費用はかかりません。',
+    steps:'① 曜日・時間を選んでリクエスト送信<br>② 講師が確認して承認（通常1日以内）<br>③ このページかマイページで「ビデオルームに入る」',
+    dayLabel:'希望の曜日', timeLabel:'希望の時間', timeHint:'韓国時間（KST）基準です。',
+    msgLabel:'講師へのひとこと（任意）', msgHint:'例：韓国ドラマの話がしたいです / 少し英語で手伝ってください',
+    msgPh:'自由に書いてください', send:'無料トークをリクエスト', sending:'送信中...',
+    pickDay:'曜日を選んでください。', sent:'リクエストを送りました！講師が承認すると、こことマイページに表示されます。',
+    err:'エラーが発生しました：',
+    stPending:'⏳ 講師が確認中です', stAccepted:'✅ 承認されました！', stDeclined:'🙏 この時間は難しいそうです',
+    descPending:'承認されると、ここに「ビデオルームに入る」ボタンが表示されます。',
+    descAccepted:'約束の時間に下のボタンから入ってください。',
+    descDeclined:'別の曜日・時間でもう一度リクエストしてください。',
+    enter:'🎥 ビデオルームに入る', tutorPrefix:'講師：'
+  }
+};
+
+let lang = localStorage.getItem('malmun_lang') || 'ko';
+if(!T[lang]) lang = 'ko';
+let selectedDay = null;
+let tutorId = new URLSearchParams(location.search).get('tutor');
+let tutorName = 'PJ';
+let myRequests = [];
+
+function L(){ return T[lang] || T.ko; }
+
+function renderStatic(){
+  const t = L();
+  document.documentElement.lang = lang;
+  document.getElementById('tEyebrow').textContent = t.eyebrow;
+  document.getElementById('tTitle').innerHTML = t.title;
+  document.getElementById('tLead').textContent = t.lead;
+  document.getElementById('tSteps').innerHTML = t.steps;
+  document.getElementById('tDayLabel').textContent = t.dayLabel;
+  document.getElementById('tTimeLabel').textContent = t.timeLabel;
+  document.getElementById('tTimeHint').textContent = t.timeHint;
+  document.getElementById('tMsgLabel').textContent = t.msgLabel;
+  document.getElementById('tMsgHint').textContent = t.msgHint;
+  document.getElementById('msgInput').placeholder = t.msgPh;
+  const btn = document.getElementById('sendBtn');
+  if(!btn.disabled) btn.textContent = t.send;
+  document.querySelectorAll('.lang-row button').forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
+  document.getElementById('days').innerHTML = DAYS.map(d =>
+    `<button class="day${d.id === selectedDay ? ' selected' : ''}" data-day="${d.id}">${d[lang] || d.ko}</button>`).join('');
+  document.querySelectorAll('.day').forEach(el => el.addEventListener('click', () => {
+    selectedDay = el.dataset.day;
+    document.querySelectorAll('.day').forEach(x => x.classList.toggle('selected', x === el));
+  }));
+  renderStatus();
+}
+
+function setLang(l){
+  lang = l;
+  localStorage.setItem('malmun_lang', l);
+  renderStatic();
+}
+
+function dayLabelFor(id){
+  const d = DAYS.find(x => x.id === id);
+  return d ? (lang === 'ko' ? DAY_KO_FULL[id] : (d[lang] || d.ko)) : '';
+}
+
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str == null ? '' : String(str);
+  return div.innerHTML;
+}
+
+// 가장 최근 요청 1건의 상태를 보여줌
+function renderStatus(){
+  const area = document.getElementById('statusArea');
+  if(!myRequests.length){ area.innerHTML = ''; return; }
+  const t = L();
+  const r = myRequests[0];
+  const cls = r.status === 'accepted' ? 'accepted' : (r.status === 'declined' ? 'declined' : 'pending');
+  const stText = cls === 'accepted' ? t.stAccepted : (cls === 'declined' ? t.stDeclined : t.stPending);
+  const desc = cls === 'accepted' ? t.descAccepted : (cls === 'declined' ? t.descDeclined : t.descPending);
+  let enterBtn = '';
+  if(cls === 'accepted' && r.roomId){
+    const p = new URLSearchParams({ room: r.roomId, tutor: r.tutorName || 'PJ', time: `${r.dayLabel || ''} ${r.time || ''}` });
+    enterBtn = `<button class="btn-primary enter" onclick="location.href='classroom.html?${p.toString()}'">${t.enter}</button>`;
+  }
+  area.innerHTML = `
+    <div class="status-card">
+      <p class="st ${cls}">${stText}</p>
+      <p class="when">${escapeHtml(dayLabelFor(r.day))} ${escapeHtml(r.time || '')} (KST)</p>
+      <p class="desc">${escapeHtml(t.tutorPrefix + (r.tutorName || 'PJ'))}<br>${desc}</p>
+      ${enterBtn}
+    </div>`;
+  // 대기 중인 요청이 있으면 중복 요청을 막기 위해 입력 폼은 숨김
+  document.getElementById('formArea').style.display = cls === 'pending' ? 'none' : '';
+}
+
+async function loadTutor(){
+  try{
+    if(tutorId){
+      const doc = await db.collection('tutors').doc(tutorId).get();
+      if(doc.exists){ tutorName = (doc.data().ko && doc.data().ko.name) || tutorName; return; }
+    }
+    const snap = await db.collection('tutors').orderBy('order', 'asc').limit(1).get();
+    if(!snap.empty){
+      tutorId = snap.docs[0].id;
+      tutorName = (snap.docs[0].data().ko && snap.docs[0].data().ko.name) || tutorName;
+    }
+  }catch(e){ console.warn('튜터 정보 불러오기 실패(기본값 PJ 사용):', e); }
+}
+
+function watchMyRequests(uid){
+  db.collection('freeTalkRequests').where('studentUid', '==', uid).onSnapshot(snap => {
+    const ts = r => (r.createdAt && r.createdAt.toMillis) ? r.createdAt.toMillis() : Date.now();
+    myRequests = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => ts(b) - ts(a));
+    renderStatus();
+  }, err => console.error('내 요청 불러오기 실패:', err));
+}
+
+async function sendRequest(){
+  const t = L();
+  const user = auth.currentUser;
+  if(!user){
+    location.href = 'login.html?next=free-talk' + (tutorId ? '&tutor=' + encodeURIComponent(tutorId) : '');
+    return;
+  }
+  if(!selectedDay){ alert(t.pickDay); return; }
+  const time = document.getElementById('timeSelect').value;
+  const message = document.getElementById('msgInput').value.trim().slice(0, 500);
+  const btn = document.getElementById('sendBtn');
+  btn.disabled = true; btn.textContent = t.sending;
+  const studentName = user.displayName || (user.email ? user.email.split('@')[0] : '학생');
+  try{
+    await db.collection('freeTalkRequests').add({
+      tutorId: tutorId || '',
+      tutorName: tutorName,
+      studentUid: user.uid,
+      studentName: studentName,
+      studentEmail: user.email || '',
+      day: selectedDay,
+      dayLabel: DAY_KO_FULL[selectedDay],
+      time: time,
+      message: message,
+      lang: lang,
+      status: 'pending',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    try{
+      fetch(BOOKING_ALERT_WEBAPP_URL, {
+        method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({
+          studentName: studentName,
+          studentEmail: user.email || '',
+          tutorName: tutorName,
+          dayLabel: '[💬 무료 대화 요청 — 수락 필요] ' + DAY_KO_FULL[selectedDay],
+          time: time,
+          price: 0,
+          isFreeOrientation: true,
+          joinUrl: 'https://malmunkorean.com/tutor-bookings.html' + (message ? '  / 학생 메모: ' + message : '')
+        })
+      });
+    }catch(e){ console.error('알림 이메일 실패(요청은 정상 저장됨):', e); }
+    if(window.gtag){ gtag('event', 'free_talk_request_sent'); }
+    alert(t.sent);
+    window.scrollTo(0, 0);
+  }catch(err){
+    console.error('무료 대화 요청 실패:', err);
+    alert(t.err + err.message);
+  }finally{
+    btn.disabled = false; btn.textContent = t.send;
+  }
+}
+
+document.getElementById('timeSelect').innerHTML = TIMES.map(tm => `<option value="${tm}"${tm === '20:00' ? ' selected' : ''}>${tm}</option>`).join('');
+document.getElementById('sendBtn').addEventListener('click', sendRequest);
+renderStatic();
+loadTutor();
+auth.onAuthStateChanged(user => { if(user) watchMyRequests(user.uid); });
+</script>
+</body>
+</html>

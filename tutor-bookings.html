@@ -160,6 +160,12 @@
       <div id="noticeList"><p class="notice-empty">불러오는 중...</p></div>
     </div>
 
+    <div class="notice-box" id="ftBox" style="border-color:var(--accent);">
+      <h2 style="color:var(--accent-text);">💬 무료 대화 요청 <span id="ftCount"></span></h2>
+      <p style="font-size:12px; color:var(--text-secondary); margin:-6px 0 12px; line-height:1.5;">학생이 보낸 무료 대화 요청이에요. 수락하면 아래 "예정된 예약"에 들어가고, 거절하면 학생에게 다른 시간으로 다시 요청하라고 안내돼요.</p>
+      <div id="ftList"><p class="notice-empty">불러오는 중...</p></div>
+    </div>
+
     <div class="filter-row">
       <button class="filter-btn active" data-filter="upcoming">예정된 예약</button>
       <button class="filter-btn" data-filter="all">전체 보기</button>
@@ -260,6 +266,7 @@ function tryUnlock(){
     loadNotices();
     loadBookings();
     loadDone();
+    loadFreeTalk();
   }else{
     document.getElementById('gateError').style.display = 'block';
   }
@@ -271,6 +278,7 @@ if(sessionStorage.getItem('malmun_admin_ok') === '1'){
   loadNotices();
   loadBookings();
   loadDone();
+  loadFreeTalk();
 }
 
 async function loadNotices(){
@@ -412,7 +420,7 @@ function render(){
           <p class="b-student">${escapeHtml(b.studentName || '학생')}</p>
           <p class="b-meta">${escapeHtml(b.tutorName || '')} 튜터 · ${escapeHtml(b.dayLabel || b.day || '')} ${escapeHtml(b.time || '')}</p>
           <div class="b-tags">
-            ${b.isFreeOrientation ? '<span class="tag free">무료 오리엔테이션</span>' : `<span class="tag paid">${fmtKRW(b.price)}</span>`}
+            ${priceTag(b)}
             ${b.studentEmail ? `<span class="tag email">${escapeHtml(b.studentEmail)}</span>` : ''}
           </div>
         </div>
@@ -457,7 +465,7 @@ function renderDone(list){
         <p class="b-meta">${escapeHtml(b.dayLabel || b.day || '')} ${escapeHtml(b.time || '')} · 완료 ${fmtDate(b.completedAt)}</p>
         <div class="b-tags">
           <span class="tag done">수업 완료</span>
-          ${b.isFreeOrientation ? '<span class="tag free">무료 오리엔테이션</span>' : `<span class="tag paid">${fmtKRW(b.price)}</span>`}
+          ${priceTag(b)}
           ${b.studentEmail ? `<span class="tag email">${escapeHtml(b.studentEmail)}</span>` : ''}
         </div>
         ${(b.vocab && b.vocab.length) || (b.grammar && b.grammar.length) || b.nextGoal ? `
@@ -551,6 +559,117 @@ async function cancelBooking(id, btnEl){
     alert('취소에 실패했어요. 잠시 후 다시 시도해 주세요.\n' + (e.message || e));
     if(btnEl){ btnEl.disabled = false; btnEl.textContent = '🚫 취소'; }
   }
+}
+
+
+/* ───────── 💬 무료 대화 요청 (학생 요청 → 튜터가 수락/거절) ───────── */
+// var(초기값 없음)로 선언: 위쪽 자동 입장 코드가 이 선언보다 먼저 loadFreeTalk()를 부르기 때문에
+// let/const를 쓰면 예전 예약목록 버그와 같은 'before initialization' 오류가 남
+var freeTalkRequests;
+var ftLoaded;
+function loadFreeTalk(){
+  if(ftLoaded) return;
+  ftLoaded = true;
+  try{
+    db.collection('freeTalkRequests').where('status', '==', 'pending')
+      .onSnapshot(snap => {
+        const ts = r => (r.createdAt && r.createdAt.toMillis) ? r.createdAt.toMillis() : Date.now();
+        freeTalkRequests = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => ts(a) - ts(b));
+        renderFreeTalk();
+      }, err => {
+        console.error('무료 대화 요청 불러오기 실패:', err);
+        showDiag('무료 대화 요청 오류: ' + (err.code || '') + ' ' + err.message + ' (Firestore 규칙에 freeTalkRequests 추가 필요)', true);
+        document.getElementById('ftList').innerHTML = `<p class="notice-empty">요청을 불러오지 못했어요.</p>`;
+      });
+  }catch(e){ showDiag('무료 대화 요청 요청 실패: ' + e.message, true); }
+}
+
+function renderFreeTalk(){
+  const el = document.getElementById('ftList');
+  document.getElementById('ftCount').textContent = (freeTalkRequests || []).length ? `(${freeTalkRequests.length})` : '';
+  if(!freeTalkRequests || freeTalkRequests.length === 0){
+    el.innerHTML = `<p class="notice-empty">새 요청이 없어요.</p>`;
+    return;
+  }
+  el.innerHTML = freeTalkRequests.map(r => `
+    <div class="notice-item">
+      <p class="notice-item-title"><span class="notice-new-dot"></span>${escapeHtml(r.studentName || '학생')} · ${escapeHtml(r.dayLabel || r.day || '')} ${escapeHtml(r.time || '')}</p>
+      <p class="notice-item-body">${r.studentEmail ? escapeHtml(r.studentEmail) : ''}${r.message ? '\n💬 ' + escapeHtml(r.message) : ''}</p>
+      <p class="notice-item-date">요청 ${fmtDate(r.createdAt)}</p>
+      <div style="display:flex; gap:8px; margin-top:10px;">
+        <button class="done-btn" onclick="acceptFreeTalk('${r.id}', this)">✅ 수락</button>
+        <button class="cancel-btn" onclick="declineFreeTalk('${r.id}', this)">❌ 거절</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function acceptFreeTalk(id, btnEl){
+  const r = (freeTalkRequests || []).find(x => x.id === id);
+  if(!r) return;
+  if(!confirm(`${r.studentName || '학생'} · ${r.dayLabel || ''} ${r.time || ''} 무료 대화를 수락할까요?\n\n수락하면 아래 "예정된 예약"에 추가되고, 학생 화면에 "화상룸 입장" 버튼이 생겨요.`)) return;
+  if(btnEl){ btnEl.disabled = true; btnEl.textContent = '처리 중...'; }
+  const roomId = `${r.tutorId || 'pj'}-free-${r.day || ''}${String(r.time || '').replace(':','')}-${Date.now().toString(36)}`;
+  try{
+    const bookingRef = await db.collection('bookings').add({
+      tutorId: r.tutorId || '',
+      tutorName: r.tutorName || 'PJ',
+      studentUid: r.studentUid || '',
+      studentName: r.studentName || '학생',
+      studentEmail: r.studentEmail || '',
+      day: r.day || '',
+      dayLabel: r.dayLabel || '',
+      time: r.time || '',
+      price: 0,
+      isFreeOrientation: false,
+      isFreeTalk: true,
+      freeTalkRequestId: r.id,
+      roomId: roomId,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    await db.collection('freeTalkRequests').doc(r.id).update({
+      status: 'accepted',
+      bookingId: bookingRef.id,
+      roomId: roomId,
+      decidedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    if(r.studentEmail && confirm('수락 완료! 학생에게 알림 이메일을 보낼까요?\n(이메일 앱이 열리고 내용이 미리 채워져요. 보내기만 누르면 돼요)')){
+      const subject = '[말문 Malmun] 무료 대화 요청이 수락됐어요 / Your free chat is confirmed';
+      const body =
+        `안녕하세요 ${r.studentName || ''}님!\n\n` +
+        `무료 대화 요청이 수락됐어요.\n시간: ${r.dayLabel || ''} ${r.time || ''} (한국 시간)\n\n` +
+        `시간이 되면 아래 링크에서 "화상룸 입장"을 눌러주세요.\nhttps://malmunkorean.com/free-talk.html\n\n` +
+        `Hi ${r.studentName || ''}! Your free chat is confirmed for ${r.day || ''} ${r.time || ''} (Korea time).\n` +
+        `At that time, open the link above and tap "Enter video room".\n\n— ${r.tutorName || 'PJ'}`;
+      location.href = `mailto:${encodeURIComponent(r.studentEmail)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    }
+  }catch(e){
+    console.error('무료 대화 수락 실패:', e);
+    alert('수락에 실패했어요. 잠시 후 다시 시도해 주세요.\n' + (e.message || e));
+    if(btnEl){ btnEl.disabled = false; btnEl.textContent = '✅ 수락'; }
+  }
+}
+
+async function declineFreeTalk(id, btnEl){
+  const r = (freeTalkRequests || []).find(x => x.id === id);
+  if(!r) return;
+  if(!confirm(`${r.studentName || '학생'} · ${r.dayLabel || ''} ${r.time || ''} 요청을 거절할까요?\n학생 화면에는 "이번 시간은 어렵대요 · 다시 요청하기"로 표시돼요.`)) return;
+  if(btnEl){ btnEl.disabled = true; btnEl.textContent = '처리 중...'; }
+  try{
+    await db.collection('freeTalkRequests').doc(id).update({
+      status: 'declined',
+      decidedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  }catch(e){
+    console.error('무료 대화 거절 실패:', e);
+    alert('거절 처리에 실패했어요.\n' + (e.message || e));
+    if(btnEl){ btnEl.disabled = false; btnEl.textContent = '❌ 거절'; }
+  }
+}
+
+function priceTag(b){
+  if(b.isFreeTalk) return '<span class="tag free">💬 무료 대화</span>';
+  return b.isFreeOrientation ? '<span class="tag free">무료 오리엔테이션</span>' : `<span class="tag paid">${fmtKRW(b.price)}</span>`;
 }
 
 function fmtKRW(n){

@@ -147,6 +147,17 @@
     <div id="noticeList"><p class="notice-empty" id="noticeLoading">불러오는 중...</p></div>
   </div>
 
+  <!-- 무료 대화 요청 상태 (free-talk.html에서 보낸 요청) — 요청이 있을 때만 표시 -->
+  <button class="next-lesson" id="freeTalkCard" style="display:none;">
+    <p class="tag" id="freeTalkTag">무료 대화 요청</p>
+    <div class="row">
+      <div>
+        <p class="lesson-name" id="freeTalkStatus"></p>
+        <p class="lesson-time" id="freeTalkWhen"></p>
+      </div>
+    </div>
+  </button>
+
   <button class="next-lesson" id="nextLessonCard" style="display:none;">
     <p class="tag" data-i18n="mypage.nextLesson">다음 수업</p>
     <div class="row">
@@ -746,6 +757,41 @@ document.addEventListener('click', () => {
   if(loadingEl){
     loadingEl.textContent = ({ ko: '불러오는 중...', en: 'Loading...', ja: '読み込み中...' })[saved] || '불러오는 중...';
   }
+})();
+</script>
+<script>
+// ── 무료 대화 요청 상태 카드 (기존 마이페이지 로직과 분리된 별도 블록) ──
+(function(){
+  const TXT = {
+    ko: { tag:'💬 무료 대화 요청', pending:'⏳ 튜터가 확인 중이에요', accepted:'✅ 수락됐어요! 눌러서 화상룸 입장', declined:'🙏 이번 시간은 어렵대요 · 다시 요청하기' },
+    en: { tag:'💬 Free chat request', pending:'⏳ Waiting for the tutor', accepted:'✅ Accepted! Tap to enter the video room', declined:"🙏 That time doesn't work · Request again" },
+    ja: { tag:'💬 無料トークのリクエスト', pending:'⏳ 講師が確認中です', accepted:'✅ 承認されました！タップしてビデオルームへ', declined:'🙏 この時間は難しいそうです · 再リクエスト' }
+  };
+  const DAY = { mon:['월요일','Mon','月'], tue:['화요일','Tue','火'], wed:['수요일','Wed','水'], thu:['목요일','Thu','木'], fri:['금요일','Fri','金'], sat:['토요일','Sat','土'], sun:['일요일','Sun','日'] };
+  auth.onAuthStateChanged(user => {
+    if(!user) return;
+    db.collection('freeTalkRequests').where('studentUid', '==', user.uid).onSnapshot(snap => {
+      const card = document.getElementById('freeTalkCard');
+      if(snap.empty){ card.style.display = 'none'; return; }
+      const ts = r => (r.createdAt && r.createdAt.toMillis) ? r.createdAt.toMillis() : Date.now();
+      const r = snap.docs.map(d => d.data()).sort((a, b) => ts(b) - ts(a))[0];
+      const lang = localStorage.getItem('malmun_lang') || 'ko';
+      const t = TXT[lang] || TXT.ko;
+      const li = { ko:0, en:1, ja:2 }[lang] || 0;
+      document.getElementById('freeTalkTag').textContent = t.tag;
+      document.getElementById('freeTalkStatus').textContent = t[r.status] || t.pending;
+      document.getElementById('freeTalkWhen').textContent = `${(DAY[r.day] || [''])[li] || ''} ${r.time || ''} (KST) · ${r.tutorName || 'PJ'}`;
+      card.style.display = 'block';
+      card.onclick = () => {
+        if(r.status === 'accepted' && r.roomId){
+          const p = new URLSearchParams({ room: r.roomId, tutor: r.tutorName || 'PJ', time: `${r.dayLabel || ''} ${r.time || ''}` });
+          location.href = 'classroom.html?' + p.toString();
+        }else{
+          location.href = 'free-talk.html';
+        }
+      };
+    }, err => console.warn('무료 대화 요청 불러오기 실패(무시):', err));
+  });
 })();
 </script></body>
 </html>

@@ -135,13 +135,17 @@ const TRANSLATIONS = {
     "unit.perLesson": "/회", "profile.book": "수업 예약하기", "profile.notFound": "튜터 정보를 찾을 수 없어요",
     "instant.desc": "지금 바로 이야기하고 싶으신가요? PJ님께 즉시 알림이 가고, 응답하시면 화상방으로 연결돼요.",
     "instant.btn": "지금 바로 상담 요청", "instant.sending": "요청 중...",
-    "instant.sent": "요청을 보냈어요! 화상방에서 PJ님을 기다려주세요.", "instant.err": "요청 중 문제가 생겼어요: "
+    "instant.sent": "요청을 보냈어요! 화상방에서 PJ님을 기다려주세요.", "instant.err": "요청 중 문제가 생겼어요: ",
+    "freetalk.desc": "지금이 아니어도 괜찮아요. 편한 요일·시간을 골라 무료 대화를 요청하면, 튜터가 확인하고 수락해요.",
+    "freetalk.btn": "💬 무료 대화 요청하기"
   },
   en: {
     "unit.perLesson": "/lesson", "profile.book": "Book a lesson", "profile.notFound": "Could not find this tutor",
     "instant.desc": "Want to talk right now? PJ gets notified immediately and you'll be connected in a video room.",
     "instant.btn": "Request instant chat", "instant.sending": "Requesting...",
-    "instant.sent": "Request sent! Please wait for PJ in the video room.", "instant.err": "Something went wrong: "
+    "instant.sent": "Request sent! Please wait for PJ in the video room.", "instant.err": "Something went wrong: ",
+    "freetalk.desc": "Not right now? Pick a day and time and request a free chat — the tutor will review and accept.",
+    "freetalk.btn": "💬 Request a free chat"
   }
 };
 
@@ -188,6 +192,8 @@ function renderProfile(){
     <div class="instant-box">
       <p>${(TRANSLATIONS[currentLang] || TRANSLATIONS.ko)['instant.desc']}</p>
       <button id="instantBtn">${(TRANSLATIONS[currentLang] || TRANSLATIONS.ko)['instant.btn']}</button>
+      <p style="margin:14px 0 8px;">${(TRANSLATIONS[currentLang] || TRANSLATIONS.ko)['freetalk.desc']}</p>
+      <button onclick="location.href='free-talk.html?tutor=${encodeURIComponent(currentTutorId || '')}'">${(TRANSLATIONS[currentLang] || TRANSLATIONS.ko)['freetalk.btn']}</button>
     </div>
   `;
   document.getElementById('tutorPrice').textContent = fmtKRW(tutorData.price);
