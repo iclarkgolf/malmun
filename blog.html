@@ -100,7 +100,7 @@
 
 <div class="wrap">
   <div class="header">
-    <p class="title" data-i18n="blog.title">💬 말문 커뮤니티</p>
+    <h1 class="title" data-i18n="blog.title">💬 말문 커뮤니티</h1>
     <div style="display:flex; align-items:center; gap:8px;">
       <a href="blog-admin.html" style="width:32px; height:32px; border-radius:50%; background:var(--accent-soft); display:flex; align-items:center; justify-content:center; font-size:14px;" aria-label="블로그 관리">✍️</a>
       <div class="lang-dropdown" id="langDropdown">
@@ -169,6 +169,10 @@ try{ db.settings({ experimentalForceLongPolling: true, experimentalAutoDetectLon
 
 const PER_PAGE = 12;
 let POSTS = [];
+// 파이어스토어가 아니라 파일로 직접 올린 글 (목록에 함께 표시)
+const STATIC_POSTS = [
+  { id:'golf-course-questions', url:'article-golf-course-questions.html', title:'필리핀 골프장에서 20년, 가장 많이 받은 질문', cat:'말문 이야기', excerpt:"필리핀 골프장에서 20년간 만난 직원들이 가장 많이 물어본 것은 '한국에 돈 벌러 갈 수 있나요'였다. 그 질문들 속에서 말문이 누구를 위한 곳인지 깨달은 이야기.", thumb:'', date:'2026-07-28' }
+];
 let filtered = [];
 let currentPage = 1;
 let currentCat = '전체';
@@ -199,7 +203,10 @@ async function loadPosts(){
         _ts: dt.getTime(),
         date: dt.toLocaleDateString(dateLocale,{year:'numeric',month:'2-digit',day:'2-digit'}).replace(/\. /g,'.').replace(/\.$/,'')
       };
-    });
+    }).concat(STATIC_POSTS.map(sp => {
+      const dt = new Date(sp.date + 'T09:00:00+09:00');
+      return { ...sp, _ts: dt.getTime(), date: dt.toLocaleDateString(dateLocale,{year:'numeric',month:'2-digit',day:'2-digit'}).replace(/\. /g,'.').replace(/\.$/,'') };
+    }));
     POSTS.sort((a,b) => b._ts - a._ts);
     filtered = [...POSTS];
     buildChips();
@@ -252,7 +259,7 @@ function render(){
   }
 
   grid.innerHTML = items.map(p => `
-    <a href="article.html?id=${p.id}" class="card">
+    <a href="${p.url || ('article.html?id=' + p.id)}" class="card">
       <div class="card-thumb">
         <img src="${p.thumb}" alt="${p.title}" loading="lazy" onerror="this.style.display='none'">
         <span class="card-cat">${p.cat}</span>

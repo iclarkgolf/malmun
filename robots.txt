@@ -8,5 +8,11 @@ Disallow: /classroom.html
 Disallow: /jitsi-demo.html
 Disallow: /login.html
 Disallow: /level-result.html
+Disallow: /blog-admin.html
+Disallow: /notices-admin.html
+Disallow: /review-admin.html
+Disallow: /tutor-applications.html
+Disallow: /tutor-bookings.html
+Disallow: /blog-template.html
 
 Sitemap: https://malmunkorean.com/sitemap.xml
