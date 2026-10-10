@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>튜터 목록 | 말문 Malmun</title>
 <meta name="description" content="여행업 30년, 필리핀 골프 레슨 20년 PJ와 1:1로 배우는 한국어 — 한국 여행, K-드라마·K-POP, 일상 대화, 골프, 비즈니스, TOPIK까지. 첫 수업은 무료 오리엔테이션.">
-<link rel="canonical" href="https://malmunkorean.com/tutors.html">
 <style>
   :root{
     --bg: #FFF9F0;
@@ -97,6 +96,30 @@
     .tutor-list{ display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 340px)); gap:16px; justify-content:center; }
   }
 </style>
+<script>
+/* ── 언어별 주소: ?lang=en / ?lang=ja 로 들어오면 그 언어로 열리고, 구글도 언어별 페이지로 따로 등록합니다 ── */
+(function(){
+  var CFG = {"path": "/tutors.html", "keep": [], "ko": null, "en": {"t": "Meet PJ — your 1:1 Korean tutor | Malmun", "d": "PJ is a native Korean tutor with 30 years in travel and 20 years teaching golf in the Philippines. Learn Korean through real conversation — first lesson free."}, "ja": {"t": "PJ先生の紹介 — マンツーマン韓国語講師 | Malmun", "d": "旅行業30年、フィリピンでゴルフ指導20年のネイティブ韓国語講師PJ。本物の会話で韓国語を学べます。初回レッスン無料。"}};
+  var p = new URLSearchParams(location.search), l = p.get('lang');
+  if(l === 'en' || l === 'ja' || l === 'ko'){ try{ localStorage.setItem('malmun_lang', l); }catch(e){} } else { l = null; }
+  var lang = l || 'ko';                       // 주소에 lang이 없으면 한국어 주소로 취급
+  window.__SEO_LANG__ = lang;
+  document.documentElement.lang = lang;
+  var q = [];
+  CFG.keep.forEach(function(k){ var v = p.get(k); if(v) q.push(k + '=' + encodeURIComponent(v)); });
+  if(lang !== 'ko') q.push('lang=' + lang);
+  var url = 'https://malmunkorean.com' + CFG.path + (q.length ? '?' + q.join('&') : '');
+  var c = document.createElement('link'); c.rel = 'canonical'; c.href = url; document.head.appendChild(c);
+  function setMeta(sel, attr, val){ var m = document.head.querySelector(sel); if(!m){ m = document.createElement('meta'); var a = sel.match(/\[(\w+)="([^"]+)"\]/); m.setAttribute(a[1], a[2]); document.head.appendChild(m); } m.setAttribute(attr, val); }
+  window.__setSEO__ = function(t, d){
+    if(t){ document.title = t; setMeta('meta[property="og:title"]', 'content', t); setMeta('meta[name="twitter:title"]', 'content', t); }
+    if(d){ setMeta('meta[name="description"]', 'content', d); setMeta('meta[property="og:description"]', 'content', d); setMeta('meta[name="twitter:description"]', 'content', d); }
+    setMeta('meta[property="og:url"]', 'content', url);
+  };
+  var s = CFG[lang];
+  if(s) window.__setSEO__(s.t, s.d);
+})();
+</script>
 </head>
 <body>
 

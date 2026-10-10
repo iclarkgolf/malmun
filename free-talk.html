@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>무료 대화 요청 | 말문</title>
-<link rel="canonical" href="https://malmunkorean.com/free-talk.html">
 <meta name="description" content="레벨테스트 없이도 괜찮아요. 편한 요일과 시간을 골라 PJ에게 무료 대화를 먼저 요청해 보세요.">
 <style>
   :root{
@@ -76,6 +75,30 @@ button[aria-label]:has(> svg:only-child){ padding:11px; margin:-11px; }
   input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=hidden]), textarea, select{ font-size:16px !important; }
 }
 </style>
+<script>
+/* ── 언어별 주소: ?lang=en / ?lang=ja 로 들어오면 그 언어로 열리고, 구글도 언어별 페이지로 따로 등록합니다 ── */
+(function(){
+  var CFG = {"path": "/free-talk.html", "keep": [], "ko": null, "en": {"t": "Request a free Korean conversation with PJ | Malmun", "d": "No level test needed. Pick a day and time, leave PJ a note, and start with a free Korean conversation online."}, "ja": {"t": "PJ先生に無料で韓国語会話をリクエスト | Malmun", "d": "レベルテスト不要。曜日と時間を選んでメモを残すだけで、無料のオンライン韓国語会話を始められます。"}};
+  var p = new URLSearchParams(location.search), l = p.get('lang');
+  if(l === 'en' || l === 'ja' || l === 'ko'){ try{ localStorage.setItem('malmun_lang', l); }catch(e){} } else { l = null; }
+  var lang = l || 'ko';                       // 주소에 lang이 없으면 한국어 주소로 취급
+  window.__SEO_LANG__ = lang;
+  document.documentElement.lang = lang;
+  var q = [];
+  CFG.keep.forEach(function(k){ var v = p.get(k); if(v) q.push(k + '=' + encodeURIComponent(v)); });
+  if(lang !== 'ko') q.push('lang=' + lang);
+  var url = 'https://malmunkorean.com' + CFG.path + (q.length ? '?' + q.join('&') : '');
+  var c = document.createElement('link'); c.rel = 'canonical'; c.href = url; document.head.appendChild(c);
+  function setMeta(sel, attr, val){ var m = document.head.querySelector(sel); if(!m){ m = document.createElement('meta'); var a = sel.match(/\[(\w+)="([^"]+)"\]/); m.setAttribute(a[1], a[2]); document.head.appendChild(m); } m.setAttribute(attr, val); }
+  window.__setSEO__ = function(t, d){
+    if(t){ document.title = t; setMeta('meta[property="og:title"]', 'content', t); setMeta('meta[name="twitter:title"]', 'content', t); }
+    if(d){ setMeta('meta[name="description"]', 'content', d); setMeta('meta[property="og:description"]', 'content', d); setMeta('meta[name="twitter:description"]', 'content', d); }
+    setMeta('meta[property="og:url"]', 'content', url);
+  };
+  var s = CFG[lang];
+  if(s) window.__setSEO__(s.t, s.d);
+})();
+</script>
 </head>
 <body>
 <div class="wrap">

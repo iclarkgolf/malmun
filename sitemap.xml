@@ -1,81 +1,384 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
 <url>
 <loc>https://malmunkorean.com/</loc>
 <lastmod>2026-10-10</lastmod>
-<changefreq>weekly</changefreq>
 <priority>1.0</priority>
+<xhtml:link rel="alternate" hreflang="ko" href="https://malmunkorean.com/"/>
+<xhtml:link rel="alternate" hreflang="en" href="https://malmunkorean.com/?lang=en"/>
+<xhtml:link rel="alternate" hreflang="ja" href="https://malmunkorean.com/?lang=ja"/>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://malmunkorean.com/?lang=en"/>
+</url>
+<url>
+<loc>https://malmunkorean.com/?lang=en</loc>
+<lastmod>2026-10-10</lastmod>
+<priority>1.0</priority>
+<xhtml:link rel="alternate" hreflang="ko" href="https://malmunkorean.com/"/>
+<xhtml:link rel="alternate" hreflang="en" href="https://malmunkorean.com/?lang=en"/>
+<xhtml:link rel="alternate" hreflang="ja" href="https://malmunkorean.com/?lang=ja"/>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://malmunkorean.com/?lang=en"/>
+</url>
+<url>
+<loc>https://malmunkorean.com/?lang=ja</loc>
+<lastmod>2026-10-10</lastmod>
+<priority>1.0</priority>
+<xhtml:link rel="alternate" hreflang="ko" href="https://malmunkorean.com/"/>
+<xhtml:link rel="alternate" hreflang="en" href="https://malmunkorean.com/?lang=en"/>
+<xhtml:link rel="alternate" hreflang="ja" href="https://malmunkorean.com/?lang=ja"/>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://malmunkorean.com/?lang=en"/>
 </url>
 <url>
 <loc>https://malmunkorean.com/tutors.html</loc>
 <lastmod>2026-10-10</lastmod>
-<changefreq>weekly</changefreq>
 <priority>0.9</priority>
+<xhtml:link rel="alternate" hreflang="ko" href="https://malmunkorean.com/tutors.html"/>
+<xhtml:link rel="alternate" hreflang="en" href="https://malmunkorean.com/tutors.html?lang=en"/>
+<xhtml:link rel="alternate" hreflang="ja" href="https://malmunkorean.com/tutors.html?lang=ja"/>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://malmunkorean.com/tutors.html?lang=en"/>
+</url>
+<url>
+<loc>https://malmunkorean.com/tutors.html?lang=en</loc>
+<lastmod>2026-10-10</lastmod>
+<priority>0.9</priority>
+<xhtml:link rel="alternate" hreflang="ko" href="https://malmunkorean.com/tutors.html"/>
+<xhtml:link rel="alternate" hreflang="en" href="https://malmunkorean.com/tutors.html?lang=en"/>
+<xhtml:link rel="alternate" hreflang="ja" href="https://malmunkorean.com/tutors.html?lang=ja"/>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://malmunkorean.com/tutors.html?lang=en"/>
+</url>
+<url>
+<loc>https://malmunkorean.com/tutors.html?lang=ja</loc>
+<lastmod>2026-10-10</lastmod>
+<priority>0.9</priority>
+<xhtml:link rel="alternate" hreflang="ko" href="https://malmunkorean.com/tutors.html"/>
+<xhtml:link rel="alternate" hreflang="en" href="https://malmunkorean.com/tutors.html?lang=en"/>
+<xhtml:link rel="alternate" hreflang="ja" href="https://malmunkorean.com/tutors.html?lang=ja"/>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://malmunkorean.com/tutors.html?lang=en"/>
 </url>
 <url>
 <loc>https://malmunkorean.com/curriculum.html</loc>
 <lastmod>2026-10-10</lastmod>
-<changefreq>monthly</changefreq>
 <priority>0.8</priority>
+<xhtml:link rel="alternate" hreflang="ko" href="https://malmunkorean.com/curriculum.html"/>
+<xhtml:link rel="alternate" hreflang="en" href="https://malmunkorean.com/curriculum.html?lang=en"/>
+<xhtml:link rel="alternate" hreflang="ja" href="https://malmunkorean.com/curriculum.html?lang=ja"/>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://malmunkorean.com/curriculum.html?lang=en"/>
+</url>
+<url>
+<loc>https://malmunkorean.com/curriculum.html?lang=en</loc>
+<lastmod>2026-10-10</lastmod>
+<priority>0.8</priority>
+<xhtml:link rel="alternate" hreflang="ko" href="https://malmunkorean.com/curriculum.html"/>
+<xhtml:link rel="alternate" hreflang="en" href="https://malmunkorean.com/curriculum.html?lang=en"/>
+<xhtml:link rel="alternate" hreflang="ja" href="https://malmunkorean.com/curriculum.html?lang=ja"/>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://malmunkorean.com/curriculum.html?lang=en"/>
+</url>
+<url>
+<loc>https://malmunkorean.com/curriculum.html?lang=ja</loc>
+<lastmod>2026-10-10</lastmod>
+<priority>0.8</priority>
+<xhtml:link rel="alternate" hreflang="ko" href="https://malmunkorean.com/curriculum.html"/>
+<xhtml:link rel="alternate" hreflang="en" href="https://malmunkorean.com/curriculum.html?lang=en"/>
+<xhtml:link rel="alternate" hreflang="ja" href="https://malmunkorean.com/curriculum.html?lang=ja"/>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://malmunkorean.com/curriculum.html?lang=en"/>
 </url>
 <url>
 <loc>https://malmunkorean.com/pricing.html</loc>
 <lastmod>2026-10-10</lastmod>
-<changefreq>monthly</changefreq>
 <priority>0.8</priority>
+<xhtml:link rel="alternate" hreflang="ko" href="https://malmunkorean.com/pricing.html"/>
+<xhtml:link rel="alternate" hreflang="en" href="https://malmunkorean.com/pricing.html?lang=en"/>
+<xhtml:link rel="alternate" hreflang="ja" href="https://malmunkorean.com/pricing.html?lang=ja"/>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://malmunkorean.com/pricing.html?lang=en"/>
 </url>
 <url>
-<loc>https://malmunkorean.com/purpose.html</loc>
+<loc>https://malmunkorean.com/pricing.html?lang=en</loc>
 <lastmod>2026-10-10</lastmod>
-<changefreq>monthly</changefreq>
 <priority>0.8</priority>
+<xhtml:link rel="alternate" hreflang="ko" href="https://malmunkorean.com/pricing.html"/>
+<xhtml:link rel="alternate" hreflang="en" href="https://malmunkorean.com/pricing.html?lang=en"/>
+<xhtml:link rel="alternate" hreflang="ja" href="https://malmunkorean.com/pricing.html?lang=ja"/>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://malmunkorean.com/pricing.html?lang=en"/>
+</url>
+<url>
+<loc>https://malmunkorean.com/pricing.html?lang=ja</loc>
+<lastmod>2026-10-10</lastmod>
+<priority>0.8</priority>
+<xhtml:link rel="alternate" hreflang="ko" href="https://malmunkorean.com/pricing.html"/>
+<xhtml:link rel="alternate" hreflang="en" href="https://malmunkorean.com/pricing.html?lang=en"/>
+<xhtml:link rel="alternate" hreflang="ja" href="https://malmunkorean.com/pricing.html?lang=ja"/>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://malmunkorean.com/pricing.html?lang=en"/>
 </url>
 <url>
 <loc>https://malmunkorean.com/free-talk.html</loc>
 <lastmod>2026-10-10</lastmod>
-<changefreq>monthly</changefreq>
 <priority>0.8</priority>
+<xhtml:link rel="alternate" hreflang="ko" href="https://malmunkorean.com/free-talk.html"/>
+<xhtml:link rel="alternate" hreflang="en" href="https://malmunkorean.com/free-talk.html?lang=en"/>
+<xhtml:link rel="alternate" hreflang="ja" href="https://malmunkorean.com/free-talk.html?lang=ja"/>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://malmunkorean.com/free-talk.html?lang=en"/>
+</url>
+<url>
+<loc>https://malmunkorean.com/free-talk.html?lang=en</loc>
+<lastmod>2026-10-10</lastmod>
+<priority>0.8</priority>
+<xhtml:link rel="alternate" hreflang="ko" href="https://malmunkorean.com/free-talk.html"/>
+<xhtml:link rel="alternate" hreflang="en" href="https://malmunkorean.com/free-talk.html?lang=en"/>
+<xhtml:link rel="alternate" hreflang="ja" href="https://malmunkorean.com/free-talk.html?lang=ja"/>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://malmunkorean.com/free-talk.html?lang=en"/>
+</url>
+<url>
+<loc>https://malmunkorean.com/free-talk.html?lang=ja</loc>
+<lastmod>2026-10-10</lastmod>
+<priority>0.8</priority>
+<xhtml:link rel="alternate" hreflang="ko" href="https://malmunkorean.com/free-talk.html"/>
+<xhtml:link rel="alternate" hreflang="en" href="https://malmunkorean.com/free-talk.html?lang=en"/>
+<xhtml:link rel="alternate" hreflang="ja" href="https://malmunkorean.com/free-talk.html?lang=ja"/>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://malmunkorean.com/free-talk.html?lang=en"/>
 </url>
 <url>
 <loc>https://malmunkorean.com/level-test.html</loc>
 <lastmod>2026-10-10</lastmod>
-<changefreq>monthly</changefreq>
 <priority>0.7</priority>
+<xhtml:link rel="alternate" hreflang="ko" href="https://malmunkorean.com/level-test.html"/>
+<xhtml:link rel="alternate" hreflang="en" href="https://malmunkorean.com/level-test.html?lang=en"/>
+<xhtml:link rel="alternate" hreflang="ja" href="https://malmunkorean.com/level-test.html?lang=ja"/>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://malmunkorean.com/level-test.html?lang=en"/>
+</url>
+<url>
+<loc>https://malmunkorean.com/level-test.html?lang=en</loc>
+<lastmod>2026-10-10</lastmod>
+<priority>0.7</priority>
+<xhtml:link rel="alternate" hreflang="ko" href="https://malmunkorean.com/level-test.html"/>
+<xhtml:link rel="alternate" hreflang="en" href="https://malmunkorean.com/level-test.html?lang=en"/>
+<xhtml:link rel="alternate" hreflang="ja" href="https://malmunkorean.com/level-test.html?lang=ja"/>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://malmunkorean.com/level-test.html?lang=en"/>
+</url>
+<url>
+<loc>https://malmunkorean.com/level-test.html?lang=ja</loc>
+<lastmod>2026-10-10</lastmod>
+<priority>0.7</priority>
+<xhtml:link rel="alternate" hreflang="ko" href="https://malmunkorean.com/level-test.html"/>
+<xhtml:link rel="alternate" hreflang="en" href="https://malmunkorean.com/level-test.html?lang=en"/>
+<xhtml:link rel="alternate" hreflang="ja" href="https://malmunkorean.com/level-test.html?lang=ja"/>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://malmunkorean.com/level-test.html?lang=en"/>
+</url>
+<url>
+<loc>https://malmunkorean.com/purpose.html?type=move</loc>
+<lastmod>2026-10-10</lastmod>
+<priority>0.8</priority>
+<xhtml:link rel="alternate" hreflang="ko" href="https://malmunkorean.com/purpose.html?type=move"/>
+<xhtml:link rel="alternate" hreflang="en" href="https://malmunkorean.com/purpose.html?type=move&amp;lang=en"/>
+<xhtml:link rel="alternate" hreflang="ja" href="https://malmunkorean.com/purpose.html?type=move&amp;lang=ja"/>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://malmunkorean.com/purpose.html?type=move&amp;lang=en"/>
+</url>
+<url>
+<loc>https://malmunkorean.com/purpose.html?type=move&amp;lang=en</loc>
+<lastmod>2026-10-10</lastmod>
+<priority>0.8</priority>
+<xhtml:link rel="alternate" hreflang="ko" href="https://malmunkorean.com/purpose.html?type=move"/>
+<xhtml:link rel="alternate" hreflang="en" href="https://malmunkorean.com/purpose.html?type=move&amp;lang=en"/>
+<xhtml:link rel="alternate" hreflang="ja" href="https://malmunkorean.com/purpose.html?type=move&amp;lang=ja"/>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://malmunkorean.com/purpose.html?type=move&amp;lang=en"/>
+</url>
+<url>
+<loc>https://malmunkorean.com/purpose.html?type=move&amp;lang=ja</loc>
+<lastmod>2026-10-10</lastmod>
+<priority>0.8</priority>
+<xhtml:link rel="alternate" hreflang="ko" href="https://malmunkorean.com/purpose.html?type=move"/>
+<xhtml:link rel="alternate" hreflang="en" href="https://malmunkorean.com/purpose.html?type=move&amp;lang=en"/>
+<xhtml:link rel="alternate" hreflang="ja" href="https://malmunkorean.com/purpose.html?type=move&amp;lang=ja"/>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://malmunkorean.com/purpose.html?type=move&amp;lang=en"/>
+</url>
+<url>
+<loc>https://malmunkorean.com/purpose.html?type=travel</loc>
+<lastmod>2026-10-10</lastmod>
+<priority>0.8</priority>
+<xhtml:link rel="alternate" hreflang="ko" href="https://malmunkorean.com/purpose.html?type=travel"/>
+<xhtml:link rel="alternate" hreflang="en" href="https://malmunkorean.com/purpose.html?type=travel&amp;lang=en"/>
+<xhtml:link rel="alternate" hreflang="ja" href="https://malmunkorean.com/purpose.html?type=travel&amp;lang=ja"/>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://malmunkorean.com/purpose.html?type=travel&amp;lang=en"/>
+</url>
+<url>
+<loc>https://malmunkorean.com/purpose.html?type=travel&amp;lang=en</loc>
+<lastmod>2026-10-10</lastmod>
+<priority>0.8</priority>
+<xhtml:link rel="alternate" hreflang="ko" href="https://malmunkorean.com/purpose.html?type=travel"/>
+<xhtml:link rel="alternate" hreflang="en" href="https://malmunkorean.com/purpose.html?type=travel&amp;lang=en"/>
+<xhtml:link rel="alternate" hreflang="ja" href="https://malmunkorean.com/purpose.html?type=travel&amp;lang=ja"/>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://malmunkorean.com/purpose.html?type=travel&amp;lang=en"/>
+</url>
+<url>
+<loc>https://malmunkorean.com/purpose.html?type=travel&amp;lang=ja</loc>
+<lastmod>2026-10-10</lastmod>
+<priority>0.8</priority>
+<xhtml:link rel="alternate" hreflang="ko" href="https://malmunkorean.com/purpose.html?type=travel"/>
+<xhtml:link rel="alternate" hreflang="en" href="https://malmunkorean.com/purpose.html?type=travel&amp;lang=en"/>
+<xhtml:link rel="alternate" hreflang="ja" href="https://malmunkorean.com/purpose.html?type=travel&amp;lang=ja"/>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://malmunkorean.com/purpose.html?type=travel&amp;lang=en"/>
+</url>
+<url>
+<loc>https://malmunkorean.com/purpose.html?type=talk</loc>
+<lastmod>2026-10-10</lastmod>
+<priority>0.8</priority>
+<xhtml:link rel="alternate" hreflang="ko" href="https://malmunkorean.com/purpose.html?type=talk"/>
+<xhtml:link rel="alternate" hreflang="en" href="https://malmunkorean.com/purpose.html?type=talk&amp;lang=en"/>
+<xhtml:link rel="alternate" hreflang="ja" href="https://malmunkorean.com/purpose.html?type=talk&amp;lang=ja"/>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://malmunkorean.com/purpose.html?type=talk&amp;lang=en"/>
+</url>
+<url>
+<loc>https://malmunkorean.com/purpose.html?type=talk&amp;lang=en</loc>
+<lastmod>2026-10-10</lastmod>
+<priority>0.8</priority>
+<xhtml:link rel="alternate" hreflang="ko" href="https://malmunkorean.com/purpose.html?type=talk"/>
+<xhtml:link rel="alternate" hreflang="en" href="https://malmunkorean.com/purpose.html?type=talk&amp;lang=en"/>
+<xhtml:link rel="alternate" hreflang="ja" href="https://malmunkorean.com/purpose.html?type=talk&amp;lang=ja"/>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://malmunkorean.com/purpose.html?type=talk&amp;lang=en"/>
+</url>
+<url>
+<loc>https://malmunkorean.com/purpose.html?type=talk&amp;lang=ja</loc>
+<lastmod>2026-10-10</lastmod>
+<priority>0.8</priority>
+<xhtml:link rel="alternate" hreflang="ko" href="https://malmunkorean.com/purpose.html?type=talk"/>
+<xhtml:link rel="alternate" hreflang="en" href="https://malmunkorean.com/purpose.html?type=talk&amp;lang=en"/>
+<xhtml:link rel="alternate" hreflang="ja" href="https://malmunkorean.com/purpose.html?type=talk&amp;lang=ja"/>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://malmunkorean.com/purpose.html?type=talk&amp;lang=en"/>
+</url>
+<url>
+<loc>https://malmunkorean.com/purpose.html?type=friends</loc>
+<lastmod>2026-10-10</lastmod>
+<priority>0.8</priority>
+<xhtml:link rel="alternate" hreflang="ko" href="https://malmunkorean.com/purpose.html?type=friends"/>
+<xhtml:link rel="alternate" hreflang="en" href="https://malmunkorean.com/purpose.html?type=friends&amp;lang=en"/>
+<xhtml:link rel="alternate" hreflang="ja" href="https://malmunkorean.com/purpose.html?type=friends&amp;lang=ja"/>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://malmunkorean.com/purpose.html?type=friends&amp;lang=en"/>
+</url>
+<url>
+<loc>https://malmunkorean.com/purpose.html?type=friends&amp;lang=en</loc>
+<lastmod>2026-10-10</lastmod>
+<priority>0.8</priority>
+<xhtml:link rel="alternate" hreflang="ko" href="https://malmunkorean.com/purpose.html?type=friends"/>
+<xhtml:link rel="alternate" hreflang="en" href="https://malmunkorean.com/purpose.html?type=friends&amp;lang=en"/>
+<xhtml:link rel="alternate" hreflang="ja" href="https://malmunkorean.com/purpose.html?type=friends&amp;lang=ja"/>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://malmunkorean.com/purpose.html?type=friends&amp;lang=en"/>
+</url>
+<url>
+<loc>https://malmunkorean.com/purpose.html?type=friends&amp;lang=ja</loc>
+<lastmod>2026-10-10</lastmod>
+<priority>0.8</priority>
+<xhtml:link rel="alternate" hreflang="ko" href="https://malmunkorean.com/purpose.html?type=friends"/>
+<xhtml:link rel="alternate" hreflang="en" href="https://malmunkorean.com/purpose.html?type=friends&amp;lang=en"/>
+<xhtml:link rel="alternate" hreflang="ja" href="https://malmunkorean.com/purpose.html?type=friends&amp;lang=ja"/>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://malmunkorean.com/purpose.html?type=friends&amp;lang=en"/>
+</url>
+<url>
+<loc>https://malmunkorean.com/purpose.html?type=golf</loc>
+<lastmod>2026-10-10</lastmod>
+<priority>0.8</priority>
+<xhtml:link rel="alternate" hreflang="ko" href="https://malmunkorean.com/purpose.html?type=golf"/>
+<xhtml:link rel="alternate" hreflang="en" href="https://malmunkorean.com/purpose.html?type=golf&amp;lang=en"/>
+<xhtml:link rel="alternate" hreflang="ja" href="https://malmunkorean.com/purpose.html?type=golf&amp;lang=ja"/>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://malmunkorean.com/purpose.html?type=golf&amp;lang=en"/>
+</url>
+<url>
+<loc>https://malmunkorean.com/purpose.html?type=golf&amp;lang=en</loc>
+<lastmod>2026-10-10</lastmod>
+<priority>0.8</priority>
+<xhtml:link rel="alternate" hreflang="ko" href="https://malmunkorean.com/purpose.html?type=golf"/>
+<xhtml:link rel="alternate" hreflang="en" href="https://malmunkorean.com/purpose.html?type=golf&amp;lang=en"/>
+<xhtml:link rel="alternate" hreflang="ja" href="https://malmunkorean.com/purpose.html?type=golf&amp;lang=ja"/>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://malmunkorean.com/purpose.html?type=golf&amp;lang=en"/>
+</url>
+<url>
+<loc>https://malmunkorean.com/purpose.html?type=golf&amp;lang=ja</loc>
+<lastmod>2026-10-10</lastmod>
+<priority>0.8</priority>
+<xhtml:link rel="alternate" hreflang="ko" href="https://malmunkorean.com/purpose.html?type=golf"/>
+<xhtml:link rel="alternate" hreflang="en" href="https://malmunkorean.com/purpose.html?type=golf&amp;lang=en"/>
+<xhtml:link rel="alternate" hreflang="ja" href="https://malmunkorean.com/purpose.html?type=golf&amp;lang=ja"/>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://malmunkorean.com/purpose.html?type=golf&amp;lang=en"/>
+</url>
+<url>
+<loc>https://malmunkorean.com/purpose.html?type=biz</loc>
+<lastmod>2026-10-10</lastmod>
+<priority>0.8</priority>
+<xhtml:link rel="alternate" hreflang="ko" href="https://malmunkorean.com/purpose.html?type=biz"/>
+<xhtml:link rel="alternate" hreflang="en" href="https://malmunkorean.com/purpose.html?type=biz&amp;lang=en"/>
+<xhtml:link rel="alternate" hreflang="ja" href="https://malmunkorean.com/purpose.html?type=biz&amp;lang=ja"/>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://malmunkorean.com/purpose.html?type=biz&amp;lang=en"/>
+</url>
+<url>
+<loc>https://malmunkorean.com/purpose.html?type=biz&amp;lang=en</loc>
+<lastmod>2026-10-10</lastmod>
+<priority>0.8</priority>
+<xhtml:link rel="alternate" hreflang="ko" href="https://malmunkorean.com/purpose.html?type=biz"/>
+<xhtml:link rel="alternate" hreflang="en" href="https://malmunkorean.com/purpose.html?type=biz&amp;lang=en"/>
+<xhtml:link rel="alternate" hreflang="ja" href="https://malmunkorean.com/purpose.html?type=biz&amp;lang=ja"/>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://malmunkorean.com/purpose.html?type=biz&amp;lang=en"/>
+</url>
+<url>
+<loc>https://malmunkorean.com/purpose.html?type=biz&amp;lang=ja</loc>
+<lastmod>2026-10-10</lastmod>
+<priority>0.8</priority>
+<xhtml:link rel="alternate" hreflang="ko" href="https://malmunkorean.com/purpose.html?type=biz"/>
+<xhtml:link rel="alternate" hreflang="en" href="https://malmunkorean.com/purpose.html?type=biz&amp;lang=en"/>
+<xhtml:link rel="alternate" hreflang="ja" href="https://malmunkorean.com/purpose.html?type=biz&amp;lang=ja"/>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://malmunkorean.com/purpose.html?type=biz&amp;lang=en"/>
+</url>
+<url>
+<loc>https://malmunkorean.com/purpose.html?type=study</loc>
+<lastmod>2026-10-10</lastmod>
+<priority>0.8</priority>
+<xhtml:link rel="alternate" hreflang="ko" href="https://malmunkorean.com/purpose.html?type=study"/>
+<xhtml:link rel="alternate" hreflang="en" href="https://malmunkorean.com/purpose.html?type=study&amp;lang=en"/>
+<xhtml:link rel="alternate" hreflang="ja" href="https://malmunkorean.com/purpose.html?type=study&amp;lang=ja"/>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://malmunkorean.com/purpose.html?type=study&amp;lang=en"/>
+</url>
+<url>
+<loc>https://malmunkorean.com/purpose.html?type=study&amp;lang=en</loc>
+<lastmod>2026-10-10</lastmod>
+<priority>0.8</priority>
+<xhtml:link rel="alternate" hreflang="ko" href="https://malmunkorean.com/purpose.html?type=study"/>
+<xhtml:link rel="alternate" hreflang="en" href="https://malmunkorean.com/purpose.html?type=study&amp;lang=en"/>
+<xhtml:link rel="alternate" hreflang="ja" href="https://malmunkorean.com/purpose.html?type=study&amp;lang=ja"/>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://malmunkorean.com/purpose.html?type=study&amp;lang=en"/>
+</url>
+<url>
+<loc>https://malmunkorean.com/purpose.html?type=study&amp;lang=ja</loc>
+<lastmod>2026-10-10</lastmod>
+<priority>0.8</priority>
+<xhtml:link rel="alternate" hreflang="ko" href="https://malmunkorean.com/purpose.html?type=study"/>
+<xhtml:link rel="alternate" hreflang="en" href="https://malmunkorean.com/purpose.html?type=study&amp;lang=en"/>
+<xhtml:link rel="alternate" hreflang="ja" href="https://malmunkorean.com/purpose.html?type=study&amp;lang=ja"/>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://malmunkorean.com/purpose.html?type=study&amp;lang=en"/>
 </url>
 <url>
 <loc>https://malmunkorean.com/blog.html</loc>
 <lastmod>2026-10-10</lastmod>
-<changefreq>weekly</changefreq>
 <priority>0.7</priority>
 </url>
 <url>
 <loc>https://malmunkorean.com/blog-1.html</loc>
 <lastmod>2026-10-10</lastmod>
-<changefreq>monthly</changefreq>
 <priority>0.6</priority>
 </url>
 <url>
 <loc>https://malmunkorean.com/article-golf-course-questions.html</loc>
 <lastmod>2026-10-10</lastmod>
-<changefreq>monthly</changefreq>
 <priority>0.6</priority>
 </url>
 <url>
 <loc>https://malmunkorean.com/tutor-apply.html</loc>
 <lastmod>2026-10-10</lastmod>
-<changefreq>monthly</changefreq>
 <priority>0.5</priority>
 </url>
 <url>
 <loc>https://malmunkorean.com/privacy.html</loc>
 <lastmod>2026-10-10</lastmod>
-<changefreq>yearly</changefreq>
 <priority>0.3</priority>
 </url>
 <url>
 <loc>https://malmunkorean.com/terms.html</loc>
 <lastmod>2026-10-10</lastmod>
-<changefreq>yearly</changefreq>
 <priority>0.3</priority>
 </url>
 </urlset>

@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>커리큘럼 | 말문 Malmun</title>
 <meta name="description" content="말문은 정해진 교재를 따라가지 않아요. 첫 수업(무료 오리엔테이션)에서 방향을 정하고, 튜터가 나에게 맞는 자료를 준비하는 1:1 맞춤 한국어 수업 방식을 소개합니다.">
-<link rel="canonical" href="https://malmunkorean.com/curriculum.html">
 <style>
   :root{
     --bg: #FFF9F0;
@@ -122,6 +121,30 @@ button[aria-label]:has(> svg:only-child){ padding:11px; margin:-11px; }
   input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=hidden]), textarea, select{ font-size:16px !important; }
 }
 </style>
+<script>
+/* ── 언어별 주소: ?lang=en / ?lang=ja 로 들어오면 그 언어로 열리고, 구글도 언어별 페이지로 따로 등록합니다 ── */
+(function(){
+  var CFG = {"path": "/curriculum.html", "keep": [], "ko": null, "en": {"t": "How Korean lessons work — tailored to you, not a textbook | Malmun", "d": "Free orientation first, then lessons built around why you learn Korean: travel, K-drama & K-pop, everyday conversation, friends & family, golf, business or TOPIK prep."}, "ja": {"t": "レッスンの進め方 — 教科書ではなく、あなたに合わせた韓国語 | Malmun", "d": "まず無料オリエンテーション、その後は目的に合わせたレッスン：韓国旅行、Kドラマ・K-POP、日常会話、友達・恋人・家族、ゴルフ、ビジネス、TOPIK対策。"}};
+  var p = new URLSearchParams(location.search), l = p.get('lang');
+  if(l === 'en' || l === 'ja' || l === 'ko'){ try{ localStorage.setItem('malmun_lang', l); }catch(e){} } else { l = null; }
+  var lang = l || 'ko';                       // 주소에 lang이 없으면 한국어 주소로 취급
+  window.__SEO_LANG__ = lang;
+  document.documentElement.lang = lang;
+  var q = [];
+  CFG.keep.forEach(function(k){ var v = p.get(k); if(v) q.push(k + '=' + encodeURIComponent(v)); });
+  if(lang !== 'ko') q.push('lang=' + lang);
+  var url = 'https://malmunkorean.com' + CFG.path + (q.length ? '?' + q.join('&') : '');
+  var c = document.createElement('link'); c.rel = 'canonical'; c.href = url; document.head.appendChild(c);
+  function setMeta(sel, attr, val){ var m = document.head.querySelector(sel); if(!m){ m = document.createElement('meta'); var a = sel.match(/\[(\w+)="([^"]+)"\]/); m.setAttribute(a[1], a[2]); document.head.appendChild(m); } m.setAttribute(attr, val); }
+  window.__setSEO__ = function(t, d){
+    if(t){ document.title = t; setMeta('meta[property="og:title"]', 'content', t); setMeta('meta[name="twitter:title"]', 'content', t); }
+    if(d){ setMeta('meta[name="description"]', 'content', d); setMeta('meta[property="og:description"]', 'content', d); setMeta('meta[name="twitter:description"]', 'content', d); }
+    setMeta('meta[property="og:url"]', 'content', url);
+  };
+  var s = CFG[lang];
+  if(s) window.__setSEO__(s.t, s.d);
+})();
+</script>
 </head>
 <body>
 

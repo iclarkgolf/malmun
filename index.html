@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>말문 | PJ와 1:1로 배우는 진짜 한국어 과외</title>
 <meta name="description" content="여행업 30년, 필리핀 골프 레슨 20년 — PJ와 함께하는 1:1 한국어 과외. 목표에 맞는 맞춤 수업, 첫 시간은 무료 오리엔테이션입니다.">
-<link rel="canonical" href="https://malmunkorean.com/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="말문 Malmun">
 <meta property="og:title" content="말문 | PJ와 1:1로 배우는 진짜 한국어 과외">
@@ -397,6 +396,30 @@
 .pricing-cards .price-card[onclick]:active{ transform:scale(.98); }
 @media (hover:hover){ .pricing-cards .price-card[onclick]:hover{ box-shadow:0 6px 18px rgba(0,0,0,.08); transform:translateY(-2px); } }
 </style>
+<script>
+/* ── 언어별 주소: ?lang=en / ?lang=ja 로 들어오면 그 언어로 열리고, 구글도 언어별 페이지로 따로 등록합니다 ── */
+(function(){
+  var CFG = {"path": "/", "keep": [], "ko": null, "en": {"t": "Malmun | Learn real Korean 1:1 with PJ — online Korean tutor", "d": "1:1 online Korean lessons with PJ — 30 years in travel, 20 years teaching golf in the Philippines. Travel Korean, K-drama & K-pop, everyday conversation, golf, business and TOPIK. Your first lesson is a free orientation."}, "ja": {"t": "Malmun（マルムン）| PJと1対1で学ぶ本物の韓国語 — オンライン韓国語レッスン", "d": "旅行業30年・フィリピンでゴルフ指導20年のPJとマンツーマンで学ぶオンライン韓国語。韓国旅行、Kドラマ・K-POP、日常会話、ゴルフ、ビジネス、TOPIK対策まで。初回は無料オリエンテーション。"}};
+  var p = new URLSearchParams(location.search), l = p.get('lang');
+  if(l === 'en' || l === 'ja' || l === 'ko'){ try{ localStorage.setItem('malmun_lang', l); }catch(e){} } else { l = null; }
+  var lang = l || 'ko';                       // 주소에 lang이 없으면 한국어 주소로 취급
+  window.__SEO_LANG__ = lang;
+  document.documentElement.lang = lang;
+  var q = [];
+  CFG.keep.forEach(function(k){ var v = p.get(k); if(v) q.push(k + '=' + encodeURIComponent(v)); });
+  if(lang !== 'ko') q.push('lang=' + lang);
+  var url = 'https://malmunkorean.com' + CFG.path + (q.length ? '?' + q.join('&') : '');
+  var c = document.createElement('link'); c.rel = 'canonical'; c.href = url; document.head.appendChild(c);
+  function setMeta(sel, attr, val){ var m = document.head.querySelector(sel); if(!m){ m = document.createElement('meta'); var a = sel.match(/\[(\w+)="([^"]+)"\]/); m.setAttribute(a[1], a[2]); document.head.appendChild(m); } m.setAttribute(attr, val); }
+  window.__setSEO__ = function(t, d){
+    if(t){ document.title = t; setMeta('meta[property="og:title"]', 'content', t); setMeta('meta[name="twitter:title"]', 'content', t); }
+    if(d){ setMeta('meta[name="description"]', 'content', d); setMeta('meta[property="og:description"]', 'content', d); setMeta('meta[name="twitter:description"]', 'content', d); }
+    setMeta('meta[property="og:url"]', 'content', url);
+  };
+  var s = CFG[lang];
+  if(s) window.__setSEO__(s.t, s.d);
+})();
+</script>
 </head>
 <body>
 

@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>요금제·패키지 | 말문 Malmun</title>
 <meta name="description" content="말문의 한국어 1:1 튜터링 크레딧 패키지를 확인하세요. 5회권·10회권 중 골라 충전하고, 원하는 튜터와 자유롭게 예약하세요.">
-<link rel="canonical" href="https://malmunkorean.com/pricing.html">
 <style>
   :root{
     --bg: #FFF9F0;
@@ -130,6 +129,30 @@ button[aria-label]:has(> svg:only-child){ padding:11px; margin:-11px; }
 .enroll-card .st{ font-size:14px; font-weight:700; margin:0 0 4px; color:var(--text); }
 .enroll-card .ds{ font-size:13px; line-height:1.6; margin:0; color:var(--text-secondary); }
 </style>
+<script>
+/* ── 언어별 주소: ?lang=en / ?lang=ja 로 들어오면 그 언어로 열리고, 구글도 언어별 페이지로 따로 등록합니다 ── */
+(function(){
+  var CFG = {"path": "/pricing.html", "keep": [], "ko": null, "en": {"t": "Pricing — Korean lesson packs (5 & 10 lessons) | Malmun", "d": "1:1 online Korean lessons: 5-lesson pack ₩150,000, 10-lesson pack ₩270,000 (10% off). Credits valid for 1 year. Pay by PayPal or bank transfer."}, "ja": {"t": "料金 — 韓国語レッスンパック（5回・10回）| Malmun", "d": "マンツーマンのオンライン韓国語：5回パック₩150,000、10回パック₩270,000（10%オフ）。クレジットは1年間有効。PayPal・銀行振込に対応。"}};
+  var p = new URLSearchParams(location.search), l = p.get('lang');
+  if(l === 'en' || l === 'ja' || l === 'ko'){ try{ localStorage.setItem('malmun_lang', l); }catch(e){} } else { l = null; }
+  var lang = l || 'ko';                       // 주소에 lang이 없으면 한국어 주소로 취급
+  window.__SEO_LANG__ = lang;
+  document.documentElement.lang = lang;
+  var q = [];
+  CFG.keep.forEach(function(k){ var v = p.get(k); if(v) q.push(k + '=' + encodeURIComponent(v)); });
+  if(lang !== 'ko') q.push('lang=' + lang);
+  var url = 'https://malmunkorean.com' + CFG.path + (q.length ? '?' + q.join('&') : '');
+  var c = document.createElement('link'); c.rel = 'canonical'; c.href = url; document.head.appendChild(c);
+  function setMeta(sel, attr, val){ var m = document.head.querySelector(sel); if(!m){ m = document.createElement('meta'); var a = sel.match(/\[(\w+)="([^"]+)"\]/); m.setAttribute(a[1], a[2]); document.head.appendChild(m); } m.setAttribute(attr, val); }
+  window.__setSEO__ = function(t, d){
+    if(t){ document.title = t; setMeta('meta[property="og:title"]', 'content', t); setMeta('meta[name="twitter:title"]', 'content', t); }
+    if(d){ setMeta('meta[name="description"]', 'content', d); setMeta('meta[property="og:description"]', 'content', d); setMeta('meta[name="twitter:description"]', 'content', d); }
+    setMeta('meta[property="og:url"]', 'content', url);
+  };
+  var s = CFG[lang];
+  if(s) window.__setSEO__(s.t, s.d);
+})();
+</script>
 </head>
 <body>
 
