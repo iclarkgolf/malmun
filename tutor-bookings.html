@@ -610,6 +610,27 @@ function renderFreeTalk(){
 async function acceptFreeTalk(id, btnEl){
   const r = (freeTalkRequests || []).find(x => x.id === id);
   if(!r) return;
+  // ── 시간 겹침 확인: 같은 요일에 1시간 이내로 겹치는 예약이 있으면 먼저 경고 ──
+  if(btnEl){ btnEl.disabled = true; btnEl.textContent = '확인 중...'; }
+  let clashes = [];
+  try{
+    const toMin = s => { const m = String(s || '').match(/^(\d{1,2}):(\d{2})/); return m ? (+m[1]) * 60 + (+m[2]) : null; };
+    const want = toMin(r.time);
+    const snap = await db.collection('bookings').where('day', '==', r.day || '').get();
+    clashes = snap.docs.map(d => d.data()).filter(b => {
+      if(r.tutorId && b.tutorId && b.tutorId !== r.tutorId) return false;
+      const bt = toMin(b.time);
+      return want !== null && bt !== null && Math.abs(bt - want) < 60;
+    });
+  }catch(e){
+    console.warn('시간 겹침 확인 실패:', e);
+    showDiag('시간 겹침 확인을 못 했어요 (예약 목록을 직접 확인해 주세요): ' + (e.message || e), true);
+  }
+  if(btnEl){ btnEl.disabled = false; btnEl.textContent = '✅ 수락'; }
+  if(clashes.length){
+    const list = clashes.map(b => `· ${b.dayLabel || b.day || ''} ${b.time || ''} — ${b.studentName || '학생'}${b.isFreeTalk ? ' (무료 대화)' : ''}`).join('\n');
+    if(!confirm(`⚠️ 이 시간에 이미 예약이 있어요!\n\n${list}\n\n그래도 ${r.studentName || '학생'}님 요청을 수락할까요?\n(취소를 누르면 수락하지 않아요. 거절하거나 학생과 시간을 다시 맞춰 주세요.)`)) return;
+  }
   if(!confirm(`${r.studentName || '학생'} · ${r.dayLabel || ''} ${r.time || ''} 무료 대화를 수락할까요?\n\n수락하면 아래 "예정된 예약"에 추가되고, 학생 화면에 "화상룸 입장" 버튼이 생겨요.`)) return;
   if(btnEl){ btnEl.disabled = true; btnEl.textContent = '처리 중...'; }
   const roomId = `${r.tutorId || 'pj'}-free-${r.day || ''}${String(r.time || '').replace(':','')}-${Date.now().toString(36)}`;
