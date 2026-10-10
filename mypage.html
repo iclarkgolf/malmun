@@ -502,9 +502,46 @@ auth.onAuthStateChanged((user) => {
   }
   loadDisplayName(user);
   loadHistory(user.uid);
-  loadCreditBalance(user.uid);
+  claimPaidEnrollments(user.uid).then(() => loadCreditBalance(user.uid));
   loadNotices(user);
 });
+
+// ── 수강 신청 → PJ가 "입금 확인"한 건을 내 크레딧으로 자동 반영 (pricing·mypage·booking 공통) ──
+async function claimPaidEnrollments(uid){
+  try{
+    const snap = await db.collection('enrollRequests').where('uid', '==', uid).get();
+    const targets = snap.docs.filter(d => { const r = d.data(); return r.status === 'paid' && !r.claimed; });
+    for(const d of targets){
+      const ref = d.ref;
+      await db.runTransaction(async tx => {
+        const cur = await tx.get(ref);
+        const r = cur.exists ? cur.data() : null;
+        if(!r || r.status !== 'paid' || r.claimed) return;   // 이미 반영된 건은 건너뜀 (중복 충전 방지)
+        const sessions = Number(r.sessions) || 0;
+        if(!sessions) return;
+        const expiresAt = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
+        tx.set(db.collection('users').doc(uid).collection('creditLots').doc(), {
+          packageType: String(r.packageType || ''),
+          totalSessions: sessions,
+          remainingSessions: sessions,
+          pricePaid: Number(r.price) || 0,
+          regularPricePerSession: 30000,
+          purchasedAt: firebase.firestore.FieldValue.serverTimestamp(),
+          expiresAt: firebase.firestore.Timestamp.fromDate(expiresAt),
+          enrollRequestId: ref.id
+        });
+        tx.set(db.collection('users').doc(uid).collection('history').doc(), {
+          type: 'credit_purchase',
+          text: `${sessions}회권 충전 완료 (${sessions}-lesson pack)`,
+          sub: '₩' + Number(r.price || 0).toLocaleString('en-US'),
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        tx.update(ref, { claimed: true, claimedAt: firebase.firestore.FieldValue.serverTimestamp() });
+      });
+    }
+  }catch(e){ console.error('입금 확인된 수강권 반영 실패:', e); }
+}
+
 
 async function markNoticesRead(notices, user){
   try{

@@ -123,6 +123,13 @@ button[aria-label]:has(> svg:only-child){ padding:11px; margin:-11px; }
   input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=hidden]), textarea, select{ font-size:16px !important; }
 }
 </style>
+<style>
+.pay-label{ display:block; font-size:13px; font-weight:600; margin:14px 0 6px; color:var(--text); }
+.pay-select{ width:100%; padding:12px; border-radius:10px; border:1.5px solid var(--card-border); background:#fff; font-size:16px; font-family:inherit; margin-bottom:14px; }
+.enroll-card{ background:#FFF8EC; border:1.5px solid var(--accent); border-radius:14px; padding:14px 16px; margin:0 0 16px; }
+.enroll-card .st{ font-size:14px; font-weight:700; margin:0 0 4px; color:var(--text); }
+.enroll-card .ds{ font-size:13px; line-height:1.6; margin:0; color:var(--text-secondary); }
+</style>
 </head>
 <body>
 
@@ -156,6 +163,7 @@ button[aria-label]:has(> svg:only-child){ padding:11px; margin:-11px; }
     <p class="expiry" id="balanceExpiry"></p>
   </div>
 
+  <div id="enrollStatus"></div>
   <p class="card-hint" id="cardHintNew" data-i18n="pricing.hint.new">💬 가볍게 시작해볼까?</p>
   <div class="cards">
     <button class="price-card" onclick="openPurchaseModal('5', event)">
@@ -188,8 +196,13 @@ button[aria-label]:has(> svg:only-child){ padding:11px; margin:-11px; }
     <div class="price-line"><span data-i18n="pricing.modal.regular">정가</span><span id="modalRegular"></span></div>
     <div class="price-line" id="modalDiscountLine" style="display:none;"><span data-i18n="pricing.modal.discount">할인</span><span id="modalDiscount"></span></div>
     <div class="price-line total"><span data-i18n="pricing.modal.pay">결제 금액</span><span id="modalTotal"></span></div>
-    <div class="test-note" id="testNote" data-i18n="pricing.modal.testNote">※ 아직 사업자 등록 전이라 실제 결제는 연결되어 있지 않아요. 지금 누르시면 테스트로 크레딧이 바로 충전됩니다 (실제 결제 연동 후 이 문구는 사라집니다).</div>
-    <button class="modal-btn" id="confirmPurchaseBtn" data-i18n="pricing.modal.confirm">테스트로 충전하기</button>
+    <div class="test-note" id="testNote" data-i18n="pricing.modal.testNote">신청하시면 PJ가 결제 방법을 이메일로 직접 보내드려요. 입금이 확인되면 크레딧이 자동으로 충전됩니다.</div>
+    <label class="pay-label" for="payMethod" data-i18n="pricing.modal.payLabel">편한 결제 방법</label>
+    <select id="payMethod" class="pay-select">
+      <option value="PayPal" data-i18n="pricing.pay.paypal">PayPal (해외 카드 가능)</option>
+      <option value="계좌이체" data-i18n="pricing.pay.bank">계좌이체 (한국 은행)</option>
+    </select>
+    <button class="modal-btn" id="confirmPurchaseBtn" data-i18n="pricing.modal.confirm">수강 신청하기</button>
     <button class="modal-btn secondary" onclick="closePurchaseModal()" data-i18n="pricing.modal.cancel">취소</button>
   </div>
 </div>
@@ -246,10 +259,13 @@ const TRANSLATIONS = {
     "pricing.modal.regular": "정가",
     "pricing.modal.discount": "할인",
     "pricing.modal.pay": "결제 금액",
-    "pricing.modal.testNote": "※ 아직 사업자 등록 전이라 실제 결제는 연결되어 있지 않아요. 지금 누르시면 테스트로 크레딧이 바로 충전됩니다 (실제 결제 연동 후 이 문구는 사라집니다).",
-    "pricing.modal.confirm": "테스트로 충전하기",
+    "pricing.modal.testNote": "신청하시면 PJ가 결제 방법을 이메일로 직접 보내드려요. 입금이 확인되면 크레딧이 자동으로 충전됩니다.",
+    "pricing.modal.payLabel": "편한 결제 방법",
+    "pricing.pay.paypal": "PayPal (해외 카드 가능)",
+    "pricing.pay.bank": "계좌이체 (한국 은행)",
+    "pricing.modal.confirm": "수강 신청하기",
     "pricing.modal.cancel": "취소",
-    "pricing.loginNeeded": "충전하려면 먼저 로그인해주세요",
+    "pricing.loginNeeded": "신청하려면 먼저 로그인해주세요",
     "pricing.purchaseDone": "크레딧이 충전되었습니다!"
   },
   en: {
@@ -271,10 +287,13 @@ const TRANSLATIONS = {
     "pricing.modal.regular": "Regular price",
     "pricing.modal.discount": "Discount",
     "pricing.modal.pay": "Total",
-    "pricing.modal.testNote": "※ Business registration is still pending, so real payment isn't connected yet. Clicking this will add test credits instantly (this notice will disappear once real payment is live).",
-    "pricing.modal.confirm": "Add test credits",
+    "pricing.modal.testNote": "After you sign up, PJ will email you the payment details personally. Once payment is confirmed, your credits are added automatically.",
+    "pricing.modal.payLabel": "Preferred payment method",
+    "pricing.pay.paypal": "PayPal (international cards OK)",
+    "pricing.pay.bank": "Bank transfer (Korean bank)",
+    "pricing.modal.confirm": "Sign up for lessons",
     "pricing.modal.cancel": "Cancel",
-    "pricing.loginNeeded": "Please log in first to purchase",
+    "pricing.loginNeeded": "Please log in first to sign up",
     "pricing.purchaseDone": "Credits added!"
   },
   ja: {
@@ -296,10 +315,13 @@ const TRANSLATIONS = {
     "pricing.modal.regular": "定価",
     "pricing.modal.discount": "割引",
     "pricing.modal.pay": "決済金額",
-    "pricing.modal.testNote": "※ まだ事業者登録前のため、実際の決済は連携されていません。今クリックするとテストとしてクレジットがすぐにチャージされます（実際の決済連携後、この文言は表示されなくなります）。",
-    "pricing.modal.confirm": "テストでチャージする",
+    "pricing.modal.testNote": "お申し込み後、PJからお支払い方法をメールで直接ご案内します。入金が確認されると、クレジットが自動でチャージされます。",
+    "pricing.modal.payLabel": "ご希望のお支払い方法",
+    "pricing.pay.paypal": "PayPal（海外カード可）",
+    "pricing.pay.bank": "銀行振込（韓国の銀行）",
+    "pricing.modal.confirm": "受講を申し込む",
     "pricing.modal.cancel": "キャンセル",
-    "pricing.loginNeeded": "チャージするには先にログインしてください",
+    "pricing.loginNeeded": "お申し込みには先にログインしてください",
     "pricing.purchaseDone": "クレジットがチャージされました！"
   }
 };
@@ -355,12 +377,12 @@ function openPurchaseModal(packId, evt){
   const discount = regular - pack.price;
 
   document.getElementById('modalTitle').textContent =
-    ({ ko: `${pack.sessions}회권 구매`, en: `Buy ${pack.sessions}-lesson pack`, ja: `${pack.sessions}回パック購入` })[currentLang] || `${pack.sessions}회권 구매`;
+    ({ ko: `${pack.sessions}회권 수강 신청`, en: `Sign up: ${pack.sessions}-lesson pack`, ja: `${pack.sessions}回パック申し込み` })[currentLang] || `${pack.sessions}회권 수강 신청`;
   document.getElementById('modalDesc').textContent =
     ({
-      ko: `${pack.sessions}회분 크레딧이 충전되고, 충전일로부터 1년간 사용할 수 있어요.`,
-      en: `${pack.sessions} lesson credits will be added, valid for 1 year from today.`,
-      ja: `${pack.sessions}回分のクレジットがチャージされ、チャージ日から1年間使用できます。`
+      ko: `입금이 확인되면 ${pack.sessions}회분 크레딧이 충전되고, 충전일로부터 1년간 사용할 수 있어요.`,
+      en: `Once payment is confirmed, ${pack.sessions} lesson credits are added, valid for 1 year.`,
+      ja: `入金確認後、${pack.sessions}回分のクレジットがチャージされ、1年間使用できます。`
     })[currentLang];
   document.getElementById('modalRegular').textContent = fmtKRW(regular);
   if(discount > 0){
@@ -424,7 +446,7 @@ async function confirmPurchase(){
   }
 }
 
-document.getElementById('confirmPurchaseBtn').addEventListener('click', confirmPurchase);
+document.getElementById('confirmPurchaseBtn').addEventListener('click', submitEnrollment);
 document.getElementById('modalOverlay').addEventListener('click', (e) => {
   if(e.target === document.getElementById('modalOverlay')) closePurchaseModal();
 });
@@ -480,8 +502,124 @@ async function loadBalance(){
   }
 }
 
+
+// ── 수강 신청 (실제 PG 연동 전까지): 신청 저장 → PJ에게 이메일 알림 → PJ가 결제 안내 → 입금 확인 시 크레딧 자동 충전 ──
+const ENROLL_ALERT_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbz7EANVhq9AoUz-W7cFmXfyZUb0cWCIJG26Rx2TFVrUR7ehRDTRbyT1BdOANqQ7bCsiRQ/exec';
+async function submitEnrollment(){
+  const user = auth.currentUser;
+  if(!user){
+    alert(tr('pricing.loginNeeded'));
+    location.href = 'login.html?next=pricing';
+    return;
+  }
+  const pack = PACKAGES[selectedPackage];
+  if(!pack) return;
+  const payMethod = document.getElementById('payMethod').value;
+  const btn = document.getElementById('confirmPurchaseBtn');
+  btn.disabled = true;
+  const studentName = user.displayName || (user.email ? user.email.split('@')[0] : '학생');
+  try{
+    await db.collection('enrollRequests').add({
+      uid: user.uid,
+      studentName: studentName,
+      studentEmail: user.email || '',
+      packageType: selectedPackage,
+      sessions: pack.sessions,
+      price: pack.price,
+      payMethod: payMethod,
+      lang: currentLang,
+      status: 'pending',
+      claimed: false,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    try{
+      fetch(ENROLL_ALERT_WEBAPP_URL, {
+        method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({
+          studentName: studentName,
+          studentEmail: user.email || '',
+          tutorName: 'PJ',
+          dayLabel: `[💳 수강 신청 — 결제 안내 필요] ${pack.sessions}회권`,
+          time: '결제 방법: ' + payMethod,
+          price: pack.price,
+          isFreeOrientation: false,
+          joinUrl: 'https://malmunkorean.com/tutor-bookings.html'
+        })
+      });
+    }catch(e){ console.error('알림 이메일 실패(신청은 정상 저장됨):', e); }
+    if(window.gtag){ gtag('event', 'enroll_request_sent', { package: selectedPackage }); }
+    closePurchaseModal();
+    alert(({
+      ko: '수강 신청이 접수됐어요! PJ가 결제 방법을 이메일로 곧 보내드릴게요.',
+      en: 'Your sign-up is in! PJ will email you the payment details shortly.',
+      ja: 'お申し込みを受け付けました！PJからお支払い方法をメールでお送りします。'
+    })[currentLang] || '수강 신청이 접수됐어요!');
+  }catch(err){
+    console.error('수강 신청 실패:', err);
+    alert(({ ko: '오류가 발생했어요: ', en: 'Something went wrong: ', ja: 'エラーが発生しました：' })[currentLang] + err.message);
+  }finally{
+    btn.disabled = false;
+  }
+}
+
+// 내 최근 수강 신청 상태 표시 (대기 중일 때만 안내 카드)
+function watchMyEnrollments(uid){
+  db.collection('enrollRequests').where('uid', '==', uid).onSnapshot(snap => {
+    const ts = r => (r.createdAt && r.createdAt.toMillis) ? r.createdAt.toMillis() : Date.now();
+    const list = snap.docs.map(d => d.data()).sort((a, b) => ts(b) - ts(a));
+    const el = document.getElementById('enrollStatus');
+    const pending = list.find(r => r.status === 'pending');
+    if(!pending){ el.innerHTML = ''; if(list.some(r => r.status === 'paid' && !r.claimed)) claimPaidEnrollments(uid).then(loadBalance); return; }
+    const L = ({
+      ko: { st: `⏳ ${pending.sessions}회권 수강 신청 접수됨`, ds: 'PJ가 결제 방법을 이메일로 보내드려요. 입금이 확인되면 크레딧이 자동으로 충전됩니다.' },
+      en: { st: `⏳ ${pending.sessions}-lesson pack: request received`, ds: 'PJ will email you the payment details. Once payment is confirmed, credits are added automatically.' },
+      ja: { st: `⏳ ${pending.sessions}回パック：お申し込み受付済み`, ds: 'PJからお支払い方法をメールでお送りします。入金確認後、クレジットが自動でチャージされます。' }
+    })[currentLang] || {};
+    el.innerHTML = `<div class="enroll-card"><p class="st">${L.st}</p><p class="ds">${L.ds}</p></div>`;
+  }, err => console.error('수강 신청 상태 불러오기 실패:', err));
+}
+
+// ── 수강 신청 → PJ가 "입금 확인"한 건을 내 크레딧으로 자동 반영 (pricing·mypage·booking 공통) ──
+async function claimPaidEnrollments(uid){
+  try{
+    const snap = await db.collection('enrollRequests').where('uid', '==', uid).get();
+    const targets = snap.docs.filter(d => { const r = d.data(); return r.status === 'paid' && !r.claimed; });
+    for(const d of targets){
+      const ref = d.ref;
+      await db.runTransaction(async tx => {
+        const cur = await tx.get(ref);
+        const r = cur.exists ? cur.data() : null;
+        if(!r || r.status !== 'paid' || r.claimed) return;   // 이미 반영된 건은 건너뜀 (중복 충전 방지)
+        const sessions = Number(r.sessions) || 0;
+        if(!sessions) return;
+        const expiresAt = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
+        tx.set(db.collection('users').doc(uid).collection('creditLots').doc(), {
+          packageType: String(r.packageType || ''),
+          totalSessions: sessions,
+          remainingSessions: sessions,
+          pricePaid: Number(r.price) || 0,
+          regularPricePerSession: 30000,
+          purchasedAt: firebase.firestore.FieldValue.serverTimestamp(),
+          expiresAt: firebase.firestore.Timestamp.fromDate(expiresAt),
+          enrollRequestId: ref.id
+        });
+        tx.set(db.collection('users').doc(uid).collection('history').doc(), {
+          type: 'credit_purchase',
+          text: `${sessions}회권 충전 완료 (${sessions}-lesson pack)`,
+          sub: '₩' + Number(r.price || 0).toLocaleString('en-US'),
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        tx.update(ref, { claimed: true, claimedAt: firebase.firestore.FieldValue.serverTimestamp() });
+      });
+    }
+  }catch(e){ console.error('입금 확인된 수강권 반영 실패:', e); }
+}
+
 auth.onAuthStateChanged(user => {
-  if(user) loadBalance();
+  if(user){
+    claimPaidEnrollments(user.uid).then(loadBalance);
+    watchMyEnrollments(user.uid);
+  }
 });
 </script>
 
