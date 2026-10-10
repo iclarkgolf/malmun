@@ -390,6 +390,13 @@
   #reviewEmpty a{ padding:10px 0; }
 }
 </style>
+<style>
+/* 홈 요금 카드 → 누르면 신청 화면으로 */
+.pricing-cards .price-card[onclick]{ cursor:pointer; padding-right:40px; transition:transform .15s ease, box-shadow .15s ease; }
+.pricing-cards .price-card[onclick]::after{ content:'›'; position:absolute; right:16px; top:50%; transform:translateY(-50%); font-size:26px; line-height:1; color:var(--accent); font-weight:400; }
+.pricing-cards .price-card[onclick]:active{ transform:scale(.98); }
+@media (hover:hover){ .pricing-cards .price-card[onclick]:hover{ box-shadow:0 6px 18px rgba(0,0,0,.08); transform:translateY(-2px); } }
+</style>
 </head>
 <body>
 
@@ -551,17 +558,17 @@
     <p class="section-title" data-i18n="pricing.title">10회권으로 묶으면 10% 저렴해요</p>
     <p class="section-desc" data-i18n="pricing.desc">매번 결제하는 게 번거로우시죠? <b>크레딧을 미리 충전</b>해두고 수업마다 편하게 차감하세요. 유효기간은 1년입니다.</p>
     <div class="pricing-cards">
-      <div class="price-card">
+      <div class="price-card" role="link" tabindex="0" onclick="location.href='pricing.html'">
         <p class="price-name" data-i18n="pricing.single.name">단건 수업</p>
         <p class="price-sub" data-i18n="pricing.single.sub">부담 없이 한 번만</p>
         <p class="price-amount">₩30,000<span class="unit" data-i18n="unit.perLesson"> /회</span></p>
       </div>
-      <div class="price-card">
+      <div class="price-card" role="link" tabindex="0" onclick="location.href='pricing.html?pack=5'">
         <p class="price-name" data-i18n="pricing.pack5.name">5회권</p>
         <p class="price-sub" data-i18n="pricing.pack5.sub">가볍게 시작해보고 싶다면</p>
-        <p class="price-amount">₩150,000<span class="unit" data-i18n="unit.perLesson"> · 회당 ₩30,000</span></p>
+        <p class="price-amount">₩150,000<span class="unit" data-i18n="pricing.pack5.unit"> · 회당 ₩30,000</span></p>
       </div>
-      <div class="price-card featured">
+      <div class="price-card featured" role="link" tabindex="0" onclick="location.href='pricing.html?pack=10'">
         <div class="badge" data-i18n="pricing.popular">가장 많이 선택</div>
         <p class="price-name" data-i18n="pricing.pack10.name">10회권</p>
         <p class="price-sub" data-i18n="pricing.pack10.sub">10% 할인 · 꾸준히 배우고 싶다면</p>
@@ -682,6 +689,7 @@ const TRANSLATIONS = {
     "pricing.pack5.sub": "가볍게 시작해보고 싶다면",
     "pricing.pack10.name": "10회권",
     "pricing.pack10.sub": "10% 할인 · 꾸준히 배우고 싶다면",
+    "pricing.pack5.unit": " · 회당 ₩30,000",
     "pricing.pack10.unit": " · 회당 ₩27,000",
     "becomeTutor.title": "튜터 모십니다",
     "becomeTutor.sub": "PJ가 직접 만나보고, 믿을 수 있는 분만 소개합니다",
@@ -760,6 +768,7 @@ const TRANSLATIONS = {
     "pricing.pack5.sub": "A light way to start",
     "pricing.pack10.name": "10-lesson pack",
     "pricing.pack10.sub": "10% off · For steady learners",
+    "pricing.pack5.unit": " · ₩30,000/lesson",
     "pricing.pack10.unit": " · ₩27,000/lesson",
     "becomeTutor.title": "Tutors wanted",
     "becomeTutor.sub": "PJ personally meets and vouches for every tutor",
@@ -838,6 +847,7 @@ const TRANSLATIONS = {
     "pricing.pack5.sub": "気軽に始めたい方に",
     "pricing.pack10.name": "10回パック",
     "pricing.pack10.sub": "10%オフ・じっくり学びたい方に",
+    "pricing.pack5.unit": "・1回あたり₩30,000",
     "pricing.pack10.unit": "・1回あたり₩27,000",
     "becomeTutor.title": "講師募集",
     "becomeTutor.sub": "PJが直接お会いして、信頼できる方だけをご紹介します",

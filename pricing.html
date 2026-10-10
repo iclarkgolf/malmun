@@ -615,6 +615,14 @@ async function claimPaidEnrollments(uid){
   }catch(e){ console.error('입금 확인된 수강권 반영 실패:', e); }
 }
 
+// 홈 요금 카드에서 넘어온 경우 (?pack=5 / ?pack=10) 해당 신청 창을 바로 열어줌
+(function openFromQuery(){
+  const pk = new URLSearchParams(location.search).get('pack');
+  if(!PACKAGES[pk]) return;
+  const card = document.querySelector(`.price-card[onclick*="'${pk}'"]`);
+  openPurchaseModal(pk, { currentTarget: card });
+})();
+
 auth.onAuthStateChanged(user => {
   if(user){
     claimPaidEnrollments(user.uid).then(loadBalance);
