@@ -245,7 +245,7 @@ async function loadTutorPreview(){
         <div class="tutor-mini" onclick="location.href='tutor-profile.html?id=${doc.id}'">
           <div class="av" style="${bg}"></div>
           <p class="n">${name||''}</p>
-          <p class="r">★ ${ko.rating||'5.0'}</p>
+          ${(Number(ko.reviewCount) > 0 && ko.rating) ? `<p class="r">★ ${ko.rating}</p>` : ''}
         </div>`;
     }).join('');
   }catch(e){

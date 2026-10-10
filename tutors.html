@@ -116,14 +116,6 @@
         <div class="lang-option" data-lang="ja" onclick="setLang(event,'ja')">日本語</div>
       </div>
     </div>
-    <a href="tutor-admin.html" style="width:32px; height:32px; border-radius:50%; background:var(--accent-soft); display:flex; align-items:center; justify-content:center; font-size:14px; margin-left:8px;" aria-label="튜터 관리">⚙️</a>
-  </div>
-
-  <div class="chips">
-    <button class="chip active" data-filter="all" data-i18n="tutors.f.all">전체</button>
-    <button class="chip" data-filter="rating" data-i18n="tutors.f.rating">평점순</button>
-    <button class="chip" data-filter="exam" data-i18n="tutors.f.exam">시험 대비</button>
-    <button class="chip" data-filter="biz" data-i18n="tutors.f.biz">비즈니스</button>
   </div>
 
   <div class="tutor-list" id="tutorList">
@@ -257,7 +249,7 @@ function renderTutorList(){
       <div class="info">
         <div class="info-top"><p class="name">${d.name}</p><p class="price">${fmtKRW(data.price)}${t('unit.perLesson')}</p></div>
         <p class="desc">${d.role || ''}</p>
-        <div class="meta"><span class="star">★</span> ${d.rating || '5.0'} · ${reviewText[currentLang] || reviewText.ko}</div>
+        <div class="meta">${(Number(d.reviewCount) > 0 && d.rating) ? `<span class="star">★</span> ${d.rating} · ${reviewText[currentLang] || reviewText.ko}` : ({ ko: '첫 수업 무료 오리엔테이션', en: 'Free first orientation', ja: '初回無料オリエンテーション' }[currentLang] || '첫 수업 무료 오리엔테이션')}</div>
       </div>
     `;
     listEl.appendChild(card);

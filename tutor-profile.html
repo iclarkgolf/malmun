@@ -182,7 +182,7 @@ function renderProfile(){
       <div class="avatar-lg" style="${tutorData.avatarImage ? `background:url('${tutorData.avatarImage}') center/cover;` : `background:${tutorData.avatarColor || '#3b5f8f'};`}"></div>
       <p class="name">${d.name}</p>
       <p class="role">${d.role || ''}</p>
-      <div class="meta"><span class="star">★</span> ${d.rating || '5.0'} <span class="dim">· ${currentLang === 'ko' ? `후기 ${d.reviewCount || 0}개 · 수업 ${d.lessonCount || 0}회` : `${d.reviewCount || 0} reviews · ${d.lessonCount || 0} lessons`}</span></div>
+      <div class="meta">${(Number(d.reviewCount) > 0 && d.rating) ? `<span class="star">★</span> ${d.rating} <span class="dim">· ${currentLang === 'ko' ? `후기 ${d.reviewCount}개` : `${d.reviewCount} reviews`}${Number(d.lessonCount) > 0 ? (currentLang === 'ko' ? ` · 수업 ${d.lessonCount}회` : ` · ${d.lessonCount} lessons`) : ''}</span>` : `<span class="dim">${currentLang === 'ko' ? '첫 수업 무료 오리엔테이션' : 'Free first orientation'}</span>`}</div>
     </div>
     ${d.intro ? `<div class="section"><p class="intro">${d.intro}</p></div>` : ''}
     ${tags.length ? `<div class="tags">${tags.map((tag, i) => `<span class="tag${i === 0 ? ' highlight' : ''}">${tag}</span>`).join('')}</div>` : ''}
