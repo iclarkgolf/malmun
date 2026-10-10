@@ -1,18 +1,7 @@
 User-agent: *
 Allow: /
-Disallow: /admin.html
-Disallow: /tutor-admin.html
-Disallow: /mypage.html
-Disallow: /booking.html
-Disallow: /classroom.html
-Disallow: /jitsi-demo.html
-Disallow: /login.html
-Disallow: /level-result.html
-Disallow: /blog-admin.html
-Disallow: /notices-admin.html
-Disallow: /review-admin.html
-Disallow: /tutor-applications.html
-Disallow: /tutor-bookings.html
-Disallow: /blog-template.html
+
+# 관리자·개인 페이지는 각 페이지 안의 noindex 표시로 검색에서 제외합니다.
+# (여기서 Disallow로 막으면 구글이 noindex 표시를 읽지 못해 오히려 검색 결과에 남습니다)
 
 Sitemap: https://malmunkorean.com/sitemap.xml
