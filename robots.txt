@@ -5,3 +5,5 @@ Allow: /
 # (여기서 Disallow로 막으면 구글이 noindex 표시를 읽지 못해 오히려 검색 결과에 남습니다)
 
 Sitemap: https://malmunkorean.com/sitemap.xml
+
+#DaumWebMasterTool:a9c281fc88d9047f97804014984c1d5e7f8184c3ec951a527ece6d9415fb49b8:TEcOMIBivQMU4H7qOlp5xQ==
