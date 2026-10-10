@@ -95,6 +95,14 @@
   .nav-item.active{ color:var(--accent); }
   .nav-item span{ font-size:11px; }
 </style>
+<style>
+/* 모바일 최적화: 작은 아이콘 버튼의 터치 영역 확대 (보이는 크기는 그대로) */
+button[aria-label]:has(> svg:only-child){ padding:11px; margin:-11px; }
+/* 모바일 최적화: 입력칸 글자 16px — 아이폰에서 입력할 때 화면이 확대되는 현상 방지 */
+@media (max-width:899px){
+  input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=hidden]), textarea, select{ font-size:16px !important; }
+}
+</style>
 </head>
 <body>
 
@@ -102,7 +110,6 @@
   <div class="header">
     <h1 class="title" data-i18n="blog.title">💬 말문 커뮤니티</h1>
     <div style="display:flex; align-items:center; gap:8px;">
-      <a href="blog-admin.html" style="width:32px; height:32px; border-radius:50%; background:var(--accent-soft); display:flex; align-items:center; justify-content:center; font-size:14px;" aria-label="블로그 관리">✍️</a>
       <div class="lang-dropdown" id="langDropdown">
         <button id="langToggle" aria-label="언어 전환" onclick="toggleLangMenu(event)">
           <span class="cur" id="langCur">한국어</span> <span class="caret">▾</span>

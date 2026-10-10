@@ -377,6 +377,19 @@
 <!-- Google AdSense 사이트 소유권 확인 -->
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6049416941276065"
      crossorigin="anonymous"></script>
+<style>
+/* 모바일 최적화 (900px 미만에만 적용 — PC 화면은 그대로) */
+@media (max-width:899px){
+  .hero-photo-card.mobile .hero-photo{ aspect-ratio:1/1; object-position:center 35%; }
+  .pj-intro{ flex-direction:column; gap:12px; }
+  .purpose-label-m{ font-size:14px; font-weight:600; color:var(--text); margin:22px 0 10px; }
+  .purpose-chips-m{ display:flex; gap:8px; overflow-x:auto; margin:0 -20px; padding:0 20px 4px; scrollbar-width:none; -webkit-overflow-scrolling:touch; }
+  .purpose-chips-m::-webkit-scrollbar{ display:none; }
+  .pchip{ flex:0 0 auto; min-height:40px; padding:9px 14px; border-radius:999px; border:1.5px solid var(--card-border); background:#fff; color:var(--text); font-size:14px; font-weight:500; white-space:nowrap; cursor:pointer; font-family:inherit; }
+  .pchip:active{ background:var(--accent-soft); }
+  #reviewEmpty a{ padding:10px 0; }
+}
+</style>
 </head>
 <body>
 
@@ -457,6 +470,16 @@
     <button class="btn btn-primary" data-i18n="hero.cta1" onclick="location.href='level-test.html'">무료 레벨테스트 시작</button>
     <a href="tutors.html"><button class="btn btn-secondary" data-i18n="hero.cta2">PJ 소개 보기</button></a>
     <button class="btn btn-secondary" style="margin-top:10px;" data-i18n="hero.cta3" onclick="location.href='free-talk.html'">💬 무료로 대화 먼저 요청하기</button>
+    <div class="purpose-label-m" data-i18n="hero.purpose.label">한국어로 뭘 하고 싶나요?</div>
+    <div class="purpose-chips-m">
+      <button class="pchip" data-i18n="hero.purpose.move" onclick="selectPurpose(event,'hero.purpose.move')">✈️ 한국 여행</button>
+      <button class="pchip" data-i18n="hero.purpose.travel" onclick="selectPurpose(event,'hero.purpose.travel')">🎬 K-드라마·K-POP</button>
+      <button class="pchip" data-i18n="hero.purpose.talk" onclick="selectPurpose(event,'hero.purpose.talk')">💬 일상 대화</button>
+      <button class="pchip" data-i18n="hero.purpose.friends" onclick="selectPurpose(event,'hero.purpose.friends')">🤝 친구·연인·가족</button>
+      <button class="pchip" data-i18n="hero.purpose.golf" onclick="selectPurpose(event,'hero.purpose.golf')">⛳ 골프와 한국어</button>
+      <button class="pchip" data-i18n="hero.purpose.biz" onclick="selectPurpose(event,'hero.purpose.biz')">💼 비즈니스 한국어</button>
+      <button class="pchip" data-i18n="hero.purpose.study" onclick="selectPurpose(event,'hero.purpose.study')">📝 TOPIK·시험 대비</button>
+    </div>
   </section>
 
   <div class="trust" style="border-top:none;">
