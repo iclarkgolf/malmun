@@ -108,71 +108,368 @@ const db = firebase.firestore();
 try{ db.settings({ experimentalForceLongPolling: true, experimentalAutoDetectLongPolling: false, merge: true }); }catch(e){ console.warn('firestore settings', e); }
 
 const CONTENT = {
-  biz: {
-    icon:"💼",
-    ko:{ eyebrow:"돈벌이", headline:"이력서에 한국어 한 줄, 인생이 달라져요",
-      empathy:["면접관이 갑자기 한국어로 질문했을 때, 머리가 하얘진 적 있나요?","동료들이 다 같이 웃는데, 왜 웃는지 혼자만 몰랐던 순간 있으시죠?"],
-      topics:["자기소개와 이력 말하기","면접에서 자주 나오는 질문","직장 예절과 존댓말 기본","업무 지시 알아듣기","동료·상사와 대화하기","카톡으로 업무 연락하기"] },
-    en:{ eyebrow:"Making money", headline:"One line on your resume — \"I speak Korean\" — can change everything",
-      empathy:["Ever frozen when an interviewer suddenly switched to Korean?","Ever stood there while coworkers laughed, with no idea why?"],
-      topics:["Introducing yourself and your background","Common interview questions","Workplace manners and basic honorifics","Understanding instructions at work","Talking with coworkers and bosses","Work messages on KakaoTalk"] },
-    ja:{ eyebrow:"仕事・収入", headline:"履歴書の一行「韓国語ができます」が人生を変えます",
-      empathy:["面接官に突然韓国語で質問されて、頭が真っ白になったことはありませんか？","同僚がみんなで笑っているのに、自分だけ理由がわからなかった経験はありませんか？"],
-      topics:["自己紹介と経歴を話す","面接でよく聞かれる質問","職場のマナーと基本的な敬語","業務指示を聞き取る","同僚・上司との会話","カカオトークでの業務連絡"] }
+ "move": {
+  "icon": "✈️",
+  "ko": {
+   "eyebrow": "한국 여행",
+   "headline": "메뉴판 앞에서 손가락만 가리키는 여행은 이제 그만",
+   "empathy": [
+    "택시 기사님이 뭐라고 물어보는데 \"네네\"만 하다가 엉뚱한 데서 내린 적 있나요?",
+    "시장 할머니가 덤을 얹어 주시는데 고맙다는 말 한마디 제대로 못 한 순간, 있으시죠?"
+   ],
+   "topics": [
+    "식당에서 주문하고 추천 메뉴 물어보기",
+    "택시·지하철로 길 찾기",
+    "시장·쇼핑에서 흥정하고 계산하기",
+    "호텔 체크인과 요청하기",
+    "곤란할 때 도움 요청하기",
+    "현지 사람과 짧게 수다 떨기"
+   ]
   },
-  study: {
-    icon:"📚",
-    ko:{ eyebrow:"공부", headline:"TOPIK 점수보다 중요한 건, 진짜 쓸 수 있는 한국어",
-      empathy:["교수님 질문에 답은 아는데, 말이 안 나온 적 있나요?","스터디그룹에서 혼자만 못 알아들은 것 같은 기분, 아시죠?"],
-      topics:["교실에서 질문하고 발표하기","자주 나오는 시험 표현(TOPIK 등)","학교 행정실에서 쓰는 말","과제·리포트 관련 어휘","교수님께 이메일 쓰기","스터디그룹 대화"] },
-    en:{ eyebrow:"Studying", headline:"A TOPIK score matters less than Korean you can actually use",
-      empathy:["Known the answer but couldn't get the words out for your professor?","Felt like the only one lost in a study group?"],
-      topics:["Asking questions and presenting in class","Common test expressions (like TOPIK)","Talking to school administration","Assignment and report vocabulary","Emailing professors","Study group conversations"] },
-    ja:{ eyebrow:"勉強", headline:"TOPIKの点数より大事なのは、本当に使える韓国語",
-      empathy:["教授の質問に答えはわかるのに、言葉が出てこなかったことはありませんか？","スタディグループで自分だけ話についていけない気がしたこと、ありますよね？"],
-      topics:["教室での質問・発表","よく出る試験表現（TOPIKなど）","学校事務室で使う言葉","課題・レポート関連の語彙","教授へのメールの書き方","スタディグループでの会話"] }
+  "en": {
+   "eyebrow": "Travel in Korea",
+   "headline": "No more pointing at the menu and hoping for the best",
+   "empathy": [
+    "Ever just said \"yes, yes\" to a taxi driver and ended up somewhere else?",
+    "Ever had a market vendor toss in something extra, and you couldn't properly say thank you?"
+   ],
+   "topics": [
+    "Ordering food and asking for recommendations",
+    "Getting around by taxi and subway",
+    "Shopping, bargaining and paying at markets",
+    "Hotel check-in and requests",
+    "Asking for help when something goes wrong",
+    "Small talk with locals"
+   ]
   },
-  move: {
-    icon:"🏠",
-    ko:{ eyebrow:"살아보기", headline:"편의점 알바생 말이 안 들려서 당황했던 적, 있으시죠",
-      empathy:["병원에서 증상을 설명 못해 답답했던 적 있나요?","계약서에 뭐라고 써있는지 몰라 불안했던 순간, 있으시죠?"],
-      topics:["편의점·마트에서 쓰는 말","병원·약국 이용하기","집 구하고 계약하기","은행·통신사 업무 보기","이웃과 인사 나누기","배달앱 주문하기"] },
-    en:{ eyebrow:"Living here", headline:"Ever panicked because you couldn't understand the convenience store clerk?",
-      empathy:["Struggled to explain your symptoms at the hospital?","Felt anxious not knowing what a contract actually said?"],
-      topics:["Convenience store and grocery Korean","Going to the hospital or pharmacy","Finding and signing for housing","Banking and phone plan errands","Greeting neighbors","Ordering on delivery apps"] },
-    ja:{ eyebrow:"韓国で暮らす", headline:"コンビニ店員の言葉が聞き取れず戸惑ったこと、ありますよね",
-      empathy:["病院で症状をうまく説明できず、もどかしかったことはありませんか？","契約書に何が書いてあるのかわからず不安だった瞬間、ありますよね？"],
-      topics:["コンビニ・スーパーで使う言葉","病院・薬局の利用","住まい探しと契約","銀行・携帯電話の手続き","近所の人との挨拶","配達アプリでの注文"] }
-  },
-  travel: {
-    icon:"✨",
-    ko:{ eyebrow:"유행따라가기", headline:"자막 없이 그 장면, 그 대사를 이해하고 싶다면",
-      empathy:["좋아하는 아이돌 브이앱을 자막 없이 보고 싶었던 적 있나요?","팬 커뮤니티에서 한국 팬들과 진짜 대화하고 싶었던 순간, 있으시죠?"],
-      topics:["드라마·예능에서 자주 나오는 표현","좋아하는 가수·배우 이야기하기","SNS 신조어와 줄임말","노래 가사 이해하기","팬 커뮤니티에서 대화하기","한국 친구와 톡하기"] },
-    en:{ eyebrow:"Following the trend", headline:"Want to understand that scene, that line, without subtitles?",
-      empathy:["Wished you could watch your favorite idol's V Live without subtitles?","Wanted to really talk with Korean fans in the community?"],
-      topics:["Common expressions from K-dramas and variety shows","Talking about your favorite singer or actor","Slang and abbreviations on social media","Understanding song lyrics","Chatting in fan communities","Texting with Korean friends"] },
-    ja:{ eyebrow:"トレンドを楽しむ", headline:"字幕なしでそのシーン、そのセリフを理解したいなら",
-      empathy:["好きなアイドルのVライブを字幕なしで見たいと思ったことはありませんか？","ファンコミュニティで韓国のファンと本当に会話したかった瞬間、ありますよね？"],
-      topics:["ドラマ・バラエティでよく出る表現","好きな歌手・俳優について話す","SNSの新造語・略語","歌詞の理解","ファンコミュニティでの会話","韓国人の友達とのトーク"] }
-  },
-  talk: {
-    icon:"💬",
-    ko:{ eyebrow:"프리토킹", headline:"교재는 덮고, 그냥 한국어로 수다 떨어요",
-      empathy:["배운 건 많은데, 막상 한국 사람 앞에서는 입이 안 떨어진 적 있나요?","틀릴까 봐 머릿속으로 문장만 고치다가 대화가 끝나버린 적, 있으시죠?"],
-      topics:["오늘 있었던 일 편하게 이야기하기","좋아하는 주제로 자유롭게 대화하기","틀린 표현은 그 자리에서 자연스럽게 고치기","한국 사람이 실제로 쓰는 맞장구·리액션","생각을 바로 한국어로 말하는 연습","PJ의 여행·골프 이야기로 한국 문화까지 덤으로"] },
-    en:{ eyebrow:"Free talking", headline:"Close the textbook — let's just chat in Korean",
-      empathy:["Studied plenty, but froze the moment a Korean spoke to you?","Kept fixing the sentence in your head until the conversation was already over?"],
-      topics:["Talking easily about your day","Chatting freely about topics you love","Fixing mistakes naturally, right on the spot","Real Korean reactions and back-channel words","Speaking your thoughts directly in Korean","Korean culture on the side, through PJ's travel and golf stories"] },
-    ja:{ eyebrow:"フリートーク", headline:"教科書は閉じて、韓国語でおしゃべりしましょう",
-      empathy:["たくさん勉強したのに、いざ韓国人を前にすると言葉が出てこなかったことはありませんか？","間違えるのが怖くて頭の中で文を直しているうちに、会話が終わってしまったこと、ありますよね？"],
-      topics:["今日あったことを気軽に話す","好きなテーマで自由に会話する","間違った表現をその場で自然に直す","韓国人が実際に使う相づち・リアクション","考えをそのまま韓国語で話す練習","PJの旅行・ゴルフの話で韓国文化もおまけに"] }
+  "ja": {
+   "eyebrow": "韓国旅行",
+   "headline": "メニューを指さすだけの旅は、もう卒業",
+   "empathy": [
+    "タクシーの運転手さんに何か聞かれて「はい、はい」とだけ答え、違う場所で降りたことはありませんか？",
+    "市場のおばあさんがおまけをくれたのに、ちゃんとお礼も言えなかった瞬間、ありますよね？"
+   ],
+   "topics": [
+    "食堂で注文し、おすすめを聞く",
+    "タクシー・地下鉄で道を探す",
+    "市場・買い物での値段交渉と会計",
+    "ホテルのチェックインとリクエスト",
+    "困ったときに助けを求める",
+    "地元の人とちょっとおしゃべり"
+   ]
   }
+ },
+ "travel": {
+  "icon": "🎬",
+  "ko": {
+   "eyebrow": "K-드라마·K-POP",
+   "headline": "자막 없이 그 장면, 그 대사를 이해하고 싶다면",
+   "empathy": [
+    "좋아하는 아이돌 라이브 방송을 자막 없이 보고 싶었던 적 있나요?",
+    "팬 커뮤니티에서 한국 팬들과 진짜 대화하고 싶었던 순간, 있으시죠?"
+   ],
+   "topics": [
+    "드라마·예능에서 자주 나오는 표현",
+    "좋아하는 가수·배우 이야기하기",
+    "SNS 신조어와 줄임말",
+    "노래 가사 이해하기",
+    "팬 커뮤니티에서 대화하기",
+    "한국 친구와 톡하기"
+   ]
+  },
+  "en": {
+   "eyebrow": "K-drama & K-pop",
+   "headline": "Want to understand that scene, that line, without subtitles?",
+   "empathy": [
+    "Wished you could watch your favorite idol's live stream without subtitles?",
+    "Wanted to really talk with Korean fans in the community?"
+   ],
+   "topics": [
+    "Common expressions from K-dramas and variety shows",
+    "Talking about your favorite singer or actor",
+    "Slang and abbreviations on social media",
+    "Understanding song lyrics",
+    "Chatting in fan communities",
+    "Texting with Korean friends"
+   ]
+  },
+  "ja": {
+   "eyebrow": "Kドラマ・K-POP",
+   "headline": "字幕なしでそのシーン、そのセリフを理解したいなら",
+   "empathy": [
+    "好きなアイドルのライブ配信を字幕なしで見たいと思ったことはありませんか？",
+    "ファンコミュニティで韓国のファンと本当に会話したかった瞬間、ありますよね？"
+   ],
+   "topics": [
+    "ドラマ・バラエティでよく出る表現",
+    "好きな歌手・俳優について話す",
+    "SNSの新造語・略語",
+    "歌詞の理解",
+    "ファンコミュニティでの会話",
+    "韓国人の友達とのトーク"
+   ]
+  }
+ },
+ "talk": {
+  "icon": "💬",
+  "ko": {
+   "eyebrow": "일상 대화",
+   "headline": "교재는 덮고, 그냥 한국어로 수다 떨어요",
+   "empathy": [
+    "배운 건 많은데, 막상 한국 사람 앞에서는 입이 안 떨어진 적 있나요?",
+    "틀릴까 봐 머릿속으로 문장만 고치다가 대화가 끝나버린 적, 있으시죠?"
+   ],
+   "topics": [
+    "오늘 있었던 일 편하게 이야기하기",
+    "좋아하는 주제로 자유롭게 대화하기",
+    "틀린 표현은 그 자리에서 자연스럽게 고치기",
+    "한국 사람이 실제로 쓰는 맞장구·리액션",
+    "생각을 바로 한국어로 말하는 연습",
+    "PJ의 여행·골프 이야기로 한국 문화까지 덤으로"
+   ]
+  },
+  "en": {
+   "eyebrow": "Everyday conversation",
+   "headline": "Close the textbook — let's just chat in Korean",
+   "empathy": [
+    "Studied plenty, but froze the moment a Korean spoke to you?",
+    "Kept fixing the sentence in your head until the conversation was already over?"
+   ],
+   "topics": [
+    "Talking easily about your day",
+    "Chatting freely about topics you love",
+    "Fixing mistakes naturally, right on the spot",
+    "Real Korean reactions and back-channel words",
+    "Speaking your thoughts directly in Korean",
+    "Korean culture on the side, through PJ's travel and golf stories"
+   ]
+  },
+  "ja": {
+   "eyebrow": "日常会話",
+   "headline": "教科書は閉じて、韓国語でおしゃべりしましょう",
+   "empathy": [
+    "たくさん勉強したのに、いざ韓国人を前にすると言葉が出てこなかったことはありませんか？",
+    "間違えるのが怖くて頭の中で文を直しているうちに、会話が終わってしまったこと、ありますよね？"
+   ],
+   "topics": [
+    "今日あったことを気軽に話す",
+    "好きなテーマで自由に会話する",
+    "間違った表現をその場で自然に直す",
+    "韓国人が実際に使う相づち・リアクション",
+    "考えをそのまま韓国語で話す練習",
+    "PJの旅行・ゴルフの話で韓国文化もおまけに"
+   ]
+  }
+ },
+ "friends": {
+  "icon": "🤝",
+  "ko": {
+   "eyebrow": "친구·연인·가족",
+   "headline": "번역기 말고, 내 목소리로 마음을 전하고 싶다면",
+   "empathy": [
+    "한국인 연인의 부모님께 인사드리는 날, 무슨 말을 해야 할지 막막했던 적 있나요?",
+    "한국 친구들 단톡방에서 혼자 번역기 돌리다 타이밍 놓친 적, 있으시죠?"
+   ],
+   "topics": [
+    "처음 만난 사람과 자연스럽게 친해지기",
+    "연인과 주고받는 다정한 말",
+    "어른께 드리는 인사와 존댓말",
+    "명절·생일에 쓰는 표현",
+    "단톡방·카톡 말투 익히기",
+    "고마움과 서운함 솔직하게 표현하기"
+   ]
+  },
+  "en": {
+   "eyebrow": "Friends, love & family",
+   "headline": "Say it in your own voice, not through a translation app",
+   "empathy": [
+    "Ever had no idea what to say when meeting your Korean partner's parents?",
+    "Ever missed the moment in a Korean group chat because you were still running the translator?"
+   ],
+   "topics": [
+    "Making friends naturally with people you just met",
+    "Sweet things couples say to each other",
+    "Greeting elders and using polite speech",
+    "Expressions for holidays and birthdays",
+    "Group chat and KakaoTalk style",
+    "Honestly saying \"thank you\" and \"that hurt\""
+   ]
+  },
+  "ja": {
+   "eyebrow": "友達・恋人・家族",
+   "headline": "翻訳アプリではなく、自分の声で気持ちを伝えたいなら",
+   "empathy": [
+    "韓国人の恋人のご両親に挨拶する日、何を言えばいいか途方に暮れたことはありませんか？",
+    "韓国人の友達のグループトークで、翻訳アプリを使っているうちにタイミングを逃したこと、ありますよね？"
+   ],
+   "topics": [
+    "初対面の人と自然に仲良くなる",
+    "恋人同士で交わす優しい言葉",
+    "目上の方への挨拶と敬語",
+    "お正月・誕生日に使う表現",
+    "グループトーク・カカオトークの話し方",
+    "感謝や寂しさを素直に伝える"
+   ]
+  }
+ },
+ "golf": {
+  "icon": "⛳",
+  "ko": {
+   "eyebrow": "골프와 한국어",
+   "headline": "한국 골퍼와의 라운딩, 이제 웃음 대신 말로 즐기세요",
+   "empathy": [
+    "한국 골퍼들이 \"나이스 샷!\" 말고 뭐라고 하는지 궁금했던 적 있나요?",
+    "라운딩 내내 웃기만 하다가 친해질 기회를 놓친 적, 있으시죠?"
+   ],
+   "topics": [
+    "티박스·그린에서 쓰는 골프 용어",
+    "한국 골퍼들의 응원·농담 알아듣기",
+    "내기 골프와 점수 계산 말하기",
+    "클럽하우스·식사 자리 대화",
+    "캐디·동반자와 매너 있게 소통하기",
+    "20년 차 프로 PJ의 현장 골프 이야기"
+   ]
+  },
+  "en": {
+   "eyebrow": "Golf & Korean",
+   "headline": "Play a round with Korean golfers — and actually talk with them",
+   "empathy": [
+    "Ever wondered what Korean golfers are saying besides \"Nice shot!\"?",
+    "Ever spent a whole round just smiling and missed the chance to connect?"
+   ],
+   "topics": [
+    "Golf terms on the tee and the green",
+    "Understanding Korean golfers' cheers and jokes",
+    "Talking about side bets and scoring",
+    "Clubhouse and post-round dinner conversation",
+    "Polite communication with caddies and playing partners",
+    "Real stories from PJ, a golf pro of 20 years"
+   ]
+  },
+  "ja": {
+   "eyebrow": "ゴルフと韓国語",
+   "headline": "韓国人ゴルファーとのラウンドを、笑顔だけでなく言葉で楽しもう",
+   "empathy": [
+    "韓国人ゴルファーが「ナイスショット！」以外に何を言っているのか、気になったことはありませんか？",
+    "ラウンド中ずっと笑顔だけで、仲良くなるチャンスを逃したこと、ありますよね？"
+   ],
+   "topics": [
+    "ティーグラウンド・グリーンで使うゴルフ用語",
+    "韓国人ゴルファーの応援や冗談を聞き取る",
+    "賭けゴルフとスコア計算の話し方",
+    "クラブハウス・食事の席での会話",
+    "キャディ・同伴者とのマナーある会話",
+    "20年のプロ、PJの現場ゴルフ話"
+   ]
+  }
+ },
+ "biz": {
+  "icon": "💼",
+  "ko": {
+   "eyebrow": "비즈니스 한국어",
+   "headline": "한국 파트너와의 미팅, 통역 없이 신뢰부터 쌓으세요",
+   "empathy": [
+    "한국 거래처와의 회식 자리에서 분위기를 못 따라가 어색했던 적 있나요?",
+    "이메일은 영어로 쓰지만, 한국어 한마디가 아쉬웠던 순간 있으시죠?"
+   ],
+   "topics": [
+    "비즈니스 자기소개와 명함 교환",
+    "회의에서 의견 말하고 질문하기",
+    "존댓말과 직급 호칭",
+    "회식 자리 대화와 건배사",
+    "이메일·카톡 업무 연락",
+    "한국 비즈니스 문화와 예절"
+   ]
+  },
+  "en": {
+   "eyebrow": "Korean for work",
+   "headline": "Build trust with Korean partners — no interpreter needed",
+   "empathy": [
+    "Ever felt out of place at a company dinner with Korean clients?",
+    "Ever wished you could add just one line of Korean to break the ice?"
+   ],
+   "topics": [
+    "Business introductions and exchanging cards",
+    "Giving opinions and asking questions in meetings",
+    "Honorifics and job titles",
+    "Company dinners and toasts",
+    "Work emails and KakaoTalk messages",
+    "Korean business culture and etiquette"
+   ]
+  },
+  "ja": {
+   "eyebrow": "ビジネス韓国語",
+   "headline": "韓国のパートナーとの会議、通訳なしで信頼を築きましょう",
+   "empathy": [
+    "韓国の取引先との会食で、雰囲気についていけず気まずかったことはありませんか？",
+    "メールは英語でも、韓国語のひと言があればと思った瞬間、ありますよね？"
+   ],
+   "topics": [
+    "ビジネスでの自己紹介と名刺交換",
+    "会議で意見を述べ、質問する",
+    "敬語と役職の呼び方",
+    "会食での会話と乾杯の挨拶",
+    "メール・カカオトークでの業務連絡",
+    "韓国のビジネス文化とマナー"
+   ]
+  }
+ },
+ "study": {
+  "icon": "📝",
+  "ko": {
+   "eyebrow": "TOPIK·시험 대비",
+   "headline": "점수도 잡고, 실제로 말도 되는 시험 준비",
+   "empathy": [
+    "기출문제는 다 풀었는데 듣기만 나오면 머리가 하얘진 적 있나요?",
+    "쓰기 답안을 썼는데, 맞는 문장인지 물어볼 사람이 없었던 적 있으시죠?"
+   ],
+   "topics": [
+    "TOPIK I·II 유형별 핵심 정리",
+    "듣기 실전 훈련",
+    "읽기 속도 높이기",
+    "쓰기(51~54번) 첨삭",
+    "시험에 자주 나오는 어휘·문법",
+    "말하기 시험 대비 연습"
+   ]
+  },
+  "en": {
+   "eyebrow": "TOPIK & test prep",
+   "headline": "Prep that raises your score — and gets you actually speaking",
+   "empathy": [
+    "Done every past paper, but still blank out on the listening section?",
+    "Written an essay answer with no one to tell you if it's even correct?"
+   ],
+   "topics": [
+    "Key strategies for each TOPIK I & II question type",
+    "Real-test listening practice",
+    "Reading faster",
+    "Writing feedback (questions 51–54)",
+    "High-frequency test vocabulary and grammar",
+    "Speaking test practice"
+   ]
+  },
+  "ja": {
+   "eyebrow": "TOPIK・試験対策",
+   "headline": "点数も上げて、実際に話せるようになる試験対策",
+   "empathy": [
+    "過去問は全部解いたのに、リスニングになると頭が真っ白になったことはありませんか？",
+    "作文を書いても、正しい文か聞ける人がいなかったこと、ありますよね？"
+   ],
+   "topics": [
+    "TOPIK I・II 問題タイプ別のポイント",
+    "リスニングの実戦トレーニング",
+    "読解スピードを上げる",
+    "作文(51〜54番)の添削",
+    "試験によく出る語彙・文法",
+    "スピーキング試験対策"
+   ]
+  }
+ }
 };
 
 function getType(){
   const t = new URLSearchParams(location.search).get('type');
-  return CONTENT[t] ? t : 'biz';
+  return CONTENT[t] ? t : 'move';
 }
 let currentType = getType();
 
