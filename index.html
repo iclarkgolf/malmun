@@ -404,8 +404,7 @@
         <div class="divider"></div>
         <a href="mypage.html" data-i18n="nav.mypage">마이페이지</a>
         <a href="tutor-apply.html" data-i18n="nav.tutorApply">튜터 지원하기</a>
-        <div class="divider"></div>
-        <a href="admin.html" style="color:var(--text-muted);">⚙️ 관리자</a>
+        
       </div>
     </button>
   </div>
@@ -425,14 +424,10 @@
     <p data-i18n="hero.d.sub">여행업 30년, 골프 레슨 20년 — 낯선 사람과 통하는 법을 오래 익혀온 PJ와 시작하세요.</p>
     <p class="purpose-label" data-i18n="hero.purpose.label">한국어로 뭘 하고 싶나요?</p>
     <div class="purpose-dropdown" id="purposeDropdown" onclick="togglePurposeMenu(event)">
-      <span data-i18n="hero.purpose.biz" id="purposeLabel">돈벌이</span>
+      <span data-i18n="hero.purpose.move" id="purposeLabel">살아보기</span>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
       <div class="purpose-menu" id="purposeMenu">
-        <div class="purpose-option" data-i18n="hero.purpose.biz" onclick="selectPurpose(event,'hero.purpose.biz')">돈벌이</div>
-        <div class="purpose-option" data-i18n="hero.purpose.study" onclick="selectPurpose(event,'hero.purpose.study')">공부</div>
-        <div class="purpose-option" data-i18n="hero.purpose.move" onclick="selectPurpose(event,'hero.purpose.move')">살아보기</div>
-        <div class="purpose-option" data-i18n="hero.purpose.travel" onclick="selectPurpose(event,'hero.purpose.travel')">유행따라가기</div>
-        <div class="purpose-option" data-i18n="hero.purpose.talk" onclick="selectPurpose(event,'hero.purpose.talk')">프리토킹</div>
+        <div class="purpose-option" data-i18n="hero.purpose.move" onclick="selectPurpose(event,'hero.purpose.move')">살아보기</div> <div class="purpose-option" data-i18n="hero.purpose.study" onclick="selectPurpose(event,'hero.purpose.study')">공부</div> <div class="purpose-option" data-i18n="hero.purpose.travel" onclick="selectPurpose(event,'hero.purpose.travel')">유행따라가기</div> <div class="purpose-option" data-i18n="hero.purpose.talk" onclick="selectPurpose(event,'hero.purpose.talk')">프리토킹</div> <div class="purpose-option" data-i18n="hero.purpose.biz" onclick="selectPurpose(event,'hero.purpose.biz')">돈벌이</div>
       </div>
     </div>
     <button class="btn btn-primary" data-i18n="hero.cta1" onclick="goToLevelTest()">무료 레벨테스트 시작</button>
@@ -440,10 +435,10 @@
     <div class="desktop-trust" style="display:flex; gap:48px; padding-top:24px; margin-top:24px; border-top:1px solid var(--card-border);">
       <div style="display:flex; gap:48px; cursor:pointer;" onclick="location.href='tutors.html'">
         <div><p id="ratingNumDesktop" style="font-size:20px;font-weight:600;margin:0;">–</p><p style="font-size:12px;color:var(--text-muted);margin:4px 0 0;" data-i18n="trust.rating">받은 후기</p></div>
-        <div><p style="font-size:20px;font-weight:600;margin:0;" data-i18n="trust.verified">검증된</p><p style="font-size:12px;color:var(--text-muted);margin:4px 0 0;" data-i18n="trust.pro">전문직 튜터</p></div>
+        <div><p style="font-size:20px;font-weight:600;margin:0;" data-i18n="trust.verified">30년</p><p style="font-size:12px;color:var(--text-muted);margin:4px 0 0;" data-i18n="trust.pro">여행업 경력</p></div>
       </div>
       <div style="cursor:pointer;" onclick="location.href='curriculum.html'">
-        <p style="font-size:20px;font-weight:600;margin:0;" data-i18n="trust.stages">4단계</p><p style="font-size:12px;color:var(--text-muted);margin:4px 0 0;" data-i18n="trust.curriculum">커리큘럼</p>
+        <p style="font-size:20px;font-weight:600;margin:0;" data-i18n="trust.stages">첫 수업</p><p style="font-size:12px;color:var(--text-muted);margin:4px 0 0;" data-i18n="trust.curriculum">무료 오리엔테이션</p>
       </div>
     </div>
   </div>
@@ -466,8 +461,8 @@
 
   <div class="trust" style="border-top:none;">
     <div style="cursor:pointer;" onclick="location.href='tutors.html'"><p class="num" id="ratingNumMobile">–</p><p class="label" data-i18n="trust.rating">받은 후기</p></div>
-    <div style="cursor:pointer;" onclick="location.href='tutors.html'"><p class="num" data-i18n="trust.verified">검증된</p><p class="label" data-i18n="trust.pro">전문직 튜터</p></div>
-    <div style="cursor:pointer;" onclick="location.href='curriculum.html'"><p class="num" data-i18n="trust.stages">4단계</p><p class="label" data-i18n="trust.curriculum">커리큘럼</p></div>
+    <div style="cursor:pointer;" onclick="location.href='tutors.html'"><p class="num" data-i18n="trust.verified">30년</p><p class="label" data-i18n="trust.pro">여행업 경력</p></div>
+    <div style="cursor:pointer;" onclick="location.href='curriculum.html'"><p class="num" data-i18n="trust.stages">첫 수업</p><p class="label" data-i18n="trust.curriculum">무료 오리엔테이션</p></div>
   </div>
   </div>
 
@@ -524,16 +519,13 @@
     <p class="section-eyebrow" data-i18n="review.eyebrow">후기</p>
     <p class="section-title" data-i18n="review.title">먼저 경험한 사람들</p>
     <p class="section-desc" data-i18n="review.desc">말로만 좋다고 하지 않아요. 실제로 말문에서 배운 사람들의 이야기를 들어보세요.</p>
-    <div class="review-card" style="margin-bottom:16px;">
-      <p class="review-author">M.T. · <span data-i18n="review.hk">홍콩</span></p>
-      <p class="review-body" data-i18n="review.body">비즈니스 미팅 준비할 때마다 도움 많이 받았어요. 실제 상황처럼 연습시켜주셔서 좋았습니다.</p>
-    </div>
+    <div id="reviewEmpty" class="review-card" style="margin-bottom:16px;"> <p class="review-body" data-i18n="review.empty">아직 공개된 후기가 없어요. 첫 수업을 들은 분의 솔직한 이야기를 기다리고 있어요.</p> <a href="review-submit.html" data-i18n="review.write" style="display:inline-block;margin-top:10px;font-size:14px;font-weight:600;color:var(--accent, #c0392b);text-decoration:none;">후기 남기기 →</a> </div>
     <div id="reviewListDynamic"></div>
   </section>
 
   <section>
     <p class="section-eyebrow" data-i18n="pricing.eyebrow">요금제</p>
-    <p class="section-title" data-i18n="pricing.title">묶어서 예약하면 더 저렴해요</p>
+    <p class="section-title" data-i18n="pricing.title">10회권으로 묶으면 10% 저렴해요</p>
     <p class="section-desc" data-i18n="pricing.desc">매번 결제하는 게 번거로우시죠? <b>크레딧을 미리 충전</b>해두고 수업마다 편하게 차감하세요. 유효기간은 1년입니다.</p>
     <div class="pricing-cards">
       <div class="price-card">
@@ -621,10 +613,10 @@ const TRANSLATIONS = {
     "hero.purpose.talk": "프리토킹",
     "hero.more1": "PJ 소개", "hero.more3": "더 보기",
     "trust.rating": "받은 후기",
-    "trust.verified": "검증된",
-    "trust.pro": "전문직 튜터",
-    "trust.stages": "4단계",
-    "trust.curriculum": "커리큘럼",
+    "trust.verified": "30년",
+    "trust.pro": "여행업 경력",
+    "trust.stages": "첫 수업",
+    "trust.curriculum": "무료 오리엔테이션",
     "tutors.eyebrow": "당신의 튜터",
     "tutors.title": "PJ를 소개합니다",
     "tutors.pj.role": "여행업 30년 · 해외 골프 레슨 20년",
@@ -654,9 +646,9 @@ const TRANSLATIONS = {
     "review.title": "먼저 경험한 사람들",
     "review.desc": "말로만 좋다고 하지 않아요. 실제로 말문에서 배운 사람들의 이야기를 들어보세요.",
     "review.hk": "홍콩",
-    "review.body": "비즈니스 미팅 준비할 때마다 도움 많이 받았어요. 실제 상황처럼 연습시켜주셔서 좋았습니다.",
+    "review.empty": "아직 공개된 후기가 없어요. 첫 수업을 들은 분의 솔직한 이야기를 기다리고 있어요.", "review.write": "후기 남기기 →",
     "pricing.eyebrow": "요금제",
-    "pricing.title": "묶어서 예약하면 더 저렴해요",
+    "pricing.title": "10회권으로 묶으면 10% 저렴해요",
     "pricing.desc": "매번 결제하는 게 번거로우시죠? <b>크레딧을 미리 충전</b>해두고 수업마다 편하게 차감하세요. 유효기간은 1년입니다.",
     "pricing.single.name": "단건 수업",
     "pricing.single.sub": "부담 없이 한 번만",
@@ -697,10 +689,10 @@ const TRANSLATIONS = {
     "hero.purpose.talk": "Free talking",
     "hero.more1": "Meet", "hero.more3": "PJ",
     "trust.rating": "reviews",
-    "trust.verified": "Verified",
-    "trust.pro": "professional tutors",
-    "trust.stages": "4 stages",
-    "trust.curriculum": "curriculum",
+    "trust.verified": "30 yrs",
+    "trust.pro": "in the travel industry",
+    "trust.stages": "1st lesson",
+    "trust.curriculum": "free orientation",
     "tutors.eyebrow": "Your tutor",
     "tutors.title": "Meet PJ",
     "tutors.pj.role": "30 years in travel · 20 years teaching golf abroad",
@@ -730,9 +722,9 @@ const TRANSLATIONS = {
     "review.title": "People who came before you",
     "review.desc": "We won't just tell you it's great. Hear it from people who actually learned with Malmun.",
     "review.hk": "Hong Kong",
-    "review.body": "This helped so much every time I prepped for a business meeting. Practicing real scenarios made a huge difference.",
+    "review.empty": "No public reviews yet. We're waiting to share honest stories from our first students.", "review.write": "Leave a review →",
     "pricing.eyebrow": "Pricing",
-    "pricing.title": "Bundle lessons for a lower rate",
+    "pricing.title": "Save 10% with the 10-lesson pack",
     "pricing.desc": "Tired of paying every time? <b>Pre-charge credits</b> and use them lesson by lesson. Valid for 1 year.",
     "pricing.single.name": "Single lesson",
     "pricing.single.sub": "No commitment, just one lesson",
@@ -773,10 +765,10 @@ const TRANSLATIONS = {
     "hero.purpose.talk": "フリートークのため",
     "hero.more1": "PJ先生を", "hero.more3": "もっと見る",
     "trust.rating": "レビュー",
-    "trust.verified": "認証済み",
-    "trust.pro": "プロ講師",
-    "trust.stages": "4段階",
-    "trust.curriculum": "カリキュラム",
+    "trust.verified": "30年",
+    "trust.pro": "旅行業の経験",
+    "trust.stages": "初回",
+    "trust.curriculum": "無料オリエンテーション",
     "tutors.eyebrow": "あなたの講師",
     "tutors.title": "PJ先生をご紹介します",
     "tutors.pj.role": "旅行業30年・海外ゴルフレッスン20年",
@@ -806,9 +798,9 @@ const TRANSLATIONS = {
     "review.title": "先に体験した人たち",
     "review.desc": "口先だけでは言いません。実際にマルムンで学んだ人たちの声をお聞きください。",
     "review.hk": "香港",
-    "review.body": "ビジネスミーティングの準備をするたびにとても助けられました。実際の場面のように練習させてもらえて良かったです。",
+    "review.empty": "まだ公開されたレビューはありません。最初の受講生の正直な声をお待ちしています。", "review.write": "レビューを書く →",
     "pricing.eyebrow": "料金プラン",
-    "pricing.title": "まとめて予約すればお得です",
+    "pricing.title": "10回券なら10%お得です",
     "pricing.desc": "毎回決済するのは面倒ですよね？<b>クレジットを事前にチャージ</b>して、授業ごとに気軽に使いましょう。有効期限は1年間です。",
     "pricing.single.name": "1回のみ授業",
     "pricing.single.sub": "気軽に1回だけ",
@@ -980,7 +972,7 @@ db.collection('reviews').where('published','==',true).orderBy('createdAt','desc'
   const count = snap.size;
   const desktopNum = document.getElementById('ratingNumDesktop');
   const mobileNum = document.getElementById('ratingNumMobile');
-  if(count > 0){
+  if(count > 0){ const reEmpty = document.getElementById('reviewEmpty'); if(reEmpty) reEmpty.style.display = 'none';
     countUpText(desktopNum, count, n => n + '개', 800);
     countUpText(mobileNum, count, n => n + '개', 800);
   }else{
