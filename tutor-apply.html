@@ -122,6 +122,8 @@
   .error-text{ font-size:12px; color:#D85A30; margin-top:8px; display:none; }
 
   .done-box{ text-align:center; padding:60px 20px; }
+  .edit-app-btn{ margin-top:20px; padding:13px 22px; border-radius:12px; border:1.5px solid var(--text-primary, #222); background:#fff; color:var(--text-primary, #222); font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; }
+  .retry-btn{ margin-top:16px; padding:12px 20px; border-radius:12px; border:none; background:#222; color:#fff; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; }
   .done-emoji{ font-size:48px; margin-bottom:16px; }
   .done-title{ font-size:17px; font-weight:700; margin:0 0 8px; }
   .done-sub{ font-size:13px; color:var(--text-secondary); line-height:1.7; }
@@ -296,13 +298,19 @@ function formHtml(user, prefillName){
 
 function doneHtml(status){
   const statusLabel = { pending: '검토 중', approved: '승인됨', rejected: '반려됨' }[status] || '검토 중';
+  const title = status === 'approved' ? '말문 튜터로 승인되셨어요' : '이미 지원서를 보내주셨어요';
+  const sub = status === 'approved'
+    ? '처음부터 다시 쓰실 필요 없어요.<br>사진·소개글·요일 등을 고치고 싶으면 아래 버튼을 눌러주세요.<br>고친 내용은 튜터 소개 카드에도 바로 반영돼요.'
+    : '검토 후 남겨주신 이메일이나 카카오톡으로 연락드릴게요.<br>보통 며칠 안에 확인해서 알려드려요.<br>내용을 고치고 싶으면 아래 버튼을 눌러주세요.';
   return `
     ${guideHtml()}
     <div class="done-box">
       <div class="done-emoji">🙌</div>
-      <p class="done-title">이미 지원서를 보내주셨어요</p>
-      <p class="done-sub">검토 후 남겨주신 이메일이나 카카오톡으로 연락드릴게요.<br>보통 며칠 안에 확인해서 알려드려요.</p>
+      <p class="done-title">${title}</p>
+      <p class="done-sub">${sub}</p>
       <span class="done-status">${statusLabel}</span>
+      <div><button type="button" class="edit-app-btn" id="editAppBtn">✏️ 내 지원서 수정하기</button></div>
+      ${status === 'approved' ? `<div><button type="button" class="retry-btn" onclick="location.href='tutor-home.html'">🎓 튜터 마이페이지로 가기</button></div>` : ''}
     </div>
   `;
 }
@@ -438,16 +446,27 @@ function proceedAfterAuthCheck(){
 }
 
 async function showApplicationFlow(user){
-  // 이미 지원한 적 있는지 확인
+  // 이미 지원한 적 있는지 확인 (uid → 없으면 이메일로 한 번 더: 다른 로그인 방식으로 들어온 경우 대비)
   try{
-    const snap = await db.collection('tutorApplications').where('uid', '==', user.uid).limit(1).get();
+    let snap = await db.collection('tutorApplications').where('uid', '==', user.uid).limit(1).get();
+    if(snap.empty && user.email){
+      snap = await db.collection('tutorApplications').where('email', '==', user.email).limit(1).get();
+    }
     if(!snap.empty){
-      const data = snap.docs[0].data();
-      document.getElementById('content').innerHTML = doneHtml(data.status || 'pending');
+      showExistingApplication(user, snap.docs[0].id, snap.docs[0].data());
       return;
     }
   }catch(err){
+    // 확인 실패 시 빈 지원서를 띄우면 "다시 작성하라"는 것처럼 보이고 중복 지원서가 생김 → 다시 시도 안내
     console.error('지원 여부 확인 실패:', err);
+    document.getElementById('content').innerHTML = `
+      <div class="done-box">
+        <p class="done-title">지원 내역을 확인하지 못했어요</p>
+        <p class="done-sub">인터넷 연결이 잠시 불안정했어요. 아래 버튼을 눌러 다시 시도해주세요.</p>
+        <button type="button" class="retry-btn" id="retryLookupBtn">다시 시도</button>
+      </div>`;
+    document.getElementById('retryLookupBtn').addEventListener('click', () => showApplicationFlow(user));
+    return;
   }
 
   let userDoc = {};
@@ -467,6 +486,122 @@ async function showApplicationFlow(user){
   document.getElementById('applyForm').addEventListener('submit', (e) => handleSubmit(e, user));
 }
 
+// ===== 지원서 수정 (이미 제출/승인된 튜터용) =====
+function showExistingApplication(user, appId, data){
+  document.getElementById('content').innerHTML = doneHtml(data.status || 'pending');
+  const btn = document.getElementById('editAppBtn');
+  if(btn) btn.addEventListener('click', () => showEditForm(user, appId, data));
+  // 튜터 마이페이지의 "프로필 수정"에서 들어오면 바로 수정 화면 열기 (한 번만)
+  if(new URLSearchParams(location.search).get('edit') === '1' && !window.__editAutoOpened){
+    window.__editAutoOpened = true;
+    showEditForm(user, appId, data);
+  }
+}
+
+function showEditForm(user, appId, data){
+  photoURL = data.photoURL || '';
+  selectedDays = Array.isArray(data.availableDays) ? data.availableDays.slice() : [];
+  document.getElementById('content').innerHTML = formHtml(user, data.name || '');
+  const header = document.querySelector('#content .header');
+  if(header){
+    header.querySelector('.title').textContent = '내 지원서 수정하기';
+    header.querySelector('.sub').textContent = '바꾸고 싶은 부분만 고치고 저장하세요. 나머지는 그대로 남아요.';
+  }
+  document.getElementById('fEmail').value = data.email || user.email || '';
+  document.getElementById('fKakao').value = data.kakaoId || '';
+  if(data.nativeLevel) document.getElementById('fNative').value = data.nativeLevel;
+  document.getElementById('fCredential').value = data.credential || '';
+  document.getElementById('fIntro').value = data.intro || '';
+  if(photoURL){
+    document.getElementById('photoPreview').style.background = `url('${photoURL}') center/cover`;
+    document.getElementById('photoStatus').textContent = '현재 사진 (바꾸려면 사진 선택)';
+  }
+  document.querySelectorAll('#dayChips .chip').forEach(chip => {
+    if(selectedDays.includes(chip.dataset.day)) chip.classList.add('selected');
+  });
+  wireDayChips();
+  wirePhotoUpload(user);
+  ['fName','fEmail','fIntro'].forEach(id => {
+    document.getElementById(id).addEventListener('input', checkFormValid);
+  });
+  const submitBtn = document.getElementById('submitBtn');
+  submitBtn.textContent = '수정 내용 저장하기';
+  checkFormValid();
+  document.getElementById('applyForm').addEventListener('submit', (e) => handleEditSave(e, user, appId, data));
+  window.scrollTo(0, 0);
+}
+
+async function handleEditSave(e, user, appId, oldData){
+  e.preventDefault();
+  const btn = document.getElementById('submitBtn');
+  const errEl = document.getElementById('errorText');
+  errEl.style.display = 'none';
+  btn.disabled = true;
+  btn.textContent = '저장 중...';
+  try{
+    const updated = {
+      uid: oldData.uid || user.uid,
+      photoURL: photoURL,
+      name: document.getElementById('fName').value.trim(),
+      email: document.getElementById('fEmail').value.trim(),
+      kakaoId: document.getElementById('fKakao').value.trim(),
+      nativeLevel: document.getElementById('fNative').value,
+      credential: document.getElementById('fCredential').value.trim(),
+      availableDays: selectedDays,
+      intro: document.getElementById('fIntro').value.trim()
+    };
+    await db.collection('tutorApplications').doc(appId).update({
+      ...updated,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    // 이미 승인돼서 튜터 카드가 있으면, 학생들이 보는 카드에도 반영
+    // (시급·가능 시간·태그 등 관리자가 조정한 값은 건드리지 않음)
+    if(oldData.tutorId){
+      const cardUpdate = {
+        avatarImage: updated.photoURL || '',
+        'ko.name': updated.name,
+        'ko.intro': updated.intro
+      };
+      try{
+        const cardDoc = await db.collection('tutors').doc(oldData.tutorId).get();
+        if(cardDoc.exists){
+          const curRole = (cardDoc.data().ko || {}).role || '';
+          // 직함이 자동 생성값(이전 자격·경력 또는 기본값)일 때만 새 자격·경력으로 맞춤
+          if(curRole === (oldData.credential || '') || curRole === '한국어 튜터'){
+            cardUpdate['ko.role'] = updated.credential || '한국어 튜터';
+          }
+          await db.collection('tutors').doc(oldData.tutorId).update(cardUpdate);
+        }
+      }catch(cardErr){
+        console.error('튜터 카드 반영 실패(지원서 수정은 저장됨):', cardErr);
+      }
+    }
+
+    // PJ님께 수정 알림 메일 (실패해도 저장은 정상)
+    try{
+      fetch(TUTOR_ALERT_WEBAPP_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({ ...updated, name: updated.name + ' (지원서 수정됨)' })
+      });
+    }catch(alertErr){ console.error(alertErr); }
+
+    const newData = { ...oldData, ...updated };
+    showExistingApplication(user, appId, newData);
+    const box = document.querySelector('#content .done-box .done-title');
+    if(box) box.textContent = '수정 내용이 저장됐어요 ✓';
+    window.scrollTo(0, 0);
+  }catch(err){
+    console.error('지원서 수정 실패:', err);
+    errEl.textContent = '저장 중 문제가 생겼어요: ' + err.message;
+    errEl.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = '수정 내용 저장하기';
+  }
+}
+
 // 가이드 화면은 로그인 여부와 상관없이 바로 보여줌
 document.getElementById('content').innerHTML = guideEntryHtml();
 if(window.gtag){ gtag('event', 'tutor_apply_guide_view'); }
@@ -479,6 +614,12 @@ auth.onAuthStateChanged((user) => {
 
   if(applyIntentPending){
     applyIntentPending = false;
+    proceedAfterAuthCheck();
+    return;
+  }
+
+  // 튜터 마이페이지 "프로필 수정"으로 들어온 경우 바로 내 지원서로
+  if(user && new URLSearchParams(location.search).get('edit') === '1'){
     proceedAfterAuthCheck();
     return;
   }

@@ -143,6 +143,12 @@
     </div>
   </div>
 
+  <button class="next-lesson" id="tutorHomeCard" style="display:none; background:#2C2C2A; border-color:#2C2C2A;" onclick="location.href='tutor-home.html'">
+    <p class="tag" style="color:#EF9F27;">🎓 말문 튜터</p>
+    <p class="lesson-name" style="color:#fff; margin:0; font-size:15px; font-weight:700;" id="tutorHomeTitle">튜터 마이페이지 바로가기 →</p>
+    <p class="lesson-time" style="color:#ccc; margin:4px 0 0; font-size:12px;" id="tutorHomeSub">내 수업 예약 · 화상수업 · 프로필 수정 · 튜터 공지</p>
+  </button>
+
   <div class="notice-box">
     <h2 data-i18n="mypage.noticeTitle">공지사항</h2>
     <div id="noticeList"><p class="notice-empty" id="noticeLoading">불러오는 중...</p></div>
@@ -833,5 +839,29 @@ document.addEventListener('click', () => {
     }, err => console.warn('무료 대화 요청 불러오기 실패(무시):', err));
   });
 })();
-</script></body>
+</script><script>
+// ── 튜터로 지원/승인된 계정이면 "튜터 마이페이지" 카드를 보여줌 (학생 기능은 그대로) ──
+(function(){
+  auth.onAuthStateChanged(async (user) => {
+    if(!user) return;
+    try{
+      let snap = await db.collection('tutorApplications').where('uid', '==', user.uid).limit(1).get();
+      if(snap.empty && user.email){
+        snap = await db.collection('tutorApplications').where('email', '==', user.email).limit(1).get();
+      }
+      if(snap.empty) return;
+      const a = snap.docs[0].data();
+      const card = document.getElementById('tutorHomeCard');
+      if(!card) return;
+      if((a.status || 'pending') !== 'approved'){
+        document.getElementById('tutorHomeTitle').textContent = '튜터 지원서 확인 · 수정 →';
+        document.getElementById('tutorHomeSub').textContent = a.status === 'rejected' ? '지원 결과를 확인해주세요' : '지금 검토 중이에요. 승인되면 튜터 메뉴가 열려요';
+      }
+      card.style.display = 'block';
+    }catch(err){ console.error('튜터 여부 확인 실패:', err); }
+  });
+})();
+</script>
+
+</body>
 </html>
