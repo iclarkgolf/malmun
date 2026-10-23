@@ -124,7 +124,7 @@
   <div class="wrap">
     <p style="margin:0 0 10px;"><a href="admin.html" style="font-size:12px; color:var(--text-muted);">← 관리자 홈</a></p>
     <h1>공지사항 관리</h1>
-    <p class="sub" id="subText">여기서 작성하면 튜터들이 예약 관리 화면(tutor-bookings.html) 상단에서 바로 확인할 수 있어요. "중요" 체크하면 이메일도 같이 발송돼요.</p>
+    <p class="sub" id="subText">여기서 작성하면 튜터들이 튜터 마이페이지의 "튜터 공지사항"에서 바로 확인할 수 있어요. "중요" 체크하면 이메일도 같이 발송돼요.</p>
 
     <div class="audience-tabs">
       <button class="audience-tab active" id="tabTutor" onclick="switchAudience('tutor')">튜터 공지</button>
@@ -200,7 +200,7 @@ function switchAudience(aud){
   document.getElementById('tabTutor').classList.toggle('active', aud === 'tutor');
   document.getElementById('tabStudent').classList.toggle('active', aud === 'student');
   document.getElementById('subText').textContent = aud === 'tutor'
-    ? '여기서 작성하면 튜터들이 예약 관리 화면(tutor-bookings.html) 상단에서 바로 확인할 수 있어요. "중요" 체크하면 이메일도 같이 발송돼요.'
+    ? '여기서 작성하면 튜터들이 튜터 마이페이지의 "튜터 공지사항"에서 바로 확인할 수 있어요. "중요" 체크하면 이메일도 같이 발송돼요.'
     : '여기서 작성하면 학생들이 마이페이지(mypage.html) 상단에서 바로 확인할 수 있어요. "중요" 체크하면 이메일도 같이 발송돼요.';
   document.getElementById('importantLabel').textContent = aud === 'tutor'
     ? '중요 공지 — 저장 시 승인된 튜터 전원에게 이메일도 자동 발송'

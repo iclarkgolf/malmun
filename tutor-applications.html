@@ -209,7 +209,7 @@ async function buildTutorDataFromApp(a){
     order: order,
     avatarColor: color,
     avatarImage: a.photoURL || '',
-    price: 25000,
+    price: 30000,
     ko: {
       name: a.name || '',
       role: a.credential || '한국어 튜터',
@@ -275,6 +275,7 @@ function render(){
           <span class="status-badge ${status}">${statusLabel}</span>
         </div>
         <div class="app-row"><b>이메일</b> ${escapeHtml(a.email || '-')}</div>
+        ${a.phone ? `<div class="app-row"><b>휴대폰</b> ${escapeHtml(a.phone)}</div>` : ''}
         ${a.kakaoId ? `<div class="app-row"><b>카카오톡</b> ${escapeHtml(a.kakaoId)}</div>` : ''}
         ${a.credential ? `<div class="app-row"><b>자격증·경력</b> ${escapeHtml(a.credential)}</div>` : ''}
         ${days ? `<div class="day-tags">${days}</div>` : ''}

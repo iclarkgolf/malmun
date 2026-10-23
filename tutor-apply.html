@@ -100,7 +100,7 @@
   .form-section{ margin-bottom:20px; }
   label{ display:block; font-size:13px; font-weight:600; color:var(--text); margin-bottom:8px; }
   .hint-small{ font-size:11px; color:var(--text-muted); margin:-4px 0 8px; }
-  input[type=text], input[type=email], textarea, select{
+  input[type=text], input[type=email], input[type=tel], textarea, select{
     width:100%; padding:12px 14px; border:1px solid var(--card-border); border-radius:10px;
     font-size:14px; color:var(--text); font-family:inherit; background:#fff; box-sizing:border-box;
   }
@@ -264,6 +264,11 @@ function formHtml(user, prefillName){
         <input type="email" id="fEmail" value="${escapeAttr(user.email || '')}">
       </div>
       <div class="form-section">
+        <label>휴대폰 번호 <span class="required-mark">*필수</span></label>
+        <p class="hint-small">급한 공지는 문자로 보내드려요</p>
+        <input type="tel" inputmode="tel" id="fPhone" placeholder="010-0000-0000">
+      </div>
+      <div class="form-section">
         <label>카카오톡 ID (선택)</label>
         <input type="text" id="fKakao" placeholder="빠른 연락을 위해 남겨주시면 좋아요">
       </div>
@@ -376,6 +381,7 @@ async function handleSubmit(e, user){
       name: document.getElementById('fName').value.trim(),
       email: document.getElementById('fEmail').value.trim(),
       kakaoId: document.getElementById('fKakao').value.trim(),
+      phone: document.getElementById('fPhone').value.trim(),
       nativeLevel: document.getElementById('fNative').value,
       credential: document.getElementById('fCredential').value.trim(),
       availableDays: selectedDays,
@@ -414,7 +420,9 @@ function checkFormValid(){
   const name = document.getElementById('fName').value.trim();
   const email = document.getElementById('fEmail').value.trim();
   const intro = document.getElementById('fIntro').value.trim();
-  document.getElementById('submitBtn').disabled = !(name && email && intro && photoURL);
+  const phoneEl = document.getElementById('fPhone');
+  const phone = phoneEl ? phoneEl.value.replace(/[^0-9]/g, '') : 'x';
+  document.getElementById('submitBtn').disabled = !(name && email && intro && photoURL && phone.length >= 9);
 }
 
 let currentUser = null;
@@ -480,7 +488,7 @@ async function showApplicationFlow(user){
   if(window.gtag){ gtag('event', 'tutor_apply_form_view'); }
   wireDayChips();
   wirePhotoUpload(user);
-  ['fName','fEmail','fIntro'].forEach(id => {
+  ['fName','fEmail','fIntro','fPhone'].forEach(id => {
     document.getElementById(id).addEventListener('input', checkFormValid);
   });
   document.getElementById('applyForm').addEventListener('submit', (e) => handleSubmit(e, user));
@@ -509,6 +517,7 @@ function showEditForm(user, appId, data){
   }
   document.getElementById('fEmail').value = data.email || user.email || '';
   document.getElementById('fKakao').value = data.kakaoId || '';
+  document.getElementById('fPhone').value = data.phone || '';
   if(data.nativeLevel) document.getElementById('fNative').value = data.nativeLevel;
   document.getElementById('fCredential').value = data.credential || '';
   document.getElementById('fIntro').value = data.intro || '';
@@ -521,7 +530,7 @@ function showEditForm(user, appId, data){
   });
   wireDayChips();
   wirePhotoUpload(user);
-  ['fName','fEmail','fIntro'].forEach(id => {
+  ['fName','fEmail','fIntro','fPhone'].forEach(id => {
     document.getElementById(id).addEventListener('input', checkFormValid);
   });
   const submitBtn = document.getElementById('submitBtn');
@@ -545,6 +554,7 @@ async function handleEditSave(e, user, appId, oldData){
       name: document.getElementById('fName').value.trim(),
       email: document.getElementById('fEmail').value.trim(),
       kakaoId: document.getElementById('fKakao').value.trim(),
+      phone: document.getElementById('fPhone').value.trim(),
       nativeLevel: document.getElementById('fNative').value,
       credential: document.getElementById('fCredential').value.trim(),
       availableDays: selectedDays,

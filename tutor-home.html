@@ -221,6 +221,18 @@ function renderHome(){
       </div>`;
   }else{
     html += `
+      ${!app.phone ? `<div class="card" style="border-color:#E8B04A; background:#FFF3E0;">
+        <h2>📱 휴대폰 번호를 등록해주세요</h2>
+        <p class="desc">급한 공지는 문자나 카톡으로 보내드려요. "프로필 수정"에서 휴대폰 번호를 넣고 저장해주세요.</p>
+        <div class="btn-row"><button class="btn primary" onclick="location.href='tutor-apply.html?edit=1'">번호 등록하러 가기</button></div>
+      </div>` : ''}
+
+      <div class="card" id="chatCard" style="display:none;">
+        <h2>💬 튜터 단톡방</h2>
+        <p class="desc">PJ와 튜터들이 바로바로 소식을 주고받는 카카오톡 방이에요.</p>
+        <div class="btn-row"><button class="btn primary" id="chatBtn" style="background:#FEE500; color:#3A1D1D; border-color:#FEE500;">카카오톡 단톡방 들어가기</button></div>
+      </div>
+
       <div class="card">
         <h2>내 프로필</h2>
         <p class="desc">학생들이 보는 내 소개 카드예요. 사진·이름·소개글은 직접 고칠 수 있고, 수업료·가능 시간은 PJ에게 말씀해주세요.</p>
@@ -276,9 +288,22 @@ function renderHome(){
   document.getElementById('content').innerHTML = html;
   loadNotices();
   if(isApproved){
+    loadChatLink();
     loadMyBookings();
     loadMyDone();
   }
+}
+
+/* ───── 튜터 단톡방 링크 (튜터 즉석 연락 화면에서 PJ가 저장) ───── */
+async function loadChatLink(){
+  try{
+    const d = await db.collection('notices').doc('tutorChatLink').get();
+    const url = d.exists ? (d.data().url || '') : '';
+    if(url && /^https:\/\/(open|qr)\.kakao\.com\//.test(url)){
+      document.getElementById('chatCard').style.display = 'block';
+      document.getElementById('chatBtn').onclick = () => { location.href = url; };
+    }
+  }catch(e){ console.error('단톡방 링크 불러오기 실패', e); }
 }
 
 /* ───── 공지 (튜터 대상) ───── */
