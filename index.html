@@ -619,6 +619,39 @@
     <span style="color:var(--text-muted); margin:0 6px;">·</span>
     <a href="terms.html" style="color:var(--text-muted); font-size:12px; text-decoration:underline;">이용약관</a>
   </p>
+<!-- 사이트 바로가기 링크 (검색엔진이 페이지를 따라갈 수 있도록 진짜 링크로 둠) -->
+<nav class="site-links" aria-label="사이트 바로가기" style="max-width:600px; margin:10px auto 0; padding:8px 0 0; text-align:center; font-size:12px; line-height:2.1;">
+  <a href="index.html" data-sl="home" style="color:#8A8880; text-decoration:none; margin:0 6px; white-space:nowrap;">홈</a>
+  <a href="tutors.html" data-sl="tutors" style="color:#8A8880; text-decoration:none; margin:0 6px; white-space:nowrap;">튜터</a>
+  <a href="curriculum.html" data-sl="curriculum" style="color:#8A8880; text-decoration:none; margin:0 6px; white-space:nowrap;">커리큘럼</a>
+  <a href="pricing.html" data-sl="pricing" style="color:#8A8880; text-decoration:none; margin:0 6px; white-space:nowrap;">요금제</a>
+  <a href="level-test.html" data-sl="level" style="color:#8A8880; text-decoration:none; margin:0 6px; white-space:nowrap;">레벨테스트</a>
+  <a href="free-talk.html" data-sl="talk" style="color:#8A8880; text-decoration:none; margin:0 6px; white-space:nowrap;">무료 대화</a>
+  <a href="blog.html" data-sl="blog" style="color:#8A8880; text-decoration:none; margin:0 6px; white-space:nowrap;">커뮤니티</a>
+  <a href="tutor-apply.html" data-sl="apply" style="color:#8A8880; text-decoration:none; margin:0 6px; white-space:nowrap;">튜터 지원</a>
+</nav>
+<script>
+(function(){
+  var L = { ko:{home:'홈',tutors:'튜터',curriculum:'커리큘럼',pricing:'요금제',level:'레벨테스트',talk:'무료 대화',blog:'커뮤니티',apply:'튜터 지원'},
+            en:{home:'Home',tutors:'Tutors',curriculum:'Curriculum',pricing:'Pricing',level:'Level test',talk:'Free chat',blog:'Community',apply:'Become a tutor'},
+            ja:{home:'ホーム',tutors:'講師',curriculum:'カリキュラム',pricing:'料金',level:'レベルテスト',talk:'無料トーク',blog:'コミュニティ',apply:'講師募集'} };
+  function apply(lang){
+    var d = L[lang] || L.ko;
+    document.querySelectorAll('.site-links [data-sl]').forEach(function(a){ var t = d[a.getAttribute('data-sl')]; if(t) a.textContent = t; });
+  }
+  function current(){
+    var lang = null;
+    try{ lang = localStorage.getItem('malmun_lang'); }catch(e){}
+    if(!lang){ lang = new URLSearchParams(location.search).get('lang'); }
+    return lang;
+  }
+  try{ apply(current()); }catch(e){}
+  // 화면 위 언어 버튼을 바꾸면 바로가기 글자도 같이 바뀜
+  document.addEventListener('click', function(e){
+    if(e.target && e.target.closest && e.target.closest('.lang-option')){ setTimeout(function(){ try{ apply(current()); }catch(err){} }, 0); }
+  }, true);
+})();
+</script>
 </footer>
 
 <nav class="bottom-nav">
