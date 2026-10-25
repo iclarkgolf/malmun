@@ -570,9 +570,39 @@ async function markNoticesRead(notices, user){
   }
 }
 
-async function loadNotices(user){
+let _loadedNotices = null; // 언어를 바꾸면 다시 그리기 위해 보관
+let _noticeLastSeen = 0;
+
+// 학생 언어에 맞는 공지 제목·내용 (번역이 없으면 한국어)
+function noticeText(n, lang){
+  const t = (lang === 'en' || lang === 'ja') ? n[lang] : null;
+  return {
+    title: (t && t.title) || n.title || '',
+    body: (t && t.body) || n.body || ''
+  };
+}
+
+function renderNotices(){
+  if(!_loadedNotices || _loadedNotices.length === 0) return;
   const lang = localStorage.getItem('malmun_lang') || 'ko';
   const dateLocale = { ko: 'ko-KR', en: 'en-US', ja: 'ja-JP' }[lang] || 'ko-KR';
+  document.getElementById('noticeList').innerHTML = _loadedNotices.map(n => {
+    const ts = n.createdAt && n.createdAt.toMillis ? n.createdAt.toMillis() : 0;
+    const isNew = ts > _noticeLastSeen;
+    const date = n.createdAt && n.createdAt.toDate ? n.createdAt.toDate().toLocaleDateString(dateLocale) : '';
+    const tx = noticeText(n, lang);
+    return `
+        <div class="notice-item">
+          <p class="notice-item-title">${isNew ? '<span class="notice-new-dot"></span>' : ''}${escapeHtml(tx.title)}</p>
+          <p class="notice-item-body">${escapeHtml(tx.body)}</p>
+          <p class="notice-item-date">${date}</p>
+        </div>
+      `;
+  }).join('');
+}
+
+async function loadNotices(user){
+  const lang = localStorage.getItem('malmun_lang') || 'ko';
   try{
     const snap = await db.collection('notices')
       .where('audience', '==', 'student')
@@ -588,18 +618,9 @@ async function loadNotices(user){
       })[lang]}</p>`;
       return;
     }
-    el.innerHTML = notices.map(n => {
-      const ts = n.createdAt && n.createdAt.toMillis ? n.createdAt.toMillis() : 0;
-      const isNew = ts > lastSeen;
-      const date = n.createdAt && n.createdAt.toDate ? n.createdAt.toDate().toLocaleDateString(dateLocale) : '';
-      return `
-        <div class="notice-item">
-          <p class="notice-item-title">${isNew ? '<span class="notice-new-dot"></span>' : ''}${escapeHtml(n.title || '')}</p>
-          <p class="notice-item-body">${escapeHtml(n.body || '')}</p>
-          <p class="notice-item-date">${date}</p>
-        </div>
-      `;
-    }).join('');
+    _loadedNotices = notices;
+    _noticeLastSeen = lastSeen;
+    renderNotices();
     const latestTs = notices[0].createdAt && notices[0].createdAt.toMillis ? notices[0].createdAt.toMillis() : Date.now();
     localStorage.setItem('malmun_student_notice_last_seen', String(latestTs));
     if(user){ markNoticesRead(notices, user); }
@@ -790,6 +811,7 @@ function setLang(e, lang){
   e.stopPropagation();
   applyLang(lang);
   document.getElementById('langMenu').classList.remove('open');
+  renderNotices(); // 공지도 바꾼 언어로 다시 표시
 }
 document.addEventListener('click', () => {
   const menu = document.getElementById('langMenu');
