@@ -267,7 +267,9 @@ const CREDIT_VALID_DAYS = 365; // 유효기간 1년
 
 const PACKAGES = {
   '5':  { sessions: 5,  price: 150000, usd: 110 },
-  '10': { sessions: 10, price: 270000, usd: 199 }
+  '10': { sessions: 10, price: 270000, usd: 199 },
+  // PJ 결제 테스트용 (화면에 안 보임 — pricing.html?test=1 로 들어오면 바로 열림)
+  'test': { sessions: 1, price: 14000, usd: 10 }
 };
 
 let currentLang = localStorage.getItem('malmun_lang') || 'ko';
@@ -658,6 +660,10 @@ async function savePaypalEnrollment(order){
   alert(ppText('done'));
 }
 document.getElementById('payMethod').addEventListener('change', ppRefresh);
+// 결제 테스트: pricing.html?test=1 → US$10 테스트 결제창이 바로 열림
+if(new URLSearchParams(location.search).get('test') === '1'){
+  auth.onAuthStateChanged(() => { if(!document.getElementById('modalOverlay').classList.contains('open')){ document.getElementById('payMethod').value = 'PayPal'; openPurchaseModal('test'); } });
+}
 auth.onAuthStateChanged(() => { if(document.getElementById('modalOverlay').classList.contains('open')) ppRefresh(); });
 
 // ── 수강 신청 (실제 PG 연동 전까지): 신청 저장 → PJ에게 이메일 알림 → PJ가 결제 안내 → 입금 확인 시 크레딧 자동 충전 ──
