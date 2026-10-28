@@ -113,6 +113,12 @@
     background:var(--accent); color:var(--accent-text);
   }
   .modal-btn.secondary{ background:none; color:var(--text-secondary); border:1px solid var(--card-border); }
+  /* 2026-10-28: PayPal·카드 결제 */
+  .usd-line{ display:flex; justify-content:space-between; font-size:13px; color:var(--text-secondary); margin-top:6px; }
+  #paypalBox{ display:none; margin-top:4px; }
+  #paypalBox .pp-note{ font-size:12px; color:var(--text-muted); line-height:1.6; margin:0 0 10px; }
+  #paypalBox .pp-login{ display:none; }
+  #paypalButtons{ min-height:48px; }
 </style>
 <style>
 /* 모바일 최적화: 작은 아이콘 버튼의 터치 영역 확대 (보이는 크기는 그대로) */
@@ -219,12 +225,19 @@ button[aria-label]:has(> svg:only-child){ padding:11px; margin:-11px; }
     <div class="price-line"><span data-i18n="pricing.modal.regular">정가</span><span id="modalRegular"></span></div>
     <div class="price-line" id="modalDiscountLine" style="display:none;"><span data-i18n="pricing.modal.discount">할인</span><span id="modalDiscount"></span></div>
     <div class="price-line total"><span data-i18n="pricing.modal.pay">결제 금액</span><span id="modalTotal"></span></div>
+    <div class="usd-line" id="modalUsdLine"><span id="modalUsdLabel">PayPal / Card (USD)</span><span id="modalUsd"></span></div>
     <div class="test-note" id="testNote" data-i18n="pricing.modal.testNote">신청하시면 PJ가 결제 방법을 이메일로 직접 보내드려요. 입금이 확인되면 크레딧이 자동으로 충전됩니다.</div>
     <label class="pay-label" for="payMethod" data-i18n="pricing.modal.payLabel">편한 결제 방법</label>
     <select id="payMethod" class="pay-select">
       <option value="PayPal" data-i18n="pricing.pay.paypal">PayPal (해외 카드 가능)</option>
       <option value="계좌이체" data-i18n="pricing.pay.bank">계좌이체 (한국 은행)</option>
     </select>
+    <!-- 2026-10-28: PayPal·카드 결제 (PayPal 계정이 없어도 카드로 결제 가능) -->
+    <div id="paypalBox">
+      <p class="pp-note" id="ppNote"></p>
+      <div class="pp-login" id="ppLogin"><button class="modal-btn" onclick="location.href='login.html?next=pricing'" id="ppLoginBtn">로그인하고 결제하기</button></div>
+      <div id="paypalButtons"></div>
+    </div>
     <button class="modal-btn" id="confirmPurchaseBtn" data-i18n="pricing.modal.confirm">수강 신청하기</button>
     <button class="modal-btn secondary" onclick="closePurchaseModal()" data-i18n="pricing.modal.cancel">취소</button>
   </div>
@@ -253,8 +266,8 @@ const SESSION_PRICE = 30000; // 통일된 회당 정가
 const CREDIT_VALID_DAYS = 365; // 유효기간 1년
 
 const PACKAGES = {
-  '5':  { sessions: 5,  price: 150000 },
-  '10': { sessions: 10, price: 270000 }
+  '5':  { sessions: 5,  price: 150000, usd: 110 },
+  '10': { sessions: 10, price: 270000, usd: 199 }
 };
 
 let currentLang = localStorage.getItem('malmun_lang') || 'ko';
@@ -415,7 +428,9 @@ function openPurchaseModal(packId, evt){
     document.getElementById('modalDiscountLine').style.display = 'none';
   }
   document.getElementById('modalTotal').textContent = fmtKRW(pack.price);
+  document.getElementById('modalUsd').textContent = 'US$' + pack.usd;
   document.getElementById('modalOverlay').classList.add('open');
+  ppRefresh();
 }
 
 function closePurchaseModal(){
@@ -526,6 +541,125 @@ async function loadBalance(){
 }
 
 
+// ── 2026-10-28: PayPal·카드 결제 ──
+// 학생이 PayPal(또는 카드)로 결제 → 결제 완료된 수강 신청이 저장되고 PJ에게 알림 → PJ가 PayPal에서 입금을 보고 "입금 확인"을 누르면 크레딧 자동 충전
+const PAYPAL_CLIENT_ID = 'BAAjglGNVCaB7LgXBOggtR2z1x9W4o5MiL1VIhVv8WBAznvT7ejEKH7-fFbaRhalKDCkeSn_AUULglPOBA';
+let _ppSdk = null, _ppRendered = false;
+function ppText(k){
+  const T = {
+    note: { ko:'PayPal 계정이 없어도 아래 "직불카드 또는 신용카드" 버튼으로 카드 결제할 수 있어요. 결제 금액은 미국 달러로 청구됩니다.', en:'No PayPal account needed — use the "Debit or Credit Card" button to pay by card. You will be charged in US dollars.', ja:'PayPalアカウントがなくても「デビットカードまたはクレジットカード」ボタンでカード決済できます。米ドルで請求されます。' },
+    login:{ ko:'로그인하고 결제하기', en:'Log in to pay', ja:'ログインして支払う' },
+    needLogin:{ ko:'결제하려면 먼저 로그인해 주세요. 결제 후 크레딧이 내 계정에 충전됩니다.', en:'Please log in first so the credits go to your account.', ja:'クレジットをアカウントに追加するため、先にログインしてください。' },
+    done:{ ko:'결제가 완료됐어요! PJ가 확인하는 대로(보통 하루 안에) 크레딧이 충전됩니다. 감사합니다.', en:'Payment complete! Your credits will be added as soon as PJ confirms it (usually within a day). Thank you!', ja:'お支払いが完了しました！PJが確認次第（通常1日以内）クレジットがチャージされます。ありがとうございます。' },
+    fail:{ ko:'결제가 완료되지 않았어요. 다시 시도해 주세요.', en:'The payment did not go through. Please try again.', ja:'お支払いが完了しませんでした。もう一度お試しください。' },
+    sdk:{ ko:'PayPal을 불러오지 못했어요. 인터넷 연결을 확인하거나 아래 "계좌이체"로 신청해 주세요.', en:'Could not load PayPal. Check your connection, or choose bank transfer.', ja:'PayPalを読み込めませんでした。接続を確認するか銀行振込をお選びください。' }
+  };
+  return (T[k] && (T[k][currentLang] || T[k].ko)) || '';
+}
+function loadPaypalSdk(){
+  if(window.paypal) return Promise.resolve(window.paypal);
+  if(_ppSdk) return _ppSdk;
+  _ppSdk = new Promise((resolve, reject) => {
+    const sc = document.createElement('script');
+    sc.src = 'https://www.paypal.com/sdk/js?client-id=' + encodeURIComponent(PAYPAL_CLIENT_ID) + '&currency=USD&intent=capture&components=buttons&disable-funding=paylater,venmo';
+    sc.onload = () => resolve(window.paypal);
+    sc.onerror = () => { _ppSdk = null; reject(new Error('sdk')); };
+    document.head.appendChild(sc);
+  });
+  return _ppSdk;
+}
+function ppRefresh(){
+  const isPP = document.getElementById('payMethod').value === 'PayPal';
+  const box = document.getElementById('paypalBox');
+  const btn = document.getElementById('confirmPurchaseBtn');
+  document.getElementById('modalUsdLine').style.display = isPP ? 'flex' : 'none';
+  box.style.display = isPP ? 'block' : 'none';
+  document.getElementById('testNote').style.display = isPP ? 'none' : 'block';   // 이메일 결제 안내 문구는 계좌이체일 때만
+  btn.style.display = isPP ? 'none' : 'block';
+  if(!isPP) return;
+  document.getElementById('ppLoginBtn').textContent = ppText('login');
+  const user = auth.currentUser;
+  if(!user){
+    document.getElementById('ppNote').textContent = ppText('needLogin');
+    document.getElementById('ppLogin').style.display = 'block';
+    document.getElementById('paypalButtons').style.display = 'none';
+    return;
+  }
+  document.getElementById('ppNote').textContent = ppText('note');
+  document.getElementById('ppLogin').style.display = 'none';
+  document.getElementById('paypalButtons').style.display = 'block';
+  if(_ppRendered) return;
+  loadPaypalSdk().then(pp => {
+    if(_ppRendered) return;
+    _ppRendered = true;
+    pp.Buttons({
+      style: { layout:'vertical', shape:'rect', label:'pay' },
+      createOrder: (data, actions) => {
+        const pack = PACKAGES[selectedPackage];
+        const u = auth.currentUser;
+        return actions.order.create({
+          purchase_units: [{
+            description: `Malmun Korean ${pack.sessions}-lesson pack`,
+            custom_id: (u ? u.uid : '') + '|' + selectedPackage,
+            amount: { currency_code: 'USD', value: pack.usd.toFixed(2) }
+          }],
+          application_context: { shipping_preference: 'NO_SHIPPING', brand_name: 'Malmun Korean' }
+        });
+      },
+      onApprove: (data, actions) => actions.order.capture().then(d => savePaypalEnrollment(d)),
+      onError: err => { console.error('PayPal 오류:', err); alert(ppText('fail')); }
+    }).render('#paypalButtons');
+  }).catch(() => { document.getElementById('ppNote').textContent = ppText('sdk'); });
+}
+async function savePaypalEnrollment(order){
+  const user = auth.currentUser;
+  const pack = PACKAGES[selectedPackage];
+  const cap = (((order.purchase_units || [])[0] || {}).payments || {}).captures || [];
+  const c = cap[0] || {};
+  const studentName = (user && user.displayName) || (user && user.email ? user.email.split('@')[0] : '학생');
+  try{
+    await db.collection('enrollRequests').add({
+      uid: user ? user.uid : '',
+      studentName: studentName,
+      studentEmail: (user && user.email) || '',
+      packageType: selectedPackage,
+      sessions: pack.sessions,
+      price: pack.price,
+      payMethod: 'PayPal 결제완료',
+      paidOnline: true,
+      amountUSD: pack.usd,
+      paypalOrderId: order.id || '',
+      paypalCaptureId: c.id || '',
+      paypalStatus: c.status || order.status || '',
+      payerEmail: (order.payer && order.payer.email_address) || '',
+      lang: currentLang,
+      status: 'pending',
+      claimed: false,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  }catch(e){ console.error('결제 기록 저장 실패:', e); }
+  try{
+    fetch(ENROLL_ALERT_WEBAPP_URL, {
+      method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({
+        studentName: studentName,
+        studentEmail: (user && user.email) || '',
+        tutorName: 'PJ',
+        dayLabel: `[✅ PayPal 결제 완료 US$${pack.usd} — PayPal 확인 후 "입금 확인" 눌러주세요] ${pack.sessions}회권`,
+        time: 'PayPal 주문번호: ' + (order.id || '-'),
+        price: pack.price,
+        isFreeOrientation: false,
+        joinUrl: 'https://malmunkorean.com/tutor-bookings.html'
+      })
+    });
+  }catch(e){}
+  if(window.gtag){ gtag('event', 'paypal_paid', { package: selectedPackage, value: pack.usd, currency: 'USD' }); }
+  closePurchaseModal();
+  alert(ppText('done'));
+}
+document.getElementById('payMethod').addEventListener('change', ppRefresh);
+auth.onAuthStateChanged(() => { if(document.getElementById('modalOverlay').classList.contains('open')) ppRefresh(); });
+
 // ── 수강 신청 (실제 PG 연동 전까지): 신청 저장 → PJ에게 이메일 알림 → PJ가 결제 안내 → 입금 확인 시 크레딧 자동 충전 ──
 const ENROLL_ALERT_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbz7EANVhq9AoUz-W7cFmXfyZUb0cWCIJG26Rx2TFVrUR7ehRDTRbyT1BdOANqQ7bCsiRQ/exec';
 async function submitEnrollment(){
@@ -593,7 +727,11 @@ function watchMyEnrollments(uid){
     const el = document.getElementById('enrollStatus');
     const pending = list.find(r => r.status === 'pending');
     if(!pending){ el.innerHTML = ''; if(list.some(r => r.status === 'paid' && !r.claimed)) claimPaidEnrollments(uid).then(loadBalance); return; }
-    const L = ({
+    const L = pending.paidOnline ? ({
+      ko: { st: `💳 ${pending.sessions}회권 결제 완료`, ds: 'PJ가 결제를 확인하는 대로(보통 하루 안에) 크레딧이 자동으로 충전됩니다.' },
+      en: { st: `💳 ${pending.sessions}-lesson pack: payment received`, ds: 'Your credits will be added as soon as PJ confirms the payment (usually within a day).' },
+      ja: { st: `💳 ${pending.sessions}回パック：お支払い完了`, ds: 'PJが確認次第（通常1日以内）クレジットが自動でチャージされます。' }
+    })[currentLang] || {} : ({
       ko: { st: `⏳ ${pending.sessions}회권 수강 신청 접수됨`, ds: 'PJ가 결제 방법을 이메일로 보내드려요. 입금이 확인되면 크레딧이 자동으로 충전됩니다.' },
       en: { st: `⏳ ${pending.sessions}-lesson pack: request received`, ds: 'PJ will email you the payment details. Once payment is confirmed, credits are added automatically.' },
       ja: { st: `⏳ ${pending.sessions}回パック：お申し込み受付済み`, ds: 'PJからお支払い方法をメールでお送りします。入金確認後、クレジットが自動でチャージされます。' }

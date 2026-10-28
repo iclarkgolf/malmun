@@ -745,10 +745,10 @@ function renderEnroll(){
   el.innerHTML = list.map(r => `
     <div class="notice-item">
       <p class="notice-item-title"><span class="notice-new-dot"></span>${escapeHtml(r.studentName || '학생')} · ${escapeHtml(String(r.sessions || ''))}회권 · ₩${Number(r.price || 0).toLocaleString('en-US')}</p>
-      <p class="notice-item-body">${escapeHtml(r.studentEmail || '')}\n결제 방법: ${escapeHtml(r.payMethod || '-')}</p>
+      <p class="notice-item-body">${escapeHtml(r.studentEmail || '')}\n결제 방법: ${escapeHtml(r.payMethod || '-')}${r.paidOnline ? `\n💳 PayPal 결제 완료 US$${escapeHtml(String(r.amountUSD || ''))} · 주문번호 ${escapeHtml(r.paypalOrderId || '-')}\n→ PayPal 활동내역에서 입금을 확인하고 "✅ 입금 확인"을 누르세요` : ''}</p>
       <p class="notice-item-date">신청 ${fmtDate(r.createdAt)}</p>
       <div style="display:flex; gap:8px; margin-top:10px; flex-wrap:wrap;">
-        <button class="done-btn" style="background:#fff; color:var(--text); border:1.5px solid var(--card-border);" onclick="mailEnroll('${r.id}')">📧 결제 안내</button>
+        ${r.paidOnline ? '' : `<button class="done-btn" style="background:#fff; color:var(--text); border:1.5px solid var(--card-border);" onclick="mailEnroll('${r.id}')">📧 결제 안내</button>`}
         <button class="done-btn" onclick="markEnrollPaid('${r.id}', this)">✅ 입금 확인</button>
         <button class="cancel-btn" onclick="cancelEnroll('${r.id}', this)">🚫 취소</button>
       </div>
