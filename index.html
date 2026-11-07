@@ -3,18 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>말문 | PJ와 1:1로 배우는 진짜 한국어 과외</title>
+<title>말문 | 직접 만나 본 한국인 튜터와 1:1 한국어</title>
 <meta property="og:image" content="https://malmunkorean.com/pj-hero.jpg">
 <meta name="twitter:image" content="https://malmunkorean.com/pj-hero.jpg">
-<meta name="description" content="여행업 30년, 필리핀 골프 레슨 20년 — PJ와 함께하는 1:1 한국어 과외. 목표에 맞는 맞춤 수업, 첫 시간은 무료 오리엔테이션입니다.">
+<meta name="description" content="말문이 직접 만나 보고 고른 한국인 튜터들과 1:1 온라인 한국어 수업. 여행·K-드라마·일상 대화·골프·비즈니스·TOPIK까지, 나에게 맞는 튜터를 골라 보세요. 첫 시간은 무료 오리엔테이션입니다.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="말문 Malmun">
-<meta property="og:title" content="말문 | PJ와 1:1로 배우는 진짜 한국어 과외">
-<meta property="og:description" content="여행업 30년, 필리핀 골프 레슨 20년 — PJ와 함께하는 1:1 한국어 과외. 첫 시간은 무료 오리엔테이션입니다.">
+<meta property="og:title" content="말문 | 직접 만나 본 한국인 튜터와 1:1 한국어">
+<meta property="og:description" content="말문이 직접 만나 보고 고른 한국인 튜터들과 1:1 한국어. 나에게 맞는 튜터를 골라 보세요. 첫 시간은 무료 오리엔테이션입니다.">
 <meta property="og:url" content="https://malmunkorean.com/">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="말문 | PJ와 1:1로 배우는 진짜 한국어 과외">
-<meta name="twitter:description" content="여행업 30년, 필리핀 골프 레슨 20년 — PJ와 함께하는 1:1 한국어 과외.">
+<meta name="twitter:title" content="말문 | 직접 만나 본 한국인 튜터와 1:1 한국어">
+<meta name="twitter:description" content="말문이 직접 만나 보고 고른 한국인 튜터들과 1:1 한국어.">
 <style>
   :root{
     --bg: #FFF9F0;
@@ -212,6 +212,32 @@
   .tutor-meta .star{ color:var(--accent); }
   .tutor-price{ font-size:13px; color:var(--coral); margin-top:8px; font-weight:600; }
 
+  /* 2026-11-07 여러 튜터 체제: 히어로 튜터 얼굴 모자이크 + 튜터 카드 */
+  .tutor-mosaic{ display:grid; grid-template-columns:repeat(3,1fr); gap:6px; width:100%; }
+  .tutor-mosaic .tile{ position:relative; aspect-ratio:1/1; border-radius:12px; overflow:hidden; background:var(--accent-soft) center/cover no-repeat; cursor:pointer; }
+  .tutor-mosaic .tile span{ position:absolute; left:6px; bottom:6px; font-size:11px; font-weight:700; color:#fff; background:rgba(0,0,0,.45); padding:2px 7px; border-radius:8px; max-width:calc(100% - 12px); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .tutor-mosaic .tile.ph{ cursor:default; }
+  .tutor-mosaic.two{ grid-template-columns:repeat(2,1fr); }
+  .tc-card{ min-width:240px; max-width:260px; background:var(--card); border:1px solid var(--card-border); border-radius:16px; padding:16px; flex-shrink:0; cursor:pointer; display:flex; flex-direction:column; }
+  .tc-card:active{ background:var(--accent-soft); }
+  .tc-top{ display:flex; gap:12px; align-items:center; margin-bottom:10px; }
+  .tc-photo{ width:64px; height:64px; border-radius:50%; flex-shrink:0; background:var(--accent-soft) center/cover no-repeat; }
+  .tc-name{ font-size:15px; font-weight:700; margin:0 0 3px; }
+  .tc-role{ font-size:12px; color:var(--coral); font-weight:600; margin:0; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .tc-intro{ font-size:13px; color:var(--text-secondary); line-height:1.6; margin:0 0 10px; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; min-height:3.2em; }
+  .tc-tags{ display:flex; flex-wrap:wrap; gap:5px; margin-bottom:12px; }
+  .tc-tags span{ background:var(--accent-soft); color:var(--accent-text); font-size:11px; font-weight:600; padding:3px 8px; border-radius:8px; }
+  .tc-go{ margin-top:auto; font-size:13px; font-weight:700; color:var(--text); }
+  .tc-all{ display:inline-block; margin-top:14px; font-size:14px; font-weight:700; color:var(--text); text-decoration:underline; }
+  .founder{ display:flex; gap:12px; align-items:center; margin-top:22px; padding:14px 16px; border:1px dashed var(--card-border); border-radius:14px; background:#fff; }
+  .founder img{ width:44px; height:44px; border-radius:50%; object-fit:cover; flex-shrink:0; }
+  .founder p{ margin:0; font-size:12px; color:var(--text-secondary); line-height:1.6; }
+  .founder b{ color:var(--text); }
+  @media (min-width:900px){
+    #tutorCards{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; overflow:visible; margin:0; padding:0; }
+    .tc-card{ max-width:none; min-width:0; }
+  }
+
   .curriculum-steps{ display:flex; flex-direction:column; gap:10px; }
   .step{
     display:flex; align-items:center; gap:14px;
@@ -401,7 +427,7 @@
 <script>
 /* ── 언어별 주소: ?lang=en / ?lang=ja 로 들어오면 그 언어로 열리고, 구글도 언어별 페이지로 따로 등록합니다 ── */
 (function(){
-  var CFG = {"path": "/", "keep": [], "ko": null, "en": {"t": "Malmun | Learn real Korean 1:1 with PJ — online Korean tutor", "d": "1:1 online Korean lessons with PJ — 30 years in travel, 20 years teaching golf in the Philippines. Travel Korean, K-drama & K-pop, everyday conversation, golf, business and TOPIK. Your first lesson is a free orientation."}, "ja": {"t": "Malmun（マルムン）| PJと1対1で学ぶ本物の韓国語 — オンライン韓国語レッスン", "d": "旅行業30年・フィリピンでゴルフ指導20年のPJとマンツーマンで学ぶオンライン韓国語。韓国旅行、Kドラマ・K-POP、日常会話、ゴルフ、ビジネス、TOPIK対策まで。初回は無料オリエンテーション。"}};
+  var CFG = {"path": "/", "keep": [], "ko": null, "en": {"t": "Malmun | 1:1 Korean with hand-picked native tutors", "d": "1:1 online Korean lessons with native Korean tutors Malmun has met in person. Travel Korean, K-drama & K-pop, everyday conversation, golf, business and TOPIK — pick the tutor who fits you. Your first lesson is a free orientation."}, "ja": {"t": "Malmun（マルムン）| 直接会って選んだ韓国人講師と1対1の韓国語", "d": "マルムンが直接会って選んだ韓国人講師とマンツーマンで学ぶオンライン韓国語。韓国旅行、Kドラマ・K-POP、日常会話、ゴルフ、ビジネス、TOPIK対策まで、自分に合う講師を選べます。初回は無料オリエンテーション。"}};
   var p = new URLSearchParams(location.search), l = p.get('lang');
   if(l === 'en' || l === 'ja' || l === 'ko'){ try{ localStorage.setItem('malmun_lang', l); }catch(e){} } else { l = null; }
   var lang = l || 'ko';                       // 주소에 lang이 없으면 한국어 주소로 취급
@@ -461,13 +487,13 @@
   <svg class="deco-ring corner-br" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="46" fill="none" stroke="var(--accent-border)" stroke-width="1.5" stroke-dasharray="2 7"/></svg>
   <div class="hero-visual">
     <div class="hero-photo-card desktop">
-      <img class="hero-photo" src="pj-hero.jpg" alt="PJ">
+      <div class="tutor-mosaic" id="heroMosaicDesktop"><div class="tile ph"></div><div class="tile ph"></div><div class="tile ph"></div><div class="tile ph"></div><div class="tile ph"></div><div class="tile ph"></div></div>
     </div>
   </div>
   <div class="hero-copy">
-    <p class="eyebrow" data-i18n="hero.eyebrow">PJ와 함께하는 1:1 한국어</p>
+    <p class="eyebrow" data-i18n="hero.eyebrow">직접 만나 본 한국인 튜터와 1:1 한국어</p>
     <h1><span data-i18n="hero.d.title1">말문이 트이면</span><br><span class="hl" data-i18n="hero.d.title2">한국어</span><span data-i18n="hero.d.title3">가 열려요</span></h1>
-    <p data-i18n="hero.d.sub">여행업 30년, 골프 레슨 20년 — 낯선 사람과 통하는 법을 오래 익혀온 PJ와 시작하세요.</p>
+    <p data-i18n="hero.d.sub">말문이 한 사람 한 사람 직접 만나 보고 고른 튜터들이에요. 여행, 드라마, 일상 대화, 비즈니스까지 — 나와 잘 맞는 선생님을 골라 보세요.</p>
     <p class="purpose-label" data-i18n="hero.purpose.label">한국어로 뭘 하고 싶나요?</p>
     <div class="purpose-dropdown" id="purposeDropdown" onclick="togglePurposeMenu(event)">
       <span data-i18n="hero.purpose.move" id="purposeLabel">✈️ 한국 여행</span>
@@ -481,7 +507,7 @@
     <div class="desktop-trust" style="display:flex; gap:48px; padding-top:24px; margin-top:24px; border-top:1px solid var(--card-border);">
       <div style="display:flex; gap:48px; cursor:pointer;" onclick="location.href='tutors.html'">
         <div><p id="ratingNumDesktop" style="font-size:20px;font-weight:600;margin:0;">–</p><p style="font-size:12px;color:var(--text-muted);margin:4px 0 0;" data-i18n="trust.rating">받은 후기</p></div>
-        <div><p style="font-size:20px;font-weight:600;margin:0;" data-i18n="trust.verified">30년</p><p style="font-size:12px;color:var(--text-muted);margin:4px 0 0;" data-i18n="trust.pro">여행업 경력</p></div>
+        <div><p style="font-size:20px;font-weight:600;margin:0;" id="tutorCountNumDesktop">–</p><p style="font-size:12px;color:var(--text-muted);margin:4px 0 0;" data-i18n="trust.pro">함께하는 튜터</p></div>
       </div>
       <div style="cursor:pointer;" onclick="location.href='curriculum.html'">
         <p style="font-size:20px;font-weight:600;margin:0;" data-i18n="trust.stages">첫 수업</p><p style="font-size:12px;color:var(--text-muted);margin:4px 0 0;" data-i18n="trust.curriculum">무료 오리엔테이션</p>
@@ -495,13 +521,13 @@
   <div class="hero-page">
   <section class="hero-mobile" style="border-top:none; padding-top:8px;">
     <div class="hero-photo-card mobile">
-      <img class="hero-photo" src="pj-hero.jpg" alt="PJ">
+      <div class="tutor-mosaic" id="heroMosaicMobile"><div class="tile ph"></div><div class="tile ph"></div><div class="tile ph"></div><div class="tile ph"></div><div class="tile ph"></div><div class="tile ph"></div></div>
     </div>
-    <p class="eyebrow" data-i18n="hero.eyebrow">PJ와 함께하는 1:1 한국어</p>
+    <p class="eyebrow" data-i18n="hero.eyebrow">직접 만나 본 한국인 튜터와 1:1 한국어</p>
     <h1 data-i18n="hero.title">한국이 궁금하다면,<br>말부터 트세요.</h1>
-    <p data-i18n="hero.sub">레벨테스트로 시작해서<br>PJ와 1:1로 배우는 진짜 한국어</p>
+    <p data-i18n="hero.sub">레벨테스트로 시작해서<br>나와 맞는 튜터와 1:1로 배우는 진짜 한국어</p>
     <button class="btn btn-primary" data-i18n="hero.cta1" onclick="location.href='level-test.html'">무료 레벨테스트 시작</button>
-    <a href="tutors.html"><button class="btn btn-secondary" data-i18n="hero.cta2">PJ 소개 보기</button></a>
+    <a href="tutors.html"><button class="btn btn-secondary" data-i18n="hero.cta2">👥 튜터 둘러보기</button></a>
     <button class="btn btn-secondary" style="margin-top:10px;" data-i18n="hero.cta3" onclick="location.href='free-talk.html'">💬 무료로 대화 먼저 요청하기</button>
     <div class="purpose-label-m" data-i18n="hero.purpose.label">한국어로 뭘 하고 싶나요?</div>
     <div class="purpose-chips-m">
@@ -517,7 +543,7 @@
 
   <div class="trust" style="border-top:none;">
     <div style="cursor:pointer;" onclick="location.href='tutors.html'"><p class="num" id="ratingNumMobile">–</p><p class="label" data-i18n="trust.rating">받은 후기</p></div>
-    <div style="cursor:pointer;" onclick="location.href='tutors.html'"><p class="num" data-i18n="trust.verified">30년</p><p class="label" data-i18n="trust.pro">여행업 경력</p></div>
+    <div style="cursor:pointer;" onclick="location.href='tutors.html'"><p class="num" id="tutorCountNumMobile">–</p><p class="label" data-i18n="trust.pro">함께하는 튜터</p></div>
     <div style="cursor:pointer;" onclick="location.href='curriculum.html'"><p class="num" data-i18n="trust.stages">첫 수업</p><p class="label" data-i18n="trust.curriculum">무료 오리엔테이션</p></div>
   </div>
   </div>
@@ -531,19 +557,14 @@
   </section>
 
   <section>
-    <p class="section-eyebrow" data-i18n="tutors.eyebrow">당신의 튜터</p>
-    <p class="section-title" data-i18n="tutors.title">PJ를 소개합니다</p>
-    <div class="pj-intro">
-      <div class="pj-avatar"><img src="pj-avatar.jpg" alt="PJ"></div>
-      <div>
-        <p class="pj-role" data-i18n="tutors.pj.role">여행업 30년 · 해외 골프 레슨 20년</p>
-        <p class="pj-bio" data-i18n="tutors.pj.bio">30년 넘게 여행업에 몸담으며 수많은 나라의 사람들과 그들의 문화를 직접 마주해왔고, 20년 동안 해외에서 골프를 가르치며 "어떻게 하면 진짜로 이해시킬 수 있을까"를 매번 다시 고민해왔습니다. 신학과 철학, 두 개의 전공을 거치며 사람이 언어를 통해 무엇을 붙잡으려 하는지도 오래 들여다봤습니다. 말문은 그 시간의 결과입니다 — 외워서 아는 한국어가 아니라, 입이 저절로 열리는 한국어를 가르칩니다.</p>
-        <div class="pj-credentials">
-          <span data-i18n="tutors.pj.tag1">여행업 30년</span>
-          <span data-i18n="tutors.pj.tag2">해외 골프 레슨 20년</span>
-          <span data-i18n="tutors.pj.tag3">신학·철학 전공</span>
-        </div>
-      </div>
+    <p class="section-eyebrow" data-i18n="tutors.eyebrow">함께하는 튜터</p>
+    <p class="section-title" data-i18n="tutors.title">말문의 튜터를 소개합니다</p>
+    <p class="section-desc" data-i18n="tutors.desc">살아온 길도, 잘하는 이야기도 모두 달라요. 카드를 넘겨 보며 나와 맞는 튜터를 찾아보세요.</p>
+    <div class="tutor-scroll" id="tutorCards"><p style="font-size:13px; color:var(--text-muted); padding:8px 0;">튜터를 불러오는 중...</p></div>
+    <a class="tc-all" href="tutors.html" data-i18n="tutors.all">모든 튜터 보기 →</a>
+    <div class="founder">
+      <img src="pj-avatar.jpg" alt="PJ">
+      <p data-i18n="founder.body"><b>말문을 만든 PJ</b> — 여행업 30년, 해외 골프 레슨 20년. 말문의 모든 튜터는 PJ가 직접 만나 보고 소개합니다.</p>
     </div>
   </section>
 
@@ -703,14 +724,14 @@
 <script>
 const TRANSLATIONS = {
   ko: {
-    "hero.eyebrow": "PJ와 함께하는 1:1 한국어",
+    "hero.eyebrow": "직접 만나 본 한국인 튜터와 1:1 한국어",
     "hero.title": "한국이 궁금하다면,<br>말부터 트세요.",
-    "hero.sub": "레벨테스트로 시작해서<br>PJ와 1:1로 배우는 진짜 한국어",
+    "hero.sub": "레벨테스트로 시작해서<br>나와 맞는 튜터와 1:1로 배우는 진짜 한국어",
     "hero.cta1": "무료 레벨테스트 시작",
-    "hero.cta2": "PJ 소개 보기",
+    "hero.cta2": "👥 튜터 둘러보기",
     "hero.cta3": "💬 무료로 대화 먼저 요청하기",
     "hero.d.title1": "말문이 트이면", "hero.d.title2": "한국어", "hero.d.title3": "가 열려요",
-    "hero.d.sub": "여행업 30년, 골프 레슨 20년 — 낯선 사람과 통하는 법을 오래 익혀온 PJ와 시작하세요.",
+    "hero.d.sub": "말문이 한 사람 한 사람 직접 만나 보고 고른 튜터들이에요. 여행, 드라마, 일상 대화, 비즈니스까지 — 나와 잘 맞는 선생님을 골라 보세요.",
     "hero.svgTitle": "노트북으로 화상 수업을 하는 학습자의 일러스트",
     "hero.svgGreeting": "안녕!",
     "hero.greeting1": "안녕하세요!",
@@ -723,14 +744,17 @@ const TRANSLATIONS = {
     "hero.purpose.golf": "⛳ 골프와 한국어",
     "hero.purpose.biz": "💼 비즈니스 한국어",
     "hero.purpose.study": "📝 TOPIK·시험 대비",
-    "hero.more1": "PJ 소개", "hero.more3": "더 보기",
+    "hero.more1": "튜터", "hero.more3": "더 보기",
     "trust.rating": "받은 후기",
     "trust.verified": "30년",
-    "trust.pro": "여행업 경력",
+    "trust.pro": "함께하는 튜터",
     "trust.stages": "첫 수업",
     "trust.curriculum": "무료 오리엔테이션",
-    "tutors.eyebrow": "당신의 튜터",
-    "tutors.title": "PJ를 소개합니다",
+    "tutors.eyebrow": "함께하는 튜터",
+    "tutors.desc": "살아온 길도, 잘하는 이야기도 모두 달라요. 카드를 넘겨 보며 나와 맞는 튜터를 찾아보세요.",
+    "tutors.all": "모든 튜터 보기 →",
+    "founder.body": "<b>말문을 만든 PJ</b> — 여행업 30년, 해외 골프 레슨 20년. 말문의 모든 튜터는 PJ가 직접 만나 보고 소개합니다.",
+    "tutors.title": "말문의 튜터를 소개합니다",
     "tutors.pj.role": "여행업 30년 · 해외 골프 레슨 20년",
     "tutors.pj.bio": "30년 넘게 여행업에 몸담으며 수많은 나라의 사람들과 그들의 문화를 직접 마주해왔고, 20년 동안 해외에서 골프를 가르치며 \"어떻게 하면 진짜로 이해시킬 수 있을까\"를 매번 다시 고민해왔습니다. 신학과 철학, 두 개의 전공을 거치며 사람이 언어를 통해 무엇을 붙잡으려 하는지도 오래 들여다봤습니다. 말문은 그 시간의 결과입니다 — 외워서 아는 한국어가 아니라, 입이 저절로 열리는 한국어를 가르칩니다.",
     "tutors.pj.tag1": "여행업 30년",
@@ -782,14 +806,14 @@ const TRANSLATIONS = {
     "nav.community": "커뮤니티", "nav.mypage": "마이페이지", "mypage.pricing": "요금제·패키지", "nav.tutorApply": "튜터 지원하기"
   },
   en: {
-    "hero.eyebrow": "1:1 Korean with PJ",
+    "hero.eyebrow": "1:1 Korean with native tutors we've met in person",
     "hero.title": "Curious about Korea?<br>Start with the words.",
-    "hero.sub": "Start with a level test,<br>then learn real Korean 1:1 with PJ",
+    "hero.sub": "Start with a level test,<br>then learn real Korean 1:1 with a tutor who fits you",
     "hero.cta1": "Start free level test",
-    "hero.cta2": "Meet PJ",
+    "hero.cta2": "👥 Browse tutors",
     "hero.cta3": "💬 Request a free chat first",
     "hero.d.title1": "Once your malmun opens,", "hero.d.title2": "Korean", "hero.d.title3": " starts to flow",
-    "hero.d.sub": "30 years in travel, 20 years teaching golf abroad — start with PJ, who has spent a lifetime learning how to actually connect with strangers.",
+    "hero.d.sub": "Every tutor here was met and chosen in person by Malmun. Travel, dramas, everyday talk, business — pick the teacher who suits you.",
     "hero.svgTitle": "A learner taking a video lesson on a laptop",
     "hero.svgGreeting": "Hi!",
     "hero.greeting1": "Hi there!",
@@ -802,14 +826,17 @@ const TRANSLATIONS = {
     "hero.purpose.golf": "⛳ Golf & Korean",
     "hero.purpose.biz": "💼 Korean for work",
     "hero.purpose.study": "📝 TOPIK & test prep",
-    "hero.more1": "Meet", "hero.more3": "PJ",
+    "hero.more1": "More", "hero.more3": "tutors",
     "trust.rating": "reviews",
     "trust.verified": "30 yrs",
-    "trust.pro": "in the travel industry",
+    "trust.pro": "tutors with us",
     "trust.stages": "1st lesson",
     "trust.curriculum": "free orientation",
-    "tutors.eyebrow": "Your tutor",
-    "tutors.title": "Meet PJ",
+    "tutors.eyebrow": "Our tutors",
+    "tutors.desc": "Different lives, different stories. Swipe through and find the tutor who clicks with you.",
+    "tutors.all": "See all tutors →",
+    "founder.body": "<b>PJ, founder of Malmun</b> — 30 years in travel, 20 years teaching golf abroad. PJ personally meets every Malmun tutor before introducing them.",
+    "tutors.title": "Meet the Malmun tutors",
     "tutors.pj.role": "30 years in travel · 20 years teaching golf abroad",
     "tutors.pj.bio": "Over 30 years in the travel industry, meeting people from countless countries and their cultures firsthand, and 20 years teaching golf abroad, constantly asking \"how do I actually make this click?\" Two degrees, in theology and philosophy, taught him to look closely at what people are really reaching for through language. Malmun is the result of that time — not memorized Korean, but Korean that comes out on its own.",
     "tutors.pj.tag1": "30 years in travel",
@@ -861,14 +888,14 @@ const TRANSLATIONS = {
     "nav.community": "Community", "nav.mypage": "My page", "mypage.pricing": "Pricing & packages", "nav.tutorApply": "Become a tutor"
   },
   ja: {
-    "hero.eyebrow": "PJ先生と学ぶ1対1韓国語",
+    "hero.eyebrow": "直接会って選んだ韓国人講師と1対1の韓国語",
     "hero.title": "韓国が気になるなら、<br>まず話してみましょう。",
-    "hero.sub": "レベルテストから始めて、<br>PJ先生と1対1で学ぶ本物の韓国語",
+    "hero.sub": "レベルテストから始めて、<br>自分に合う講師と1対1で学ぶ本物の韓国語",
     "hero.cta1": "無料レベルテストを始める",
-    "hero.cta2": "PJ先生の紹介",
+    "hero.cta2": "👥 講師を見てみる",
     "hero.cta3": "💬 まずは無料トークをリクエスト",
     "hero.d.title1": "マルムンが開けば、", "hero.d.title2": "韓国語", "hero.d.title3": "の世界が広がります",
-    "hero.d.sub": "旅行業30年、ゴルフレッスン20年 — 初対面の人と心を通わせる方法を長年磨いてきたPJ先生と始めましょう。",
+    "hero.d.sub": "マルムンが一人ひとり直接会って選んだ講師たちです。旅行、ドラマ、日常会話、ビジネスまで — 自分に合う先生を選んでください。",
     "hero.svgTitle": "ノートパソコンでオンライン授業を受ける学習者のイラスト",
     "hero.svgGreeting": "こんにちは！",
     "hero.greeting1": "こんにちは！",
@@ -881,14 +908,17 @@ const TRANSLATIONS = {
     "hero.purpose.golf": "⛳ ゴルフと韓国語",
     "hero.purpose.biz": "💼 ビジネス韓国語",
     "hero.purpose.study": "📝 TOPIK・試験対策",
-    "hero.more1": "PJ先生を", "hero.more3": "もっと見る",
+    "hero.more1": "講師を", "hero.more3": "もっと見る",
     "trust.rating": "レビュー",
     "trust.verified": "30年",
-    "trust.pro": "旅行業の経験",
+    "trust.pro": "在籍講師",
     "trust.stages": "初回",
     "trust.curriculum": "無料オリエンテーション",
-    "tutors.eyebrow": "あなたの講師",
-    "tutors.title": "PJ先生をご紹介します",
+    "tutors.eyebrow": "在籍講師",
+    "tutors.desc": "歩んできた道も得意な話題もそれぞれ違います。カードをめくって、自分に合う講師を見つけてください。",
+    "tutors.all": "すべての講師を見る →",
+    "founder.body": "<b>マルムン創業者 PJ</b> — 旅行業30年、海外ゴルフレッスン20年。マルムンの講師は全員、PJが直接会ってからご紹介しています。",
+    "tutors.title": "マルムンの講師をご紹介します",
     "tutors.pj.role": "旅行業30年・海外ゴルフレッスン20年",
     "tutors.pj.bio": "30年以上旅行業に携わり、数多くの国の人々とその文化に直接向き合ってきました。20年間海外でゴルフを教えながら、「どうすれば本当に伝わるのか」を常に考え続けてきました。神学と哲学、二つの専攻を通じて、人が言葉を通して何をつかもうとしているのかも長く見つめてきました。マルムンはその時間の結果です — 暗記して知っている韓国語ではなく、自然と口から出てくる韓国語を教えます。",
     "tutors.pj.tag1": "旅行業30年",
@@ -957,6 +987,7 @@ function applyLang(lang){
   });
   localStorage.setItem('malmun_lang', lang);
   if(typeof applyGreetingPersonalization === 'function') applyGreetingPersonalization();
+  if(typeof homeTutors !== 'undefined' && homeTutors.length) renderHomeTutors();
 }
 
 // ── 목적 드롭다운: 실제 클릭으로 열리고 선택되는 기능 ──
@@ -1106,40 +1137,53 @@ db.collection('reviews').where('published','==',true).orderBy('createdAt','desc'
   if(mobileNum) mobileNum.textContent = '-';
 });
 
-// 홈 화면 "추천 튜터" 섹션에 몇 명까지 보여줄지 - 튜터가 늘어나면 이 숫자만 바꾸면 됩니다.
-// (가로 스크롤 방식이라 모바일에서는 숫자를 늘려도 레이아웃이 깨지지 않습니다)
-const HOMEPAGE_FEATURED_TUTOR_COUNT = 3;
-
+// 2026-11-07: 여러 튜터 체제 — 히어로 얼굴 모자이크 + "말문의 튜터를 소개합니다" 카드 (Firestore tutors 실시간)
+var homeTutors = [];   // var: 언어 전환 함수가 먼저 불려도 오류 없게
+function escT(v){ const d = document.createElement('div'); d.textContent = v == null ? '' : String(v); return d.innerHTML; }
+function curLangHome(){ try{ return localStorage.getItem('malmun_lang') || 'ko'; }catch(e){ return 'ko'; } }
+function tutorField(t, key){ const L = curLangHome(); const loc = t[L] || {}; return (loc[key] && String(loc[key]).trim()) ? loc[key] : ((t.ko || {})[key] || ''); }
+function renderHomeTutors(){
+  const L = curLangHome();
+  const go = { ko:'프로필 보기 →', en:'View profile →', ja:'プロフィールを見る →' }[L] || '프로필 보기 →';
+  const unit = { ko:'명', en:'', ja:'名' }[L] || '';
+  ['tutorCountNumDesktop','tutorCountNumMobile'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) countUpText(el, homeTutors.length, n => n + unit);
+  });
+  // 히어로 모자이크: 사진 있는 튜터 최대 6명 (4명 이하면 2열)
+  const withPhoto = homeTutors.filter(t => t.data.avatarImage).slice(0, 6);
+  ['heroMosaicDesktop','heroMosaicMobile'].forEach(id => {
+    const el = document.getElementById(id);
+    if(!el) return;
+    if(withPhoto.length < 2){ el.outerHTML = '<img class="hero-photo" src="pj-hero.jpg" alt="Malmun">'; return; }
+    const list = withPhoto.length === 5 ? withPhoto.slice(0, 4) : withPhoto;
+    el.classList.toggle('two', list.length === 4 || list.length === 2);
+    el.innerHTML = list.map(t => `<div class="tile" style="background-image:url('${escT(t.data.avatarImage)}')" onclick="location.href='tutor-profile.html?id=${encodeURIComponent(t.id)}'"><span>${escT(tutorField(t.data,'name'))}</span></div>`).join('');
+  });
+  const box = document.getElementById('tutorCards');
+  if(!box) return;
+  if(!homeTutors.length){ box.innerHTML = '<p style="font-size:13px; color:var(--text-muted); padding:8px 0;">곧 튜터를 만나보실 수 있어요.</p>'; return; }
+  box.innerHTML = homeTutors.map(({ id, data }) => {
+    const photo = data.avatarImage ? `background-image:url('${escT(data.avatarImage)}')` : `background:${escT(data.avatarColor || '#3b5f8f')}`;
+    const intro = tutorField(data, 'intro');
+    const tags = (tutorField(data, 'tags') || []).filter(x => x && String(x).trim()).slice(0, 3);
+    return `<div class="tc-card" onclick="location.href='tutor-profile.html?id=${encodeURIComponent(id)}'">
+      <div class="tc-top"><div class="tc-photo" style="${photo}"></div>
+        <div><p class="tc-name">${escT(tutorField(data,'name'))}</p><p class="tc-role">${escT(tutorField(data,'role'))}</p></div></div>
+      <p class="tc-intro">${intro && intro !== '없어요' ? escT(intro) : ''}</p>
+      ${tags.length ? `<div class="tc-tags">${tags.map(x => `<span>${escT(x)}</span>`).join('')}</div>` : ''}
+      <p class="tc-go">${go}</p>
+    </div>`;
+  }).join('');
+}
 db.collection('tutors').get().then(snap => {
-  const count = snap.size;
-  const el = document.getElementById('tutorCountNumDesktop');
-  if(el) countUpText(el, count, (n) => n + '명');
-
-  const docs = snap.docs.map(d => ({ id: d.id, data: d.data() }));
-  docs.sort((a, b) => (parseFloat(b.data.ko && b.data.ko.rating) || 0) - (parseFloat(a.data.ko && a.data.ko.rating) || 0));
-  const top = docs.slice(0, HOMEPAGE_FEATURED_TUTOR_COUNT);
-  const scrollEl = document.getElementById('tutorScrollDynamic');
-  if(scrollEl){
-    if(top.length === 0){
-      scrollEl.innerHTML = '<p style="font-size:13px; color:var(--text-muted); padding:8px 0;">곧 튜터를 만나보실 수 있어요.</p>';
-    }else{
-      scrollEl.innerHTML = top.map(({ id, data }) => {
-        const d = data.ko || {};
-        const avatarStyle = data.avatarImage ? `background:url('${data.avatarImage}') center/cover;` : `background:${data.avatarColor || '#3b5f8f'};`;
-        return `
-          <div class="tutor-card" style="cursor:pointer;" onclick="location.href='tutor-profile.html?id=${id}'">
-            <div class="tutor-avatar" style="${avatarStyle}"></div>
-            <p class="tutor-name">${d.name || ''}</p>
-            <p class="tutor-desc">${d.role || ''}</p>
-            ${(Number(d.reviewCount) > 0 && d.rating) ? `<div class="tutor-meta"><span class="star">★</span> ${d.rating} · 후기 ${d.reviewCount}개</div>` : ''}
-            <p class="tutor-price">₩${Number(data.price || 0).toLocaleString('en-US')}<span>/회</span></p>
-          </div>
-        `;
-      }).join('');
-    }
-  }
+  homeTutors = snap.docs.map(d => ({ id: d.id, data: d.data() }))
+    .filter(t => (t.data.ko || {}).name)
+    .sort((a, b) => (Number(a.data.order) || 0) - (Number(b.data.order) || 0));
+  renderHomeTutors();
 }).catch(err => {
   console.error('튜터 정보 불러오기 실패:', err);
+  ['heroMosaicDesktop','heroMosaicMobile'].forEach(id => { const el = document.getElementById(id); if(el) el.outerHTML = '<img class="hero-photo" src="pj-hero.jpg" alt="Malmun">'; });
 });
 
 function countUp(el, target, decimals, duration){
