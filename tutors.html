@@ -9,7 +9,7 @@
 <meta property="og:image" content="https://malmunkorean.com/pj-hero.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://malmunkorean.com/pj-hero.jpg">
-<meta name="description" content="여행업 30년, 필리핀 골프 레슨 20년 PJ와 1:1로 배우는 한국어 — 한국 여행, K-드라마·K-POP, 일상 대화, 골프, 비즈니스, TOPIK까지. 첫 수업은 무료 오리엔테이션.">
+<meta name="description" content="말문이 직접 만나 보고 고른 한국인 튜터들을 소개합니다. 살아온 길도, 잘하는 이야기도 다른 튜터와 1:1 온라인 한국어 — 한국 여행, K-드라마·K-POP, 일상 대화, 골프, 비즈니스, TOPIK. 첫 수업은 무료 오리엔테이션.">
 <style>
   :root{
     --bg: #FFF9F0;
@@ -104,7 +104,7 @@
 <script>
 /* ── 언어별 주소: ?lang=en / ?lang=ja 로 들어오면 그 언어로 열리고, 구글도 언어별 페이지로 따로 등록합니다 ── */
 (function(){
-  var CFG = {"path": "/tutors.html", "keep": [], "ko": null, "en": {"t": "Meet PJ — your 1:1 Korean tutor | Malmun", "d": "PJ is a native Korean tutor with 30 years in travel and 20 years teaching golf in the Philippines. Learn Korean through real conversation — first lesson free."}, "ja": {"t": "PJ先生の紹介 — マンツーマン韓国語講師 | Malmun", "d": "旅行業30年、フィリピンでゴルフ指導20年のネイティブ韓国語講師PJ。本物の会話で韓国語を学べます。初回レッスン無料。"}};
+  var CFG = {"path": "/tutors.html", "keep": [], "ko": null, "en": {"t": "Native Korean tutors, met in person | Malmun", "d": "Meet the native Korean tutors Malmun has met and chosen in person — different lives, different stories. 1:1 online Korean lessons, first lesson free."}, "ja": {"t": "直接会って選んだ韓国人講師 | Malmun", "d": "マルムンが直接会って選んだネイティブ韓国人講師をご紹介。歩んできた道も得意な話題もそれぞれ違う講師と1対1のオンライン韓国語。初回レッスン無料。"}};
   var p = new URLSearchParams(location.search), l = p.get('lang');
   if(l === 'en' || l === 'ja' || l === 'ko'){ try{ localStorage.setItem('malmun_lang', l); }catch(e){} } else { l = null; }
   var lang = l || 'ko';                       // 주소에 lang이 없으면 한국어 주소로 취급
@@ -131,7 +131,7 @@
 <div class="wrap">
   <div class="header">
     <div>
-      <h1 class="title" id="tutorCountTitle" data-i18n="tutors.count">튜터를 불러오는 중...</h1>
+      <h1 class="title" id="tutorCountTitle" data-i18n="tutors.count">말문의 한국인 튜터</h1>
       <p class="philosophy" data-i18n="tutors.philosophy">여러 튜터를 늘어놓지 않아요. 직접 만나보고 확신이 선 사람만 소개해요.</p>
     </div>
     <div class="lang-dropdown" id="langDropdown">
@@ -269,9 +269,10 @@ function renderTutorList(){
       en: `${d.reviewCount || 0} reviews`,
       ja: `レビュー${d.reviewCount || 0}件`
     };
-    const card = document.createElement('button');
+    const card = document.createElement('a');   // 진짜 링크 — 검색엔진이 튜터 프로필을 따라갈 수 있게
     card.className = 'tutor-card';
-    card.onclick = () => location.href = 'tutor-profile.html?id=' + id;
+    card.href = 'tutor-profile.html?id=' + encodeURIComponent(id);
+    card.style.textDecoration = 'none'; card.style.color = 'inherit';
     card.innerHTML = `
       <div class="avatar" style="${data.avatarImage ? `background:url('${data.avatarImage}') center/cover;` : `background:${data.avatarColor || '#3b5f8f'};`}"></div>
       <div class="info">

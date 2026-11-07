@@ -3,8 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>튜터 프로필 | 말문</title>
-<meta name="description" content="말문 튜터 프로필 — 경력, 수업 방식, 가능한 시간을 확인하고 1:1 한국어 수업을 예약하세요.">
+<title>말문 튜터 프로필 — 직접 만나 본 한국인 튜터 | 말문 Malmun</title>
+<meta name="description" content="말문 튜터 프로필 — 튜터의 이야기와 한국 일상 사진을 보고, 나와 맞는 한국인 튜터와 1:1 한국어 수업을 시작하세요.">
+<meta property="og:type" content="profile">
+<meta property="og:site_name" content="말문 Malmun">
 <style>
   :root{
     --bg: #FFF9F0;
@@ -159,6 +161,8 @@ const urlParams = new URLSearchParams(window.location.search);
 const currentTutorId = urlParams.get('id') || urlParams.get('tutor');
 const wantsInstant = urlParams.get('instant') === '1';
 
+// 주소에 ?lang=en / ?lang=ja 가 있으면 그 언어로 시작 (검색엔진·공유 링크용)
+(function(){ const l = urlParams.get('lang'); if(l === 'ko' || l === 'en' || l === 'ja'){ try{ localStorage.setItem('malmun_lang', l); }catch(e){} } })();
 let currentLang = localStorage.getItem('malmun_lang') || 'ko';
 let tutorData = null;
 
@@ -192,11 +196,43 @@ const TRANSLATIONS = {
   }
 };
 
+/* 2026-11-07 검색엔진: 튜터마다 제목·설명·대표 주소·공유 이미지·구조화 데이터(Person)를 채움 */
+function setMetaTag(sel, attr, val){
+  let m = document.head.querySelector(sel);
+  if(!m){ m = document.createElement(sel.startsWith('link') ? 'link' : 'meta'); const a = sel.match(/\[(\w+)="([^"]+)"\]/); m.setAttribute(a[1], a[2]); document.head.appendChild(m); }
+  m.setAttribute(attr, val);
+}
+function applyProfileSEO(d){
+  const SUF = { ko:'말문 한국어 튜터', en:'Korean tutor at Malmun', ja:'マルムンの韓国語講師' }[currentLang] || '말문 한국어 튜터';
+  const title = `${d.name} — ${d.role || d.headline || ''}`.replace(/ — $/, '') + ` | ${SUF}`;
+  const desc = String(d.intro || d.story || '').replace(/\s+/g, ' ').trim().slice(0, 150);
+  const base = 'https://malmunkorean.com/tutor-profile.html?id=' + encodeURIComponent(currentTutorId || '');
+  const url = currentLang === 'ko' ? base : base + '&lang=' + currentLang;
+  document.title = title;
+  setMetaTag('meta[name="description"]', 'content', desc);
+  setMetaTag('meta[property="og:title"]', 'content', title);
+  setMetaTag('meta[property="og:description"]', 'content', desc);
+  setMetaTag('meta[property="og:url"]', 'content', url);
+  if(tutorData && tutorData.avatarImage) setMetaTag('meta[property="og:image"]', 'content', tutorData.avatarImage);
+  setMetaTag('link[rel="canonical"]', 'href', url);
+  ['ko','en','ja'].forEach(L => setMetaTag(`link[hreflang="${L}"]`, 'href', L === 'ko' ? base : base + '&lang=' + L));
+  document.querySelectorAll('link[hreflang]').forEach(l => l.setAttribute('rel', 'alternate'));
+  let ld = document.getElementById('tutorLd');
+  if(!ld){ ld = document.createElement('script'); ld.type = 'application/ld+json'; ld.id = 'tutorLd'; document.head.appendChild(ld); }
+  ld.textContent = JSON.stringify({
+    '@context': 'https://schema.org', '@type': 'ProfilePage', url: url, inLanguage: currentLang,
+    mainEntity: { '@type': 'Person', name: d.name, jobTitle: d.role || '', description: desc,
+      image: (tutorData && tutorData.avatarImage) || undefined, knowsLanguage: 'ko',
+      worksFor: { '@type': 'EducationalOrganization', name: '말문 Malmun', url: 'https://malmunkorean.com/' } }
+  });
+}
+
 function fmtKRW(n){ return '₩' + Number(n || 0).toLocaleString('en-US'); }
 
 function renderProfile(){
   const bodyEl = document.getElementById('profileBody');
   if(!tutorData){
+    if(window.__profileLoaded) setMetaTag('meta[name="robots"]', 'content', 'noindex');   // 불러온 뒤에도 없는 튜터 주소는 검색에 올리지 않음
     bodyEl.innerHTML = `<p class="loading">${(TRANSLATIONS[currentLang] || TRANSLATIONS.ko)['profile.notFound']}</p>`;
     document.getElementById('bookBtn').style.display = 'none';
     return;
@@ -233,7 +269,8 @@ function renderProfile(){
         return `<figure><img src="${E(g.img)}" alt="${E(t || c)}" loading="lazy" onclick="zoomImg(this.src)"><figcaption>${t ? `<b>${E(t)}</b>` : ''}${E(c)}</figcaption></figure>`; }).join('')}</div>` : ''}
     ${links.length ? `<p class="sec-title">${TT['sec.links']}</p>
       <div class="links">${links.map(l => `<a href="${E(l.url)}" target="_blank" rel="noopener">${E(capOf(l.label))}${capOf(l.sub) ? `<small>${E(capOf(l.sub))}</small>` : ''}</a>`).join('')}</div>` : ''}`;
-  document.title = `${d.name} 튜터 | 말문`;
+  { const rb = document.head.querySelector('meta[name="robots"]'); if(rb) rb.remove(); }
+  applyProfileSEO(d);
 
   const tags = (d.tags || []).filter(Boolean);
   bodyEl.innerHTML = `
@@ -325,6 +362,7 @@ async function requestInstant(){
 
 async function loadTutor(){
   if(!currentTutorId){
+    window.__profileLoaded = true;
     renderProfile();
     return;
   }
@@ -335,6 +373,7 @@ async function loadTutor(){
     console.error('튜터 정보 로드 실패:', err);
     tutorData = null;
   }
+  window.__profileLoaded = true;
   renderProfile();
 }
 

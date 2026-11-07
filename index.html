@@ -218,6 +218,8 @@
   .tutor-mosaic .tile span{ position:absolute; left:6px; bottom:6px; font-size:11px; font-weight:700; color:#fff; background:rgba(0,0,0,.45); padding:2px 7px; border-radius:8px; max-width:calc(100% - 12px); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .tutor-mosaic .tile.ph{ cursor:default; }
   .tutor-mosaic.two{ grid-template-columns:repeat(2,1fr); }
+  a.tc-card, a.tile{ color:inherit; text-decoration:none; }
+  a.tile{ display:block; }
   .tc-card{ min-width:240px; max-width:260px; background:var(--card); border:1px solid var(--card-border); border-radius:16px; padding:16px; flex-shrink:0; cursor:pointer; display:flex; flex-direction:column; }
   .tc-card:active{ background:var(--accent-soft); }
   .tc-top{ display:flex; gap:12px; align-items:center; margin-bottom:10px; }
@@ -447,6 +449,85 @@
   var s = CFG[lang];
   if(s) window.__setSEO__(s.t, s.d);
 })();
+</script>
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@graph": [
+  {
+   "@type": "EducationalOrganization",
+   "@id": "https://malmunkorean.com/#org",
+   "name": "말문 Malmun",
+   "alternateName": [
+    "Malmun",
+    "말문 한국어"
+   ],
+   "url": "https://malmunkorean.com/",
+   "logo": "https://malmunkorean.com/pj-avatar.jpg",
+   "description": "말문이 직접 만나 보고 고른 한국인 튜터들과 1:1 온라인 한국어 수업. 여행·K-드라마·일상 대화·골프·비즈니스·TOPIK.",
+   "email": "tourjang@gmail.com",
+   "telephone": "+82-10-8197-2504",
+   "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "오금로11길 11",
+    "addressLocality": "송파구",
+    "addressRegion": "서울특별시",
+    "addressCountry": "KR"
+   },
+   "founder": {
+    "@type": "Person",
+    "name": "PJ (장수남)"
+   },
+   "sameAs": [
+    "https://www.instagram.com/paulo.jang/"
+   ]
+  },
+  {
+   "@type": "WebSite",
+   "@id": "https://malmunkorean.com/#site",
+   "url": "https://malmunkorean.com/",
+   "name": "말문 Malmun",
+   "inLanguage": [
+    "ko",
+    "en",
+    "ja"
+   ],
+   "publisher": {
+    "@id": "https://malmunkorean.com/#org"
+   }
+  },
+  {
+   "@type": "Course",
+   "name": "1:1 온라인 한국어 수업 (Online 1:1 Korean lessons)",
+   "description": "레벨테스트로 시작해 나와 맞는 한국인 튜터와 1:1로 배우는 온라인 한국어. 첫 수업은 무료 오리엔테이션.",
+   "provider": {
+    "@id": "https://malmunkorean.com/#org"
+   },
+   "inLanguage": "ko",
+   "offers": [
+    {
+     "@type": "Offer",
+     "name": "5회권",
+     "price": "150000",
+     "priceCurrency": "KRW",
+     "category": "Paid"
+    },
+    {
+     "@type": "Offer",
+     "name": "10회권",
+     "price": "270000",
+     "priceCurrency": "KRW",
+     "category": "Paid"
+    }
+   ],
+   "hasCourseInstance": {
+    "@type": "CourseInstance",
+    "courseMode": "online",
+    "courseWorkload": "PT50M"
+   }
+  }
+ ]
+}
 </script>
 </head>
 <body>
@@ -1158,7 +1239,7 @@ function renderHomeTutors(){
     if(withPhoto.length < 2){ el.outerHTML = '<img class="hero-photo" src="pj-hero.jpg" alt="Malmun">'; return; }
     const list = withPhoto.length === 5 ? withPhoto.slice(0, 4) : withPhoto;
     el.classList.toggle('two', list.length === 4 || list.length === 2);
-    el.innerHTML = list.map(t => `<div class="tile" style="background-image:url('${escT(t.data.avatarImage)}')" onclick="location.href='tutor-profile.html?id=${encodeURIComponent(t.id)}'"><span>${escT(tutorField(t.data,'name'))}</span></div>`).join('');
+    el.innerHTML = list.map(t => `<a class="tile" href="tutor-profile.html?id=${encodeURIComponent(t.id)}" style="background-image:url('${escT(t.data.avatarImage)}')" aria-label="${escT(tutorField(t.data,'name'))}"><span>${escT(tutorField(t.data,'name'))}</span></a>`).join('');
   });
   const box = document.getElementById('tutorCards');
   if(!box) return;
@@ -1167,13 +1248,13 @@ function renderHomeTutors(){
     const photo = data.avatarImage ? `background-image:url('${escT(data.avatarImage)}')` : `background:${escT(data.avatarColor || '#3b5f8f')}`;
     const intro = tutorField(data, 'intro');
     const tags = (tutorField(data, 'tags') || []).filter(x => x && String(x).trim()).slice(0, 3);
-    return `<div class="tc-card" onclick="location.href='tutor-profile.html?id=${encodeURIComponent(id)}'">
+    return `<a class="tc-card" href="tutor-profile.html?id=${encodeURIComponent(id)}">
       <div class="tc-top"><div class="tc-photo" style="${photo}"></div>
         <div><p class="tc-name">${escT(tutorField(data,'name'))}</p><p class="tc-role">${escT(tutorField(data,'role'))}</p></div></div>
       <p class="tc-intro">${intro && intro !== '없어요' ? escT(intro) : ''}</p>
       ${tags.length ? `<div class="tc-tags">${tags.map(x => `<span>${escT(x)}</span>`).join('')}</div>` : ''}
       <p class="tc-go">${go}</p>
-    </div>`;
+    </a>`;
   }).join('');
 }
 db.collection('tutors').get().then(snap => {

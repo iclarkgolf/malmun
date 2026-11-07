@@ -9,7 +9,7 @@
 <meta property="og:image" content="https://malmunkorean.com/pj-hero.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://malmunkorean.com/pj-hero.jpg">
-<meta name="description" content="레벨테스트 없이도 괜찮아요. 편한 요일과 시간을 골라 PJ에게 무료 대화를 먼저 요청해 보세요.">
+<meta name="description" content="레벨테스트 없이도 괜찮아요. 편한 요일과 시간을 골라 말문 튜터에게 무료 한국어 대화를 먼저 요청해 보세요.">
 <style>
   :root{
     --bg: #FFF9F0;
@@ -83,7 +83,7 @@ button[aria-label]:has(> svg:only-child){ padding:11px; margin:-11px; }
 <script>
 /* ── 언어별 주소: ?lang=en / ?lang=ja 로 들어오면 그 언어로 열리고, 구글도 언어별 페이지로 따로 등록합니다 ── */
 (function(){
-  var CFG = {"path": "/free-talk.html", "keep": [], "ko": null, "en": {"t": "Request a free Korean conversation with PJ | Malmun", "d": "No level test needed. Pick a day and time, leave PJ a note, and start with a free Korean conversation online."}, "ja": {"t": "PJ先生に無料で韓国語会話をリクエスト | Malmun", "d": "レベルテスト不要。曜日と時間を選んでメモを残すだけで、無料のオンライン韓国語会話を始められます。"}};
+  var CFG = {"path": "/free-talk.html", "keep": [], "ko": null, "en": {"t": "Request a free Korean conversation | Malmun", "d": "No level test needed. Pick a day and time, leave your tutor a note, and start with a free Korean conversation online."}, "ja": {"t": "無料で韓国語会話をリクエスト | Malmun", "d": "レベルテスト不要。曜日と時間を選んで講師にメモを残し、オンラインの無料韓国語会話から始めましょう。"}};
   var p = new URLSearchParams(location.search), l = p.get('lang');
   if(l === 'en' || l === 'ja' || l === 'ko'){ try{ localStorage.setItem('malmun_lang', l); }catch(e){} } else { l = null; }
   var lang = l || 'ko';                       // 주소에 lang이 없으면 한국어 주소로 취급

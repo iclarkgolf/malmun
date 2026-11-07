@@ -133,6 +133,12 @@ button[aria-label]:has(> svg:only-child){ padding:11px; margin:-11px; }
     </div>
   </div>
 
+  <!-- 2026-11-07: 검색엔진이 "빈 페이지(Soft 404)"로 보지 않도록 고정 소개글 -->
+  <p class="blog-intro" style="font-size:14px; color:#5F5E5A; line-height:1.75; margin:4px 0 18px; word-break:keep-all;">
+    말문 커뮤니티는 한국어를 배우는 사람과 말문 튜터들이 함께 만드는 공간이에요. 교과서에는 없는 진짜 한국어 표현,
+    한국 사람들의 평범한 하루 — 아침 밥상, 동네 산책, 김장 같은 이야기 — 그리고 한국 여행과 한국 생활에 도움이 되는 글을 모았어요.
+    궁금한 주제를 검색하거나 카테고리를 골라 둘러보세요.
+  </p>
   <div class="search-bar">
     <input type="text" id="search-input" placeholder="궁금한 주제를 검색해보세요" oninput="filterPosts()">
     <button onclick="filterPosts()">🔍</button>
