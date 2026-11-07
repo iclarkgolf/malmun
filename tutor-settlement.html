@@ -160,12 +160,29 @@ async function start(){
       if(a.tutorId) tutorInfo[a.tutorId] = { name: a.name || '', phone: a.phone || '', payoutAccount: a.payoutAccount || null };
     });
   }catch(e){ console.error('튜터 정보 불러오기 실패', e); }
+  let backfilled = false;
   db.collection('completedLessons').onSnapshot(snap => {
     lessons = snap.docs.map(x => ({ id: x.id, ...x.data() }));
     render();
+    if(!backfilled){ backfilled = true; backfillTutorUid(); }
   }, err => {
     document.getElementById('app').innerHTML = `<p class="empty">완료 수업을 불러오지 못했어요.<br>${esc(err.message)}</p>`;
   });
+}
+
+// 2026-11-07 보안: 예전 완료 기록에 튜터 계정(tutorUid)을 붙여 튜터 홈에서 계속 보이게 함
+async function backfillTutorUid(){
+  const owners = {};
+  for(const l of lessons){
+    if(l.tutorUid || !l.tutorId) continue;
+    try{
+      if(owners[l.tutorId] === undefined){
+        const d = await db.collection('tutors').doc(l.tutorId).get();
+        owners[l.tutorId] = (d.exists && d.data().ownerUid) || '';
+      }
+      if(owners[l.tutorId]) await db.collection('completedLessons').doc(l.id).update({ tutorUid: owners[l.tutorId] });
+    }catch(e){ console.error('tutorUid 채우기 실패', l.id, e); }
+  }
 }
 
 function setMonth(v){ if(v){ month = v; render(); } }

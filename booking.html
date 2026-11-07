@@ -324,6 +324,11 @@ function buildBookingUI(){
 
 // ── 수강 신청 → PJ가 "입금 확인"한 건을 내 크레딧으로 자동 반영 (pricing·mypage·booking 공통) ──
 async function claimPaidEnrollments(uid){
+  // 2026-11-07 보안: 크레딧 충전은 이제 PJ가 관리자 화면에서 "입금 확인"을 누를 때 바로 처리됨.
+  // 학생 화면에서는 크레딧을 만들 수 없도록 데이터베이스 규칙으로 막았으므로 여기서는 아무것도 하지 않음.
+  return;
+}
+async function claimPaidEnrollments_legacy(uid){
   try{
     const snap = await db.collection('enrollRequests').where('uid', '==', uid).get();
     const targets = snap.docs.filter(d => { const r = d.data(); return r.status === 'paid' && !r.claimed; });
@@ -561,6 +566,11 @@ async function handleConfirm(){
 
   let usedUnitPrice = 0, usedLotId = '';   // 정산용 (2026-11-07)
   try{
+    // 2026-11-07 보안: 크레딧 1회 차감과 예약 저장을 "한 번에(batch)" 처리 —
+    // 데이터베이스 규칙이 "크레딧이 정확히 1 줄어든 예약"만 받아들이므로, 둘 중 하나만 되는 일이 없음
+    const bookingRef = db.collection('bookings').doc();
+    const batch = db.batch();
+    let usedLot = null;
     // 무료 오리엔테이션이 아니면, 가장 오래된 크레딧부터 1회 차감 (FIFO)
     if(!isFirstLesson){
       const lot = availableLots.find(l => l.remaining > 0);
@@ -569,14 +579,32 @@ async function handleConfirm(){
         location.href = 'pricing.html';
         return;
       }
-      await lot.ref.update({ remainingSessions: firebase.firestore.FieldValue.increment(-1) });
-      lot.remaining -= 1;
-      creditBalance -= 1;
+      usedLot = lot;
       usedUnitPrice = lot.unitPrice || 30000;
       usedLotId = lot.ref.id;
+      batch.update(lot.ref, { remainingSessions: firebase.firestore.FieldValue.increment(-1), lastBookingId: bookingRef.id });
     }
+    batch.set(bookingRef, {
+      tutorId: currentTutorId,
+      tutorName: tutorName,
+      studentUid: user.uid,
+      studentName: user.displayName || (user.email ? user.email.split('@')[0] : '학생'),
+      studentEmail: user.email || '',
+      day: selectedDay,
+      dayLabel: dayLabel,
+      time: selectedTime,
+      price: currentFinalPrice,
+      unitPrice: usedUnitPrice,
+      creditLotId: usedLotId,
+      isFreeOrientation: isFirstLesson,
+      roomId: roomId,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    await batch.commit();
+    if(usedLot){ usedLot.remaining -= 1; creditBalance -= 1; }
 
     await db.collection('users').doc(user.uid).collection('history').add({
+      bookingId: bookingRef.id,
       type: 'booking',
       text: isFirstLesson
         ? ({
@@ -602,27 +630,7 @@ async function handleConfirm(){
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
 
-    // 튜터가 예약 목록을 확인할 수 있도록 최상위 bookings 컬렉션에도 동일하게 기록
-    try{
-      await db.collection('bookings').add({
-        tutorId: currentTutorId,
-        tutorName: tutorName,
-        studentUid: user.uid,
-        studentName: user.displayName || (user.email ? user.email.split('@')[0] : '학생'),
-        studentEmail: user.email || '',
-        day: selectedDay,
-        dayLabel: dayLabel,
-        time: selectedTime,
-        price: currentFinalPrice,
-        unitPrice: usedUnitPrice,
-        creditLotId: usedLotId,
-        isFreeOrientation: isFirstLesson,
-        roomId: roomId,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      });
-    }catch(bookingListErr){
-      console.error('튜터용 예약 목록 저장 실패 (학생 예약 자체는 완료됨):', bookingListErr);
-    }
+    // (튜터용 bookings 기록은 위에서 크레딧 차감과 함께 한 번에 저장됨)
 
     // PJ님께 즉시 이메일 알림 (실패해도 예약 자체는 정상 처리되도록 별도 try/catch)
     try{

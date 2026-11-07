@@ -444,52 +444,7 @@ function closePurchaseModal(){
   document.getElementById('modalOverlay').classList.remove('open');
 }
 
-async function confirmPurchase(){
-  const user = auth.currentUser;
-  if(!user){
-    alert(tr('pricing.loginNeeded'));
-    location.href = 'login.html?next=pricing';
-    return;
-  }
-  const pack = PACKAGES[selectedPackage];
-  const btn = document.getElementById('confirmPurchaseBtn');
-  btn.disabled = true;
-
-  try{
-    const now = new Date();
-    const expiresAt = new Date(now.getTime() + CREDIT_VALID_DAYS * 24 * 60 * 60 * 1000);
-
-    await db.collection('users').doc(user.uid).collection('creditLots').add({
-      packageType: selectedPackage,
-      totalSessions: pack.sessions,
-      remainingSessions: pack.sessions,
-      pricePaid: pack.price,
-      regularPricePerSession: SESSION_PRICE,
-      purchasedAt: firebase.firestore.FieldValue.serverTimestamp(),
-      expiresAt: firebase.firestore.Timestamp.fromDate(expiresAt)
-    });
-
-    await db.collection('users').doc(user.uid).collection('history').add({
-      type: 'credit_purchase',
-      text: ({
-        ko: `${pack.sessions}회권 충전 완료 (테스트)`,
-        en: `Purchased ${pack.sessions}-lesson pack (test)`,
-        ja: `${pack.sessions}回パックのチャージ完了（テスト）`
-      })[currentLang],
-      sub: fmtKRW(pack.price),
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-
-    closePurchaseModal();
-    alert(tr('pricing.purchaseDone'));
-    loadBalance();
-  }catch(err){
-    console.error('크레딧 충전 실패:', err);
-    alert(({ ko: '오류가 발생했어요: ', en: 'Something went wrong: ', ja: 'エラーが発生しました：' })[currentLang] + err.message);
-  }finally{
-    btn.disabled = false;
-  }
-}
+// 2026-11-07 보안: 예전 '테스트 충전'(학생 화면에서 크레딧을 바로 만드는 코드) 삭제 — 쓰이지 않던 코드였음
 
 document.getElementById('confirmPurchaseBtn').addEventListener('click', submitEnrollment);
 document.getElementById('modalOverlay').addEventListener('click', (e) => {
@@ -753,6 +708,11 @@ function watchMyEnrollments(uid){
 
 // ── 수강 신청 → PJ가 "입금 확인"한 건을 내 크레딧으로 자동 반영 (pricing·mypage·booking 공통) ──
 async function claimPaidEnrollments(uid){
+  // 2026-11-07 보안: 크레딧 충전은 이제 PJ가 관리자 화면에서 "입금 확인"을 누를 때 바로 처리됨.
+  // 학생 화면에서는 크레딧을 만들 수 없도록 데이터베이스 규칙으로 막았으므로 여기서는 아무것도 하지 않음.
+  return;
+}
+async function claimPaidEnrollments_legacy(uid){
   try{
     const snap = await db.collection('enrollRequests').where('uid', '==', uid).get();
     const targets = snap.docs.filter(d => { const r = d.data(); return r.status === 'paid' && !r.claimed; });

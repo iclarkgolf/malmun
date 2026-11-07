@@ -173,9 +173,22 @@ async function loadApps(){
     const snap = await db.collection('tutorApplications').orderBy('createdAt', 'desc').limit(100).get();
     allApps = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     render();
+    linkTutorOwners();
   }catch(err){
     console.error('지원서 목록 불러오기 실패:', err);
     document.getElementById('list').innerHTML = `<p class="empty">지원서를 불러오지 못했어요.<br>${err.message}</p>`;
+  }
+}
+
+// 2026-11-07 보안: 승인된 튜터 카드마다 "주인 계정(ownerUid)"을 연결 — 튜터는 자기 카드·자기 수업만 고칠 수 있게 됨
+async function linkTutorOwners(){
+  for(const a of allApps){
+    if(a.status !== 'approved' || !a.tutorId || !a.uid) continue;
+    try{
+      const ref = db.collection('tutors').doc(a.tutorId);
+      const d = await ref.get();
+      if(d.exists && d.data().ownerUid !== a.uid) await ref.update({ ownerUid: a.uid });
+    }catch(e){ console.error('튜터 카드 주인 연결 실패', a.tutorId, e); }
   }
 }
 
@@ -237,6 +250,7 @@ async function setStatus(id, status){
     // 승인 + 아직 튜터 카드가 없으면 자동으로 tutors 컬렉션에 카드 생성
     if(status === 'approved' && item && !item.tutorId){
       const tutorData = await buildTutorDataFromApp(item);
+      tutorData.ownerUid = item.uid || '';   // 2026-11-07 보안: 이 카드를 고칠 수 있는 튜터 계정
       const ref = await db.collection('tutors').add(tutorData);
       updates.tutorId = ref.id;
     }

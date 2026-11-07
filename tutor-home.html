@@ -361,7 +361,7 @@ function loadMyBookings(){
   });
 }
 function loadMyDone(){
-  db.collection('completedLessons').where('tutorId', '==', app.tutorId).onSnapshot(snap => {
+  db.collection('completedLessons').where('tutorUid', '==', me.uid).onSnapshot(snap => {   // 2026-11-07 보안: 내 계정(uid) 기준으로만 읽힘
     myDone = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     myDone.sort((a, b) => ((b.completedAt && b.completedAt.toMillis ? b.completedAt.toMillis() : 0) - (a.completedAt && a.completedAt.toMillis ? a.completedAt.toMillis() : 0)));
     if(bookingTab === 'done') renderBookings();
@@ -443,6 +443,7 @@ async function confirmDone(){
     await db.collection('completedLessons').doc(b.id).set({
       ...bookingData,
       ...payoutFields(b, 'lesson'),
+      tutorUid: me.uid,
       vocab: splitList(document.getElementById('doneVocab').value),
       grammar: splitList(document.getElementById('doneGrammar').value),
       nextGoal: document.getElementById('doneGoal').value.trim(),
@@ -517,6 +518,7 @@ async function markNoShow(id, btnEl){
     await db.collection('completedLessons').doc(b.id).set({
       ...bookingData,
       ...payoutFields(b, 'noshow'),
+      tutorUid: me.uid,
       noShow: true, vocab: [], grammar: [], nextGoal: '',
       completedBy: me.email || me.uid,
       completedAt: firebase.firestore.FieldValue.serverTimestamp()
