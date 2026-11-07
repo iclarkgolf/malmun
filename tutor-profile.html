@@ -80,6 +80,26 @@
     border-radius:10px; padding:10px 16px; font-size:13px; font-weight:600; cursor:pointer;
   }
   .instant-box button:disabled{ opacity:0.6; cursor:default; }
+
+  /* 2026-11-07: 튜터 자기소개 확장 — 한줄 제목·나의 이야기·일상 사진·온라인 링크 (한/영/일) */
+  .headline{ font-size:17px; font-weight:700; line-height:1.5; text-align:center; margin:0 0 18px; color:var(--text); }
+  .sec-title{ font-size:14px; font-weight:700; margin:0 0 10px; color:var(--text); }
+  .story{ background:var(--card); border:1px solid var(--card-border); border-radius:14px; padding:16px 16px 6px; margin:0 0 20px; }
+  .story p{ font-size:14px; color:var(--text-secondary); line-height:1.8; margin:0 0 12px; word-break:keep-all; }
+  .story.collapsed{ max-height:330px; overflow:hidden; position:relative; }
+  .story.collapsed::after{ content:''; position:absolute; left:0; right:0; bottom:0; height:80px; background:linear-gradient(rgba(255,255,255,0), #fff); }
+  .more-btn{ display:block; width:100%; margin:-10px 0 20px; background:none; border:1px solid var(--card-border); border-radius:10px; padding:10px; font-size:13px; font-weight:600; color:var(--text); cursor:pointer; font-family:inherit; }
+  .gallery{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:0 0 20px; }
+  .gallery figure{ margin:0; background:var(--card); border:1px solid var(--card-border); border-radius:12px; overflow:hidden; }
+  .gallery img{ width:100%; aspect-ratio:3/4; object-fit:cover; display:block; cursor:zoom-in; }
+  .gallery figcaption{ font-size:12px; color:var(--text-secondary); line-height:1.55; padding:8px 10px 10px; }
+  .gallery figcaption b{ display:block; color:var(--text); font-size:12.5px; margin-bottom:2px; }
+  .links{ display:flex; flex-direction:column; gap:8px; margin:0 0 20px; }
+  .links a{ display:block; background:var(--card); border:1px solid var(--card-border); border-radius:12px; padding:12px 14px; font-size:13px; color:var(--text); font-weight:600; }
+  .links a small{ display:block; font-weight:400; color:var(--text-muted); margin-top:2px; font-size:12px; }
+  #imgZoom{ position:fixed; inset:0; background:rgba(0,0,0,.85); display:none; align-items:center; justify-content:center; z-index:100; padding:20px; }
+  #imgZoom.open{ display:flex; }
+  #imgZoom img{ max-width:100%; max-height:100%; border-radius:8px; }
 </style>
 <style>
 /* 모바일 최적화: 작은 아이콘 버튼의 터치 영역 확대 (보이는 크기는 그대로) */
@@ -107,6 +127,7 @@ button[aria-label]:has(> svg:only-child){ padding:11px; margin:-11px; }
   </div>
 </div>
 
+<div id="imgZoom" onclick="this.classList.remove('open')"><img alt=""></div>
 <div class="booking-bar">
   <span class="price"><span id="tutorPrice">-</span><span class="unit" data-i18n="unit.perLesson">/회</span></span>
   <button id="bookBtn" data-i18n="profile.book">수업 예약하기</button>
@@ -144,19 +165,30 @@ let tutorData = null;
 const TRANSLATIONS = {
   ko: {
     "unit.perLesson": "/회", "profile.book": "수업 예약하기", "profile.notFound": "튜터 정보를 찾을 수 없어요",
-    "instant.desc": "지금 바로 이야기하고 싶으신가요? PJ님께 즉시 알림이 가고, 응답하시면 화상방으로 연결돼요.",
+    "instant.desc": "지금 바로 이야기하고 싶으신가요? 말문에 바로 알림이 가고, 연결되면 화상방에서 만나요.",
     "instant.btn": "지금 바로 상담 요청", "instant.sending": "요청 중...",
-    "instant.sent": "요청을 보냈어요! 화상방에서 PJ님을 기다려주세요.", "instant.err": "요청 중 문제가 생겼어요: ",
+    "instant.sent": "요청을 보냈어요! 화상방에서 잠시 기다려 주세요.", "instant.err": "요청 중 문제가 생겼어요: ",
+    "sec.story": "나의 이야기", "sec.gallery": "일상 구경하기", "sec.links": "온라인에서 더 보기", "more": "이야기 더 읽기 ▾", "less": "접기 ▴",
     "freetalk.desc": "지금이 아니어도 괜찮아요. 편한 요일·시간을 골라 무료 대화를 요청하면, 튜터가 확인하고 수락해요.",
     "freetalk.btn": "💬 무료 대화 요청하기"
   },
   en: {
     "unit.perLesson": "/lesson", "profile.book": "Book a lesson", "profile.notFound": "Could not find this tutor",
-    "instant.desc": "Want to talk right now? PJ gets notified immediately and you'll be connected in a video room.",
+    "instant.desc": "Want to talk right now? Malmun gets notified immediately and you'll meet in a video room.",
     "instant.btn": "Request instant chat", "instant.sending": "Requesting...",
-    "instant.sent": "Request sent! Please wait for PJ in the video room.", "instant.err": "Something went wrong: ",
+    "instant.sent": "Request sent! Please wait a moment in the video room.", "instant.err": "Something went wrong: ",
+    "sec.story": "My story", "sec.gallery": "A peek at my everyday", "sec.links": "More of me online", "more": "Read more ▾", "less": "Show less ▴",
     "freetalk.desc": "Not right now? Pick a day and time and request a free chat — the tutor will review and accept.",
     "freetalk.btn": "💬 Request a free chat"
+  },
+  ja: {
+    "unit.perLesson": "/回", "profile.book": "レッスンを予約する", "profile.notFound": "講師の情報が見つかりません",
+    "instant.desc": "今すぐ話したいですか？マルムンにすぐ通知が届き、つながったらビデオルームでお会いします。",
+    "instant.btn": "今すぐ相談をリクエスト", "instant.sending": "リクエスト中...",
+    "instant.sent": "リクエストを送りました！ビデオルームで少しお待ちください。", "instant.err": "問題が発生しました：",
+    "freetalk.desc": "今じゃなくても大丈夫。都合のいい曜日・時間を選んで無料トークをリクエストすると、講師が確認して承認します。",
+    "freetalk.btn": "💬 無料トークをリクエスト",
+    "sec.story": "わたしのこと", "sec.gallery": "わたしの日常", "sec.links": "オンラインでもっと見る", "more": "続きを読む ▾", "less": "閉じる ▴"
   }
 };
 
@@ -170,18 +202,37 @@ function renderProfile(){
     return;
   }
   const ko = tutorData.ko || {};
-  const en = tutorData.en || {};
+  const loc = (currentLang !== 'ko' && tutorData[currentLang]) ? tutorData[currentLang] : {};
+  const en = loc;   // (예전 코드 호환용 이름)
+  const pick = k => (loc[k] && (typeof loc[k] !== 'string' || loc[k].trim())) ? loc[k] : ko[k];
   const d = {
-    name: (currentLang === 'en' && en.name) ? en.name : ko.name,
-    role: (currentLang === 'en' && en.role) ? en.role : ko.role,
-    intro: (currentLang === 'en' && en.intro) ? en.intro : ko.intro,
-    tags: (currentLang === 'en' && en.tags && en.tags.length) ? en.tags : ko.tags,
+    name: pick('name'),
+    role: pick('role'),
+    intro: pick('intro'),
+    tags: (loc.tags && loc.tags.filter(Boolean).length) ? loc.tags : ko.tags,
+    headline: pick('headline'),
+    story: pick('story'),
     rating: ko.rating,
     reviewCount: ko.reviewCount,
     lessonCount: ko.lessonCount,
     reviewAuthor: ko.reviewAuthor,
-    reviewBody: (currentLang === 'en' && en.reviewBody) ? en.reviewBody : ko.reviewBody
+    reviewBody: pick('reviewBody')
   };
+  const TT = TRANSLATIONS[currentLang] || TRANSLATIONS.ko;
+  const E = v => { const x = document.createElement('div'); x.textContent = v == null ? '' : String(v); return x.innerHTML; };
+  const capOf = c => (c && typeof c === 'object') ? (c[currentLang] || c.ko || '') : (c || '');
+  const storyParas = String(d.story || '').split(/\n\s*\n/).map(p => p.trim()).filter(Boolean);
+  const gallery = (tutorData.gallery || []).filter(g => g && g.img);
+  const links = (tutorData.links || []).filter(l => l && /^https:\/\//.test(l.url || ''));
+  const extraHtml = `
+    ${storyParas.length ? `<p class="sec-title">${TT['sec.story']}</p>
+      <div class="story${storyParas.length > 4 ? ' collapsed' : ''}" id="storyBox">${storyParas.map(p => `<p>${E(p).replace(/\n/g, '<br>')}</p>`).join('')}</div>
+      ${storyParas.length > 4 ? `<button class="more-btn" id="storyMore">${TT['more']}</button>` : ''}` : ''}
+    ${gallery.length ? `<p class="sec-title">${TT['sec.gallery']}</p>
+      <div class="gallery">${gallery.map(g => { const c = capOf(g.caption); const t = capOf(g.title);
+        return `<figure><img src="${E(g.img)}" alt="${E(t || c)}" loading="lazy" onclick="zoomImg(this.src)"><figcaption>${t ? `<b>${E(t)}</b>` : ''}${E(c)}</figcaption></figure>`; }).join('')}</div>` : ''}
+    ${links.length ? `<p class="sec-title">${TT['sec.links']}</p>
+      <div class="links">${links.map(l => `<a href="${E(l.url)}" target="_blank" rel="noopener">${E(capOf(l.label))}${capOf(l.sub) ? `<small>${E(capOf(l.sub))}</small>` : ''}</a>`).join('')}</div>` : ''}`;
   document.title = `${d.name} 튜터 | 말문`;
 
   const tags = (d.tags || []).filter(Boolean);
@@ -192,8 +243,10 @@ function renderProfile(){
       <p class="role">${d.role || ''}</p>
       <div class="meta">${(Number(d.reviewCount) > 0 && d.rating) ? `<span class="star">★</span> ${d.rating} <span class="dim">· ${currentLang === 'ko' ? `후기 ${d.reviewCount}개` : `${d.reviewCount} reviews`}${Number(d.lessonCount) > 0 ? (currentLang === 'ko' ? ` · 수업 ${d.lessonCount}회` : ` · ${d.lessonCount} lessons`) : ''}</span>` : `<span class="dim">${currentLang === 'ko' ? '첫 수업 무료 오리엔테이션' : 'Free first orientation'}</span>`}</div>
     </div>
-    ${d.intro ? `<div class="section"><p class="intro">${d.intro}</p></div>` : ''}
+    ${d.headline ? `<p class="headline">${E(d.headline)}</p>` : ''}
+    ${d.intro && !storyParas.length ? `<div class="section"><p class="intro">${d.intro}</p></div>` : ''}
     ${tags.length ? `<div class="tags">${tags.map((tag, i) => `<span class="tag${i === 0 ? ' highlight' : ''}">${tag}</span>`).join('')}</div>` : ''}
+    ${extraHtml}
     ${d.reviewBody ? `
       <div class="review-card">
         <p class="author">${d.reviewAuthor || ''}</p>
@@ -211,7 +264,14 @@ function renderProfile(){
   document.getElementById('bookBtn').style.display = 'block';
   const instantBtn = document.getElementById('instantBtn');
   if(instantBtn){ instantBtn.addEventListener('click', requestInstant); }
+  const moreBtn = document.getElementById('storyMore');
+  if(moreBtn){ moreBtn.addEventListener('click', () => {
+    const box = document.getElementById('storyBox');
+    const open = box.classList.toggle('collapsed');
+    moreBtn.textContent = open ? TT['more'] : TT['less'];
+  }); }
 }
+function zoomImg(src){ const z = document.getElementById('imgZoom'); z.querySelector('img').src = src; z.classList.add('open'); }
 
 async function requestInstant(){
   const T = TRANSLATIONS[currentLang] || TRANSLATIONS.ko;
@@ -288,8 +348,10 @@ function applyLang(lang){
       el.innerHTML = dict[key];
     }
   });
-  document.getElementById('langCur').textContent = (lang === 'ko') ? '한국어' : 'English';
-  document.getElementById('langOther').textContent = (lang === 'ko') ? 'EN' : '한글';
+  const NEXT = { ko:'en', en:'ja', ja:'ko' };
+  const LBL = { ko:'한국어', en:'English', ja:'日本語' }, SHORT = { ko:'한글', en:'EN', ja:'日本語' };
+  document.getElementById('langCur').textContent = LBL[lang] || '한국어';
+  document.getElementById('langOther').textContent = SHORT[NEXT[lang] || 'en'];
   localStorage.setItem('malmun_lang', lang);
   renderProfile();
 }
@@ -301,7 +363,7 @@ function applyLang(lang){
 
 document.getElementById('langToggle').addEventListener('click', () => {
   const current = localStorage.getItem('malmun_lang') || 'ko';
-  applyLang(current === 'ko' ? 'en' : 'ko');
+  applyLang(({ ko:'en', en:'ja', ja:'ko' })[current] || 'ko');
 });
 
 document.getElementById('bookBtn').addEventListener('click', () => {
