@@ -64,9 +64,9 @@
 
 <div id="gate">
   <h1 style="text-align:center; font-size:18px;">말문 Admin</h1>
-  <input type="password" id="pwInput" placeholder="비밀번호">
-  <button id="pwBtn">입장</button>
-  <p id="gateError">비밀번호가 틀렸습니다</p>
+  <input type="hidden" id="pwInput">
+  <button id="pwBtn">구글로 로그인 (PJ 계정)</button>
+  <p id="gateError"></p>
 </div>
 
 <div id="app">
@@ -125,6 +125,14 @@
         <div>
           <p class="name">예약 관리 · 무료 대화 · 💳 수강 신청</p>
           <p class="desc">예약 확인·화상룸 입장, 무료 대화 수락, 수강 신청 결제 안내·입금 확인</p>
+        </div>
+        <span class="arrow">→</span>
+      </a>
+      <a class="link-card" href="tutor-settlement.html">
+        <div class="icon">💰</div>
+        <div>
+          <p class="name">튜터 정산</p>
+          <p class="desc">튜터별 월 정산표 · 지급 완료 처리 · 이의 확인</p>
         </div>
         <span class="arrow">→</span>
       </a>
@@ -286,14 +294,15 @@
 </div>
 
 <script>
-const ADMIN_PW = "admin0115";
+// 2026-11-07: 비밀번호 방식 폐지 — 아래 "관리자 입장" 스크립트에서 PJ 구글 계정으로 확인
 
 document.getElementById('pwBtn').addEventListener('click', tryUnlock);
 document.getElementById('pwInput').addEventListener('keydown', e => { if(e.key === 'Enter') tryUnlock(); });
 
 function tryUnlock(){
+  if(window.__malmunAdminOk !== true){ adminGoogleLogin(); return; }
   const val = document.getElementById('pwInput').value;
-  if(val === ADMIN_PW){
+  if(window.__malmunAdminOk === true){
     document.getElementById('gate').style.display = 'none';
     document.getElementById('app').style.display = 'block';
     sessionStorage.setItem('malmun_admin_ok', '1');
@@ -303,11 +312,46 @@ function tryUnlock(){
 }
 
 // 같은 브라우저 세션 안에서는 재입력 없이 통과 (탭 닫으면 초기화)
-if(sessionStorage.getItem('malmun_admin_ok') === '1'){
+if(false /* 2026-11-07: 구글 로그인 확인 후 자동 입장 */){
   document.getElementById('gate').style.display = 'none';
   document.getElementById('app').style.display = 'block';
 }
 </script>
 
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script>
+/* ───── 관리자 입장: 비밀번호 대신 PJ 구글 계정(tourjang@gmail.com)으로만 열림 (2026-11-07) ───── */
+(function(){
+  const ADMIN_EMAILS = ['tourjang@gmail.com'];
+  if(!firebase.apps.length) firebase.initializeApp({
+    apiKey: "AIzaSyD10IdHCDkCybMrkO5fewo0ksYFBmqwWro",
+    authDomain: "malmun-bca03.firebaseapp.com",
+    projectId: "malmun-bca03",
+    storageBucket: "malmun-bca03.firebasestorage.app",
+    messagingSenderId: "831462084669",
+    appId: "1:831462084669:web:003a844918b165d5b65a54"
+  });
+  const a = firebase.auth();
+  window.adminGoogleLogin = function(){
+    const p = new firebase.auth.GoogleAuthProvider();
+    p.setCustomParameters({ prompt: 'select_account' });
+    a.signInWithPopup(p).catch(() => a.signInWithRedirect(p));
+  };
+  window.adminSignOut = function(){ a.signOut(); };
+  let opened = false;
+  a.onAuthStateChanged(u => {
+    const ok = !!u && ADMIN_EMAILS.includes((u.email || '').toLowerCase());
+    window.__malmunAdminOk = ok;
+    const err = document.getElementById('gateError');
+    if(ok){
+      if(!opened){ opened = true; tryUnlock(); }
+    }else if(u && err){
+      err.innerHTML = '관리자 계정이 아니에요 (' + (u.email || '') + ')<br><a href="#" onclick="adminSignOut();return false;" style="text-decoration:underline;">다른 계정으로 로그인</a>';
+      err.style.display = 'block';
+    }
+  });
+})();
+</script>
 </body>
 </html>

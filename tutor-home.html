@@ -51,6 +51,16 @@
   .bk .btn-row .btn{ min-width:0; padding:10px 6px; font-size:12px; }
   .bk .btn.done{ border-color:var(--success); color:var(--success); }
   .bk .btn.cancel{ border-color:var(--card-border); color:var(--text-muted); }
+  .bk .btn.noshow{ border-color:#E8B04A; color:#B7791F; }
+  /* 정산 */
+  .earn-grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:10px; }
+  .earn-box{ border:1px solid var(--card-border); border-radius:12px; padding:10px 12px; }
+  .earn-box small{ display:block; font-size:11px; color:var(--text-muted); }
+  .earn-box b{ font-size:16px; }
+  .st{ display:inline-block; font-size:11px; padding:2px 8px; border-radius:8px; margin-left:4px; font-weight:600; }
+  .st.ok{ background:#E4F4E7; color:var(--success); } .st.wait{ background:var(--accent-soft); color:var(--accent-text); }
+  .st.dispute,.st.void{ background:#FBE7E1; color:var(--danger); } .st.paid{ background:#E3ECFA; color:#2B5BA8; } .st.free{ background:#F1F0EC; color:var(--text-muted); }
+  .acct input{ width:100%; padding:11px 12px; border:1px solid var(--card-border); border-radius:10px; font-size:14px; font-family:inherit; margin-bottom:8px; }
   .empty{ font-size:13px; color:var(--text-muted); margin:0; }
   .chips{ display:flex; flex-wrap:wrap; gap:5px; margin-top:6px; }
   .chip{ font-size:11px; background:var(--accent-soft); color:var(--accent-text); padding:2px 8px; border-radius:8px; }
@@ -249,7 +259,21 @@ function renderHome(){
           <button class="tab" data-tab="done" onclick="setTab('done')">완료된 수업</button>
         </div>
         <div id="bookingList"><p class="empty">불러오는 중...</p></div>
-        <p class="desc" style="margin:12px 0 0;">수업 시간이 되면 "화상룸 입장"을 누르세요. 수업이 끝나면 꼭 "수업 완료"를 눌러주세요. 학생이 안 왔으면 "취소"를 누르면 기록 없이 사라져요.</p>
+        <p class="desc" style="margin:12px 0 0;">수업 시간이 되면 "화상룸 입장"을 누르세요. 수업이 끝나면 꼭 "✅ 수업 완료"를 눌러주세요.<br>
+        학생이 수업 시간이 다 지나도록 안 왔으면 "😶 학생 노쇼"를 누르세요 — 수업료가 정산돼요.<br>
+        서로 합의해서 수업을 안 하기로 했으면 "🚫 취소"를 누르세요 — 기록 없이 사라져요.</p>
+      </div>
+
+      <div class="card">
+        <h2>💰 내 정산</h2>
+        <div id="earnBox"><p class="empty">불러오는 중...</p></div>
+        <p class="desc" style="margin:8px 0 0;">수업료의 85%가 튜터 몫이에요. 수업 완료 후 학생이 72시간 안에 이의를 하지 않으면 "확정"되고,
+        매달 말일에 마감해서 다음 달 10일에 아래 계좌로 보내드려요. 무료 오리엔테이션·무료 대화는 정산되지 않아요.</p>
+      </div>
+
+      <div class="card acct">
+        <h2>🏦 정산 받을 계좌</h2>
+        <div id="acctBox"></div>
       </div>
 
       <div class="card">
@@ -288,6 +312,7 @@ function renderHome(){
   document.getElementById('content').innerHTML = html;
   loadNotices();
   if(isApproved){
+    renderAccount();
     loadChatLink();
     loadMyBookings();
     loadMyDone();
@@ -340,6 +365,7 @@ function loadMyDone(){
     myDone = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     myDone.sort((a, b) => ((b.completedAt && b.completedAt.toMillis ? b.completedAt.toMillis() : 0) - (a.completedAt && a.completedAt.toMillis ? a.completedAt.toMillis() : 0)));
     if(bookingTab === 'done') renderBookings();
+    renderEarnings();
   }, err => console.error('완료 수업 불러오기 실패', err));
 }
 
@@ -369,8 +395,9 @@ function renderBookings(){
       const d = l.completedAt && l.completedAt.toDate ? l.completedAt.toDate() : null;
       const date = d ? `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}` : '';
       const chips = [...(l.vocab || []), ...(l.grammar || [])].map(v => `<span class="chip">${esc(v)}</span>`).join('');
-      return `<div class="bk"><p class="bk-name">${esc(l.studentName || '학생')}</p>
-        <p class="bk-meta">${date} · ${esc(l.dayLabel || l.day || '')} ${esc(l.time || '')}</p>
+      const ps = payoutState(l);
+      return `<div class="bk"><p class="bk-name">${esc(l.studentName || '학생')}${l.kind === 'noshow' ? '<span class="bk-tag">학생 노쇼</span>' : ''}<span class="st ${ps.key}">${ps.label}</span></p>
+        <p class="bk-meta">${date} · ${esc(l.dayLabel || l.day || '')} ${esc(l.time || '')}${isFreeLesson(l) ? '' : ' · 내 몫 ' + won(payOf(l))}</p>
         ${chips ? `<div class="chips">${chips}</div>` : ''}
         ${l.nextGoal ? `<p class="bk-meta" style="margin-top:6px;">🎯 ${esc(l.nextGoal)}</p>` : ''}</div>`;
     }).join('');
@@ -386,6 +413,7 @@ function renderBookings(){
       <div class="btn-row">
         ${b.roomId ? `<button class="btn primary" onclick="location.href='classroom.html?${params.toString()}'">🎥 화상룸 입장</button>` : `<button class="btn" disabled>룸 정보 없음</button>`}
         <button class="btn done" onclick="openDoneModal('${b.id}')">✅ 수업 완료</button>
+        <button class="btn noshow" onclick="markNoShow('${b.id}', this)">😶 학생 노쇼</button>
         <button class="btn cancel" onclick="cancelBooking('${b.id}', this)">🚫 취소</button>
       </div></div>`;
   }).join('');
@@ -414,6 +442,7 @@ async function confirmDone(){
     // 학생 마이페이지는 completedLessons(studentUid)를 읽어 수업 정리를 보여줌
     await db.collection('completedLessons').doc(b.id).set({
       ...bookingData,
+      ...payoutFields(b, 'lesson'),
       vocab: splitList(document.getElementById('doneVocab').value),
       grammar: splitList(document.getElementById('doneGrammar').value),
       nextGoal: document.getElementById('doneGoal').value.trim(),
@@ -438,6 +467,112 @@ async function cancelBooking(id, btnEl){
   }catch(e){
     alert('취소에 실패했어요. 잠시 후 다시 시도해 주세요.\n' + (e.message || e));
     if(btnEl){ btnEl.disabled = false; btnEl.textContent = '🚫 취소'; }
+  }
+}
+
+
+/* ───── 정산 (B안: 실제 결제액의 85%가 튜터 몫 · 2026-11-07) ─────
+   - 수업 완료/학생 노쇼 처리 시 completedLessons 문서에 정산 정보를 함께 저장
+   - 무료 오리엔테이션·무료 대화는 지급 0원
+   - 학생이 72시간 안에 이의를 안 하면 자동 확정 → 매달 말일 마감, 다음 달 10일 지급 */
+const TUTOR_SHARE = 0.85;
+const CONFIRM_HOURS = 72;
+function kstMonth(d){ const k = new Date(d.getTime() + 9*3600e3); return k.getUTCFullYear() + '-' + String(k.getUTCMonth()+1).padStart(2,'0'); }
+function isFreeLesson(b){ return !!(b.isFreeOrientation || b.isFreeTalk); }
+function payoutFields(b, kind){
+  const free = isFreeLesson(b);
+  const hasUnit = typeof b.unitPrice === 'number';
+  const gross = free ? 0 : (hasUnit ? b.unitPrice : 30000);
+  const tutorPay = Math.round(gross * TUTOR_SHARE);
+  return { kind: kind, grossAmount: gross, tutorPay: tutorPay, platformFee: gross - tutorPay,
+           unitPriceEstimated: !free && !hasUnit, settleMonth: kstMonth(new Date()), payoutStatus: 'pending' };
+}
+function payOf(l){
+  if(l.dispute && l.dispute.resolved === 'void') return 0;
+  if(typeof l.tutorPay === 'number') return l.tutorPay;
+  return isFreeLesson(l) ? 0 : Math.round((typeof l.unitPrice === 'number' ? l.unitPrice : 30000) * TUTOR_SHARE);
+}
+function monthOf(l){ return l.settleMonth || (l.completedAt && l.completedAt.toDate ? kstMonth(l.completedAt.toDate()) : ''); }
+function payoutState(l){
+  if(l.payoutStatus === 'paid') return { key:'paid', label:'지급 완료' };
+  if(l.dispute && !l.dispute.resolved) return { key:'dispute', label:'학생 이의 접수' };
+  if(l.dispute && l.dispute.resolved === 'void') return { key:'void', label:'지급 제외' };
+  if(isFreeLesson(l)) return { key:'free', label:'무료 수업' };
+  const t = l.completedAt && l.completedAt.toMillis ? l.completedAt.toMillis() : 0;
+  if(!t || (Date.now() - t < CONFIRM_HOURS*3600e3 && !(l.dispute && l.dispute.resolved === 'pay'))) return { key:'wait', label:'확인 대기(72시간)' };
+  return { key:'ok', label:'확정' };
+}
+function won(n){ return (Number(n)||0).toLocaleString('ko-KR') + '원'; }
+
+/* ───── 학생 노쇼 (수업료 정산됨, 학생 크레딧은 이미 차감된 상태 그대로) ───── */
+async function markNoShow(id, btnEl){
+  const b = myBookings.find(x => x.id === id);
+  if(!b || b.tutorId !== app.tutorId) return;
+  const free = isFreeLesson(b);
+  if(!confirm(`${b.studentName || '학생'} · ${b.dayLabel || b.day || ''} ${b.time || ''}\n\n학생이 수업 시간이 다 지나도록 오지 않았나요?\n(수업 시간이 끝날 때까지 기다린 뒤에 눌러주세요)\n\n` +
+    (free ? '무료 수업이라 정산 금액은 없어요.' : '학생 크레딧은 돌려주지 않고, 수업료가 정산돼요.'))) return;
+  if(btnEl){ btnEl.disabled = true; btnEl.textContent = '처리 중...'; }
+  try{
+    const { id: _omit, ...bookingData } = b;
+    await db.collection('completedLessons').doc(b.id).set({
+      ...bookingData,
+      ...payoutFields(b, 'noshow'),
+      noShow: true, vocab: [], grammar: [], nextGoal: '',
+      completedBy: me.email || me.uid,
+      completedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    await db.collection('bookings').doc(b.id).delete();
+  }catch(e){
+    alert('노쇼 처리에 실패했어요. 잠시 후 다시 시도해 주세요.\n' + (e.message || e));
+    if(btnEl){ btnEl.disabled = false; btnEl.textContent = '😶 학생 노쇼'; }
+  }
+}
+
+/* ───── 내 정산 요약 ───── */
+function renderEarnings(){
+  const el = document.getElementById('earnBox');
+  if(!el) return;
+  const thisM = kstMonth(new Date());
+  const lastD = new Date(); lastD.setDate(1); lastD.setMonth(lastD.getMonth() - 1);
+  const lastM = kstMonth(lastD);
+  const sum = (m, keys) => myDone.filter(l => monthOf(l) === m && keys.includes(payoutState(l).key)).reduce((a, l) => a + payOf(l), 0);
+  const cnt = m => myDone.filter(l => monthOf(l) === m && !isFreeLesson(l)).length;
+  el.innerHTML = `
+    <div class="earn-grid">
+      <div class="earn-box"><small>이번 달(${thisM}) 확정</small><b>${won(sum(thisM, ['ok','paid']))}</b></div>
+      <div class="earn-box"><small>이번 달 확인 대기</small><b>${won(sum(thisM, ['wait','dispute']))}</b></div>
+      <div class="earn-box"><small>지난달(${lastM}) 정산 수업</small><b>${cnt(lastM)}회</b></div>
+      <div class="earn-box"><small>지난달 지급액</small><b>${won(sum(lastM, ['ok','paid']))}</b></div>
+    </div>`;
+}
+
+/* ───── 정산 받을 계좌 (tutorApplications 문서에 저장) ───── */
+function renderAccount(){
+  const el = document.getElementById('acctBox');
+  if(!el) return;
+  const a = app.payoutAccount || {};
+  el.innerHTML = `
+    <input id="acBank" placeholder="은행 (예: 국민은행)" value="${esc(a.bank || '')}">
+    <input id="acNum" placeholder="계좌번호" inputmode="numeric" value="${esc(a.number || '')}">
+    <input id="acHolder" placeholder="예금주" value="${esc(a.holder || '')}">
+    <div class="btn-row"><button class="btn primary" id="acSave" onclick="saveAccount()">${a.number ? '계좌 수정 저장' : '계좌 저장'}</button></div>`;
+}
+async function saveAccount(){
+  const bank = document.getElementById('acBank').value.trim();
+  const number = document.getElementById('acNum').value.trim();
+  const holder = document.getElementById('acHolder').value.trim();
+  if(!bank || !number || !holder){ alert('은행, 계좌번호, 예금주를 모두 넣어주세요.'); return; }
+  const btn = document.getElementById('acSave');
+  btn.disabled = true; btn.textContent = '저장 중...';
+  try{
+    const payoutAccount = { bank, number, holder, updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
+    await db.collection('tutorApplications').doc(appId).update({ payoutAccount });
+    app.payoutAccount = { bank, number, holder };
+    alert('계좌를 저장했어요.');
+    renderAccount();
+  }catch(e){
+    alert('저장에 실패했어요. 잠시 후 다시 시도해 주세요.\n' + (e.message || e));
+    btn.disabled = false; btn.textContent = '계좌 저장';
   }
 }
 

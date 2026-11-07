@@ -377,6 +377,19 @@ function renderHistoryEntry(entry){
     summaryHtml += '</div>';
   }
 
+  // 수업 완료/노쇼 후 72시간 안에는 학생이 이의를 신청할 수 있음 (정산 확정 전)
+  const DL = {
+    ko: { btn: '이 수업에 문제가 있었어요', done: '이의 신청 접수됨 — PJ가 확인하고 연락드려요' },
+    en: { btn: 'Report a problem with this lesson', done: 'Report received — PJ will check and contact you' },
+    ja: { btn: 'この授業に問題がありました', done: '申告を受け付けました — PJが確認してご連絡します' }
+  }[lang] || {};
+  let disputeHtml = '';
+  if(entry.completedId && entry.disputed){
+    disputeHtml = `<p class="history-sub" style="color:#C0492B;margin-top:6px;">${DL.done}</p>`;
+  }else if(entry.completedId && entry.canDispute){
+    disputeHtml = `<button onclick="openDispute('${entry.completedId}')" style="margin-top:8px;font-size:11px;padding:6px 10px;border-radius:8px;border:1px solid #E8E4D8;background:#fff;color:#5F5E5A;cursor:pointer;font-family:inherit;">${DL.btn}</button>`;
+  }
+
   div.innerHTML = `
     <div class="history-dot"></div>
     <div class="history-card">
@@ -384,9 +397,27 @@ function renderHistoryEntry(entry){
       <p class="history-text">${text}</p>
       <p class="history-sub">${sub}</p>
       ${summaryHtml}
+      ${disputeHtml}
     </div>
   `;
   return div;
+}
+
+async function openDispute(id){
+  const lang = localStorage.getItem('malmun_lang') || 'ko';
+  const q = { ko: '어떤 문제가 있었나요? (예: 튜터가 오지 않았어요, 연결이 계속 끊겼어요)', en: 'What went wrong? (e.g. the tutor did not show up, the connection kept dropping)', ja: 'どんな問題がありましたか？（例：講師が来なかった、接続が何度も切れた）' }[lang];
+  const reason = (prompt(q) || '').trim();
+  if(!reason) return;
+  try{
+    const user = firebase.auth().currentUser;
+    await db.collection('completedLessons').doc(id).update({
+      dispute: { reason: reason, by: user ? user.uid : '', at: firebase.firestore.FieldValue.serverTimestamp() }
+    });
+    alert({ ko: '접수됐어요. PJ가 확인하고 연락드릴게요.', en: 'Received. PJ will check and get back to you.', ja: '受け付けました。PJが確認してご連絡します。' }[lang]);
+    if(user) loadHistory(user.uid);
+  }catch(e){
+    alert('Error: ' + (e.message || e));
+  }
 }
 
 function escapeHtml(str){
@@ -408,9 +439,20 @@ async function loadHistory(uid){
     try{
       const doneSnap = await db.collection('completedLessons')
         .where('studentUid', '==', uid).get();
+      const L = localStorage.getItem('malmun_lang') || 'ko';
       const doneEntries = doneSnap.docs.map(d => {
         const b = d.data();
+        const doneMs = b.completedAt && b.completedAt.toMillis ? b.completedAt.toMillis() : 0;
+        const paid = !(b.isFreeOrientation || b.isFreeTalk);
+        const meta = { completedId: d.id, disputed: !!b.dispute,
+          canDispute: paid && !b.dispute && doneMs > 0 && (Date.now() - doneMs) < 72*3600e3 };
+        if(b.kind === 'noshow'){
+          return { ...meta, type: 'noshow',
+            text: ({ ko: `${b.tutorName || 'PJ'} 튜터 수업 — 결석(노쇼) 처리`, en: `Lesson with ${b.tutorName || 'PJ'} — marked as no-show`, ja: `${b.tutorName || 'PJ'}講師の授業 — 欠席（ノーショー）` })[L],
+            sub: `${b.dayLabel || b.day || ''} ${b.time || ''}`, bookingId: d.id, createdAt: b.completedAt || b.createdAt || null };
+        }
         return {
+          ...meta,
           type: 'lesson_summary',
           text: `${b.tutorName || 'PJ'} 튜터와 수업 완료`,
           sub: `${b.dayLabel || b.day || ''} ${b.time || ''}${b.isFreeOrientation ? ' · 무료 오리엔테이션' : ''}`,

@@ -369,7 +369,10 @@ async function loadCreditInfo(uid){
       const purchasedAt = d.purchasedAt && d.purchasedAt.toDate ? d.purchasedAt.toDate() : new Date(0);
       const remaining = d.remainingSessions || 0;
       if(remaining > 0 && (!expiresAt || expiresAt > now)){
-        lots.push({ ref: doc.ref, remaining, purchasedAt });
+        // 정산용 실제 1회 단가 (5회권 30,000 / 10회권 27,000) — 기록이 없으면 정가 30,000
+        const unitPrice = (Number(d.pricePaid) > 0 && Number(d.totalSessions) > 0)
+          ? Math.round(Number(d.pricePaid) / Number(d.totalSessions)) : 30000;
+        lots.push({ ref: doc.ref, remaining, purchasedAt, unitPrice });
       }
     });
     lots.sort((a, b) => a.purchasedAt - b.purchasedAt); // 오래된 크레딧부터 먼저 사용 (FIFO)
@@ -556,6 +559,7 @@ async function handleConfirm(){
   // 이 예약 하나에만 쓰이는 고유 화상룸 ID (튜터+요일+시간+타임스탬프 조합으로 절대 겹치지 않게 생성)
   const roomId = `${currentTutorId}-${selectedDay}${selectedTime.replace(':','')}-${Date.now().toString(36)}`;
 
+  let usedUnitPrice = 0, usedLotId = '';   // 정산용 (2026-11-07)
   try{
     // 무료 오리엔테이션이 아니면, 가장 오래된 크레딧부터 1회 차감 (FIFO)
     if(!isFirstLesson){
@@ -568,6 +572,8 @@ async function handleConfirm(){
       await lot.ref.update({ remainingSessions: firebase.firestore.FieldValue.increment(-1) });
       lot.remaining -= 1;
       creditBalance -= 1;
+      usedUnitPrice = lot.unitPrice || 30000;
+      usedLotId = lot.ref.id;
     }
 
     await db.collection('users').doc(user.uid).collection('history').add({
@@ -589,6 +595,8 @@ async function handleConfirm(){
       day: selectedDay,
       time: selectedTime,
       price: currentFinalPrice,
+      unitPrice: usedUnitPrice,
+      creditLotId: usedLotId,
       isFreeOrientation: isFirstLesson,
       roomId: roomId,
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -606,6 +614,8 @@ async function handleConfirm(){
         dayLabel: dayLabel,
         time: selectedTime,
         price: currentFinalPrice,
+        unitPrice: usedUnitPrice,
+        creditLotId: usedLotId,
         isFreeOrientation: isFirstLesson,
         roomId: roomId,
         createdAt: firebase.firestore.FieldValue.serverTimestamp()

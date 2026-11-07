@@ -136,9 +136,9 @@
 
 <div id="gate">
   <h1 style="text-align:center;">예약 관리 admin</h1>
-  <input type="password" id="pwInput" placeholder="비밀번호">
-  <button id="pwBtn">입장</button>
-  <p id="gateError">비밀번호가 틀렸습니다</p>
+  <input type="hidden" id="pwInput">
+  <button id="pwBtn">구글로 로그인 (PJ 계정)</button>
+  <p id="gateError"></p>
 </div>
 
 <div id="app">
@@ -221,7 +221,7 @@ const db = firebase.firestore();
 // 필리핀 통신망·카카오톡 등 인앱브라우저에서 Firestore 연결 실패 방지 (롱폴링 강제)
 try{ db.settings({ experimentalForceLongPolling: true, experimentalAutoDetectLongPolling: false, merge: true }); }catch(e){ console.warn('firestore settings', e); }
 
-const ADMIN_PW = "admin0115";
+// 2026-11-07: 비밀번호 방식 폐지 — 아래 "관리자 입장" 스크립트에서 PJ 구글 계정으로 확인
 
 /* ───── 진단용: 오류를 화면에 그대로 보여준다 (콘솔 안 열어도 되게) ───── */
 function showDiag(msg, isError){
@@ -267,8 +267,9 @@ document.getElementById('pwBtn').addEventListener('click', tryUnlock);
 document.getElementById('pwInput').addEventListener('keydown', e => { if(e.key === 'Enter') tryUnlock(); });
 
 function tryUnlock(){
+  if(window.__malmunAdminOk !== true){ adminGoogleLogin(); return; }
   const val = document.getElementById('pwInput').value;
-  if(val === ADMIN_PW){
+  if(window.__malmunAdminOk === true){
     document.getElementById('gate').style.display = 'none';
     document.getElementById('app').style.display = 'block';
     sessionStorage.setItem('malmun_admin_ok', '1');
@@ -282,7 +283,7 @@ function tryUnlock(){
   }
 }
 
-if(sessionStorage.getItem('malmun_admin_ok') === '1'){
+if(false /* 2026-11-07: 구글 로그인 확인 후 자동 입장 */){
   document.getElementById('gate').style.display = 'none';
   document.getElementById('app').style.display = 'block';
   loadNotices();
@@ -440,6 +441,7 @@ function render(){
             ? `<button class="enter-btn" onclick="location.href='classroom.html?${params.toString()}'">🎥 화상룸 입장</button>`
             : `<span class="enter-btn disabled">룸 정보 없음</span>`}
           <button class="done-btn" onclick="openDoneModal('${b.id}')">✅ 수업 완료</button>
+          <button class="cancel-btn" onclick="markNoShow('${b.id}', this)" style="color:#B7791F;border-color:#E8B04A;">😶 학생 노쇼</button>
           <button class="cancel-btn" onclick="cancelBooking('${b.id}', this)">🚫 취소</button>
         </div>
       </div>
@@ -475,7 +477,8 @@ function renderDone(list){
         <p class="b-student">${escapeHtml(b.studentName || '학생')}</p>
         <p class="b-meta">${escapeHtml(b.dayLabel || b.day || '')} ${escapeHtml(b.time || '')} · 완료 ${fmtDate(b.completedAt)}</p>
         <div class="b-tags">
-          <span class="tag done">수업 완료</span>
+          <span class="tag done">${b.kind === 'noshow' ? '학생 노쇼' : '수업 완료'}</span>
+          <span class="tag">${payoutState(b).label}${isFreeLesson(b) ? '' : ' · 튜터 ' + won(payOf(b))}</span>
           ${priceTag(b)}
           ${b.studentEmail ? `<span class="tag email">${escapeHtml(b.studentEmail)}</span>` : ''}
         </div>
@@ -524,6 +527,7 @@ async function confirmDone(){
     const { id: _omit, ...bookingData } = b;
     await db.collection('completedLessons').doc(b.id).set({
       ...bookingData,
+      ...payoutFields(b, 'lesson'),
       vocab, grammar, nextGoal,
       completedAt: now
     });
@@ -549,6 +553,64 @@ async function confirmDone(){
     btn.disabled = false;
   }finally{
     btn.textContent = '완료 처리';
+  }
+}
+
+
+/* ───── 정산 (B안: 실제 결제액의 85%가 튜터 몫 · 2026-11-07) ─────
+   - 수업 완료/학생 노쇼 처리 시 completedLessons 문서에 정산 정보를 함께 저장
+   - 무료 오리엔테이션·무료 대화는 지급 0원
+   - 학생이 72시간 안에 이의를 안 하면 자동 확정 → 매달 말일 마감, 다음 달 10일 지급 */
+const TUTOR_SHARE = 0.85;
+const CONFIRM_HOURS = 72;
+function kstMonth(d){ const k = new Date(d.getTime() + 9*3600e3); return k.getUTCFullYear() + '-' + String(k.getUTCMonth()+1).padStart(2,'0'); }
+function isFreeLesson(b){ return !!(b.isFreeOrientation || b.isFreeTalk); }
+function payoutFields(b, kind){
+  const free = isFreeLesson(b);
+  const hasUnit = typeof b.unitPrice === 'number';
+  const gross = free ? 0 : (hasUnit ? b.unitPrice : 30000);
+  const tutorPay = Math.round(gross * TUTOR_SHARE);
+  return { kind: kind, grossAmount: gross, tutorPay: tutorPay, platformFee: gross - tutorPay,
+           unitPriceEstimated: !free && !hasUnit, settleMonth: kstMonth(new Date()), payoutStatus: 'pending' };
+}
+function payOf(l){
+  if(l.dispute && l.dispute.resolved === 'void') return 0;
+  if(typeof l.tutorPay === 'number') return l.tutorPay;
+  return isFreeLesson(l) ? 0 : Math.round((typeof l.unitPrice === 'number' ? l.unitPrice : 30000) * TUTOR_SHARE);
+}
+function monthOf(l){ return l.settleMonth || (l.completedAt && l.completedAt.toDate ? kstMonth(l.completedAt.toDate()) : ''); }
+function payoutState(l){
+  if(l.payoutStatus === 'paid') return { key:'paid', label:'지급 완료' };
+  if(l.dispute && !l.dispute.resolved) return { key:'dispute', label:'학생 이의 접수' };
+  if(l.dispute && l.dispute.resolved === 'void') return { key:'void', label:'지급 제외' };
+  if(isFreeLesson(l)) return { key:'free', label:'무료 수업' };
+  const t = l.completedAt && l.completedAt.toMillis ? l.completedAt.toMillis() : 0;
+  if(!t || (Date.now() - t < CONFIRM_HOURS*3600e3 && !(l.dispute && l.dispute.resolved === 'pay'))) return { key:'wait', label:'확인 대기(72시간)' };
+  return { key:'ok', label:'확정' };
+}
+function won(n){ return (Number(n)||0).toLocaleString('ko-KR') + '원'; }
+
+/* ───────── 학생 노쇼 (수업료 정산됨) ───────── */
+async function markNoShow(id, btnEl){
+  const b = allBookings.find(x => x.id === id);
+  if(!b) return;
+  const free = isFreeLesson(b);
+  if(!confirm(`${b.studentName || '학생'} · ${b.dayLabel || b.day || ''} ${b.time || ''}\n\n학생이 수업 시간이 다 지나도록 오지 않았나요?\n\n` +
+    (free ? '무료 수업이라 정산 금액은 없어요.' : '학생 크레딧은 돌려주지 않고, 튜터 수업료가 정산돼요.'))) return;
+  if(btnEl){ btnEl.disabled = true; btnEl.textContent = '처리 중...'; }
+  try{
+    const { id: _omit, ...bookingData } = b;
+    await db.collection('completedLessons').doc(b.id).set({
+      ...bookingData,
+      ...payoutFields(b, 'noshow'),
+      noShow: true, vocab: [], grammar: [], nextGoal: '',
+      completedBy: 'admin',
+      completedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    await db.collection('bookings').doc(b.id).delete();
+  }catch(e){
+    alert('노쇼 처리에 실패했어요.\n' + (e.message || e));
+    if(btnEl){ btnEl.disabled = false; btnEl.textContent = '😶 학생 노쇼'; }
   }
 }
 
@@ -812,5 +874,39 @@ async function cancelEnroll(id, btnEl){
 }
 </script>
 
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script>
+/* ───── 관리자 입장: 비밀번호 대신 PJ 구글 계정(tourjang@gmail.com)으로만 열림 (2026-11-07) ───── */
+(function(){
+  const ADMIN_EMAILS = ['tourjang@gmail.com'];
+  if(!firebase.apps.length) firebase.initializeApp({
+    apiKey: "AIzaSyD10IdHCDkCybMrkO5fewo0ksYFBmqwWro",
+    authDomain: "malmun-bca03.firebaseapp.com",
+    projectId: "malmun-bca03",
+    storageBucket: "malmun-bca03.firebasestorage.app",
+    messagingSenderId: "831462084669",
+    appId: "1:831462084669:web:003a844918b165d5b65a54"
+  });
+  const a = firebase.auth();
+  window.adminGoogleLogin = function(){
+    const p = new firebase.auth.GoogleAuthProvider();
+    p.setCustomParameters({ prompt: 'select_account' });
+    a.signInWithPopup(p).catch(() => a.signInWithRedirect(p));
+  };
+  window.adminSignOut = function(){ a.signOut(); };
+  let opened = false;
+  a.onAuthStateChanged(u => {
+    const ok = !!u && ADMIN_EMAILS.includes((u.email || '').toLowerCase());
+    window.__malmunAdminOk = ok;
+    const err = document.getElementById('gateError');
+    if(ok){
+      if(!opened){ opened = true; tryUnlock(); }
+    }else if(u && err){
+      err.innerHTML = '관리자 계정이 아니에요 (' + (u.email || '') + ')<br><a href="#" onclick="adminSignOut();return false;" style="text-decoration:underline;">다른 계정으로 로그인</a>';
+      err.style.display = 'block';
+    }
+  });
+})();
+</script>
 </body>
 </html>

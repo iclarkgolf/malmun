@@ -114,9 +114,9 @@
 
 <div id="gate">
   <h1 style="text-align:center;">튜터 관리 admin</h1>
-  <input type="password" id="pwInput" placeholder="비밀번호">
-  <button id="pwBtn">입장</button>
-  <p id="gateError">비밀번호가 틀렸습니다</p>
+  <input type="hidden" id="pwInput">
+  <button id="pwBtn">구글로 로그인 (PJ 계정)</button>
+  <p id="gateError"></p>
 </div>
 
 <div id="app">
@@ -148,7 +148,7 @@ const db = firebase.firestore();
 try{ db.settings({ experimentalForceLongPolling: true, experimentalAutoDetectLongPolling: false, merge: true }); }catch(e){ console.warn('firestore settings', e); }
 const storage = firebase.storage();
 
-const ADMIN_PW = "admin0115";
+// 2026-11-07: 비밀번호 방식 폐지 — 아래 "관리자 입장" 스크립트에서 PJ 구글 계정으로 확인
 const DAYS = [
   { id: 'mon', label: '월' }, { id: 'tue', label: '화' }, { id: 'wed', label: '수' },
   { id: 'thu', label: '목' }, { id: 'fri', label: '금' }, { id: 'sat', label: '토' }
@@ -159,8 +159,9 @@ document.getElementById('pwBtn').addEventListener('click', tryUnlock);
 document.getElementById('pwInput').addEventListener('keydown', e => { if(e.key === 'Enter') tryUnlock(); });
 
 function tryUnlock(){
+  if(window.__malmunAdminOk !== true){ adminGoogleLogin(); return; }
   const val = document.getElementById('pwInput').value;
-  if(val === ADMIN_PW){
+  if(window.__malmunAdminOk === true){
     document.getElementById('gate').style.display = 'none';
     document.getElementById('app').style.display = 'block';
     sessionStorage.setItem('malmun_admin_ok', '1');
@@ -171,7 +172,7 @@ function tryUnlock(){
 }
 
 // 관리자 홈(admin.html)에서 이미 잠금해제한 세션이면 다시 묻지 않음
-if(sessionStorage.getItem('malmun_admin_ok') === '1'){
+if(false /* 2026-11-07: 구글 로그인 확인 후 자동 입장 */){
   document.getElementById('gate').style.display = 'none';
   document.getElementById('app').style.display = 'block';
   loadCards();
@@ -530,5 +531,39 @@ async function deleteCard(id, el){
 }
 </script>
 
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script>
+/* ───── 관리자 입장: 비밀번호 대신 PJ 구글 계정(tourjang@gmail.com)으로만 열림 (2026-11-07) ───── */
+(function(){
+  const ADMIN_EMAILS = ['tourjang@gmail.com'];
+  if(!firebase.apps.length) firebase.initializeApp({
+    apiKey: "AIzaSyD10IdHCDkCybMrkO5fewo0ksYFBmqwWro",
+    authDomain: "malmun-bca03.firebaseapp.com",
+    projectId: "malmun-bca03",
+    storageBucket: "malmun-bca03.firebasestorage.app",
+    messagingSenderId: "831462084669",
+    appId: "1:831462084669:web:003a844918b165d5b65a54"
+  });
+  const a = firebase.auth();
+  window.adminGoogleLogin = function(){
+    const p = new firebase.auth.GoogleAuthProvider();
+    p.setCustomParameters({ prompt: 'select_account' });
+    a.signInWithPopup(p).catch(() => a.signInWithRedirect(p));
+  };
+  window.adminSignOut = function(){ a.signOut(); };
+  let opened = false;
+  a.onAuthStateChanged(u => {
+    const ok = !!u && ADMIN_EMAILS.includes((u.email || '').toLowerCase());
+    window.__malmunAdminOk = ok;
+    const err = document.getElementById('gateError');
+    if(ok){
+      if(!opened){ opened = true; tryUnlock(); }
+    }else if(u && err){
+      err.innerHTML = '관리자 계정이 아니에요 (' + (u.email || '') + ')<br><a href="#" onclick="adminSignOut();return false;" style="text-decoration:underline;">다른 계정으로 로그인</a>';
+      err.style.display = 'block';
+    }
+  });
+})();
+</script>
 </body>
 </html>

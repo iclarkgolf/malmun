@@ -64,9 +64,9 @@
 
 <div id="gate">
   <h1>튜터 즉석 연락 admin</h1>
-  <input type="password" id="pwInput" placeholder="비밀번호">
-  <button id="pwBtn">입장</button>
-  <p id="gateError">비밀번호가 틀렸습니다</p>
+  <input type="hidden" id="pwInput">
+  <button id="pwBtn">구글로 로그인 (PJ 계정)</button>
+  <p id="gateError"></p>
 </div>
 
 <div id="app">
@@ -121,7 +121,7 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 try{ db.settings({ experimentalForceLongPolling: true, experimentalAutoDetectLongPolling: false, merge: true }); }catch(e){ console.warn('firestore settings', e); }
 
-const ADMIN_PW = "admin0115";
+// 2026-11-07: 비밀번호 방식 폐지 — 아래 "관리자 입장" 스크립트에서 PJ 구글 계정으로 확인
 // 단톡방 링크는 notices 컬렉션의 설정용 문서에 저장 (audience:'config' → 공지 목록에는 안 나옴)
 const CHAT_DOC = db.collection('notices').doc('tutorChatLink');
 
@@ -131,14 +131,15 @@ let chatUrl = '';
 document.getElementById('pwBtn').addEventListener('click', tryUnlock);
 document.getElementById('pwInput').addEventListener('keydown', e => { if(e.key === 'Enter') tryUnlock(); });
 function tryUnlock(){
-  if(document.getElementById('pwInput').value === ADMIN_PW){
+  if(window.__malmunAdminOk !== true){ adminGoogleLogin(); return; }
+  if(window.__malmunAdminOk === true){
     sessionStorage.setItem('malmun_admin_ok', '1');
     openApp();
   }else{
     document.getElementById('gateError').style.display = 'block';
   }
 }
-if(sessionStorage.getItem('malmun_admin_ok') === '1') openApp();
+if(false /* 2026-11-07: 구글 로그인 확인 후 자동 입장 */) openApp();
 
 function openApp(){
   document.getElementById('gate').style.display = 'none';
@@ -279,6 +280,40 @@ document.getElementById('testLinkBtn').addEventListener('click', () => {
   const url = document.getElementById('chatLink').value.trim();
   if(url) window.open(url, '_blank');
 });
+</script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script>
+/* ───── 관리자 입장: 비밀번호 대신 PJ 구글 계정(tourjang@gmail.com)으로만 열림 (2026-11-07) ───── */
+(function(){
+  const ADMIN_EMAILS = ['tourjang@gmail.com'];
+  if(!firebase.apps.length) firebase.initializeApp({
+    apiKey: "AIzaSyD10IdHCDkCybMrkO5fewo0ksYFBmqwWro",
+    authDomain: "malmun-bca03.firebaseapp.com",
+    projectId: "malmun-bca03",
+    storageBucket: "malmun-bca03.firebasestorage.app",
+    messagingSenderId: "831462084669",
+    appId: "1:831462084669:web:003a844918b165d5b65a54"
+  });
+  const a = firebase.auth();
+  window.adminGoogleLogin = function(){
+    const p = new firebase.auth.GoogleAuthProvider();
+    p.setCustomParameters({ prompt: 'select_account' });
+    a.signInWithPopup(p).catch(() => a.signInWithRedirect(p));
+  };
+  window.adminSignOut = function(){ a.signOut(); };
+  let opened = false;
+  a.onAuthStateChanged(u => {
+    const ok = !!u && ADMIN_EMAILS.includes((u.email || '').toLowerCase());
+    window.__malmunAdminOk = ok;
+    const err = document.getElementById('gateError');
+    if(ok){
+      if(!opened){ opened = true; tryUnlock(); }
+    }else if(u && err){
+      err.innerHTML = '관리자 계정이 아니에요 (' + (u.email || '') + ')<br><a href="#" onclick="adminSignOut();return false;" style="text-decoration:underline;">다른 계정으로 로그인</a>';
+      err.style.display = 'block';
+    }
+  });
+})();
 </script>
 </body>
 </html>
