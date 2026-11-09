@@ -133,6 +133,13 @@ button[aria-label]:has(> svg:only-child){ padding:11px; margin:-11px; }
     </div>
   </div>
 
+  <!-- 2026-11-09: 서울 정보 나눔터 바로가기 -->
+  <a href="seoul-board.html" id="seoulBoardLink" style="display:block; background:radial-gradient(120% 160% at 15% 0%,#1b2d4a 0%,#0b1222 60%,#070b16 100%); color:#E6F6FF; border-radius:16px; padding:16px 18px; margin:6px 0 16px;">
+    <span style="display:block; font-size:16px; font-weight:700;" id="sbT">서울 정보 나눔터 →</span>
+    <span style="display:block; font-size:13px; color:#B9E9FF; margin-top:4px;" id="sbS">서울의 맛집, 볼거리, 교통 꿀팁을 누구나 나누는 게시판</span>
+  </a>
+  <script>(function(){var l='ko';try{l=localStorage.getItem('malmun_lang')||'ko';}catch(e){}var T={en:['Seoul Board →','Food, sights and tips for Seoul, shared by everyone'],ja:['ソウル情報掲示板 →','ソウルのグルメ・観光・交通情報をみんなでシェア']};if(T[l]){document.getElementById('sbT').textContent=T[l][0];document.getElementById('sbS').textContent=T[l][1];}})();</script>
+
   <!-- 2026-11-07: 검색엔진이 "빈 페이지(Soft 404)"로 보지 않도록 고정 소개글 -->
   <p class="blog-intro" style="font-size:14px; color:#5F5E5A; line-height:1.75; margin:4px 0 18px; word-break:keep-all;">
     말문 커뮤니티는 한국어를 배우는 사람과 말문 튜터들이 함께 만드는 공간이에요. 교과서에는 없는 진짜 한국어 표현,

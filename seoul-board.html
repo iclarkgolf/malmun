@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>서울 정보 나눔터 · Seoul Board | 말문 Malmun</title>
+<meta name="description" content="서울의 맛집, 볼거리, 교통 꿀팁을 누구나 나누는 게시판. Food, sights and tips for Seoul, shared by learners and locals. WYD Seoul 2027 visitors welcome.">
+<link rel="canonical" href="https://malmunkorean.com/seoul-board.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="말문 Malmun">
+<meta property="og:title" content="Seoul Board · 서울 정보 나눔터 | 말문 Malmun">
+<meta property="og:description" content="Food, sights and tips for Seoul, shared by learners and locals.">
+<meta property="og:url" content="https://malmunkorean.com/seoul-board.html">
+<meta property="og:image" content="https://malmunkorean.com/pj-hero.jpg">
+<style>
+  :root{ --bg:#FFF9F0; --card:#FFFFFF; --card-border:#E8E4D8; --text:#2C2C2A; --text-secondary:#5F5E5A; --text-muted:#8A8880; --accent:#EF9F27; --accent-text:#412402; --accent-soft:#FFF3E0; --coral:#D85A30; }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Noto Sans KR",sans-serif; -webkit-font-smoothing:antialiased; padding-bottom:84px; }
+  a{ color:inherit; text-decoration:none; }
+  .wrap{ max-width:640px; margin:0 auto; padding:0 18px 32px; }
+  .top{ display:flex; align-items:center; justify-content:space-between; padding:20px 0 6px; }
+  .top a.back{ color:var(--text-secondary); font-size:14px; }
+  .langs{ display:flex; gap:4px; }
+  .langs button{ border:1px solid var(--card-border); background:#fff; border-radius:14px; padding:5px 10px; font-size:12px; font-weight:600; color:var(--text-secondary); cursor:pointer; }
+  .langs button.on{ background:var(--accent-soft); color:var(--accent-text); border-color:var(--accent); }
+  .hero{ background:radial-gradient(120% 160% at 15% 0%,#1b2d4a 0%,#0b1222 60%,#070b16 100%); color:#E6F6FF; border-radius:18px; padding:22px 20px; margin:10px 0 16px; position:relative; overflow:hidden; }
+  .hero h1{ margin:0 0 6px; font-size:22px; }
+  .hero p{ margin:0; font-size:14px; line-height:1.6; color:#B9E9FF; word-break:keep-all; }
+  .hero .tag{ display:inline-block; margin-top:12px; font-size:12px; font-weight:700; color:#0B1222; background:#6FE3FF; padding:6px 12px; border-radius:999px; }
+  .cats{ display:flex; gap:8px; overflow-x:auto; padding:4px 0 12px; scrollbar-width:none; }
+  .cats::-webkit-scrollbar{ display:none; }
+  .cats button{ flex:0 0 auto; border:1.5px solid var(--card-border); background:#fff; border-radius:999px; padding:8px 14px; font-size:13px; font-weight:600; color:var(--text); cursor:pointer; font-family:inherit; }
+  .cats button.on{ border-color:var(--accent); background:var(--accent-soft); color:var(--accent-text); }
+  .write-btn{ width:100%; border:2px dashed var(--accent); background:#fff; color:var(--accent-text); border-radius:14px; padding:14px; font-size:15px; font-weight:700; cursor:pointer; margin-bottom:14px; font-family:inherit; }
+  .card{ background:var(--card); border:1px solid var(--card-border); border-radius:16px; padding:16px 16px 14px; margin-bottom:12px; }
+  .card .meta{ font-size:12px; color:var(--text-muted); margin-bottom:6px; display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .card .cat{ background:var(--accent-soft); color:var(--coral); font-weight:700; padding:2px 8px; border-radius:8px; }
+  .card h3{ margin:0 0 6px; font-size:16px; line-height:1.4; }
+  .card .place{ font-size:13px; color:var(--text-secondary); margin:0 0 8px; }
+  .card .body{ font-size:14px; line-height:1.75; white-space:pre-wrap; word-break:break-word; margin:0; }
+  .card .body.short{ max-height:7.2em; overflow:hidden; }
+  .card .more{ background:none; border:none; color:var(--coral); font-weight:700; font-size:13px; padding:6px 0 0; cursor:pointer; }
+  .pending{ border-color:var(--accent); background:#FFFDF7; }
+  .badge-wait{ background:#FFE8B5; color:#7A4A00; font-weight:700; padding:2px 8px; border-radius:8px; }
+  .admin-row{ display:flex; gap:8px; margin-top:10px; }
+  .admin-row button{ flex:1; border-radius:10px; padding:9px; font-weight:700; cursor:pointer; font-family:inherit; }
+  .ok-btn{ background:var(--accent); border:none; color:var(--accent-text); }
+  .del-btn{ background:#fff; border:1px solid var(--coral); color:var(--coral); }
+  .empty, .loading{ text-align:center; color:var(--text-muted); font-size:14px; padding:40px 10px; }
+  .admin-bar{ background:#1b2d4a; color:#E6F6FF; border-radius:12px; padding:10px 14px; font-size:13px; margin-bottom:12px; }
+  /* 글쓰기 창 */
+  .overlay{ position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:50; display:none; align-items:flex-end; justify-content:center; }
+  .overlay.on{ display:flex; }
+  .sheet{ background:var(--bg); width:100%; max-width:640px; max-height:92vh; overflow:auto; border-radius:20px 20px 0 0; padding:20px 18px 28px; }
+  @media (min-width:700px){ .overlay{ align-items:center; } .sheet{ border-radius:20px; } }
+  .sheet h2{ margin:0 0 14px; font-size:18px; }
+  .field{ margin-bottom:12px; }
+  .field label{ display:block; font-size:13px; font-weight:700; margin-bottom:6px; }
+  .field input, .field select, .field textarea{ width:100%; border:1px solid var(--card-border); border-radius:10px; padding:11px 12px; font-size:15px; font-family:inherit; background:#fff; }
+  .field textarea{ min-height:140px; resize:vertical; line-height:1.6; }
+  .hint{ font-size:12px; color:var(--text-muted); margin-top:4px; }
+  .sheet .row{ display:flex; gap:8px; margin-top:6px; }
+  .sheet .row button{ flex:1; padding:13px; border-radius:12px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; }
+  .btn-cancel{ background:#fff; border:1px solid var(--card-border); }
+  .btn-save{ background:var(--accent); border:none; color:var(--accent-text); }
+  .toast{ position:fixed; left:50%; bottom:100px; transform:translateX(-50%); background:#2C2C2A; color:#fff; padding:11px 18px; border-radius:24px; font-size:14px; z-index:60; display:none; max-width:90vw; text-align:center; }
+  .bottom-nav{ position:fixed; bottom:0; left:0; right:0; z-index:20; background:rgba(255,255,255,0.92); backdrop-filter:blur(10px); border-top:1px solid var(--card-border); display:flex; padding:8px 8px calc(8px + env(safe-area-inset-bottom)); max-width:640px; margin:0 auto; }
+  .nav-item{ flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; padding:6px 0; color:var(--text-muted); background:none; border:none; cursor:pointer; font-size:11px; }
+  .nav-item.active{ color:var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <a class="back" href="blog.html" id="tBack">← 커뮤니티</a>
+    <div class="langs"><button data-l="ko">한국어</button><button data-l="en">English</button><button data-l="ja">日本語</button></div>
+  </div>
+
+  <div class="hero">
+    <h1 id="tTitle">서울 정보 나눔터</h1>
+    <p id="tSub">서울의 맛집, 볼거리, 교통 꿀팁을 누구나 나눠요. 한국어 학습자와 한국 사람이 함께 만드는 서울 안내판이에요.</p>
+    <span class="tag" id="tTag">WYD Seoul 2027 순례자 환영</span>
+  </div>
+
+  <div class="cats" id="cats"></div>
+  <button class="write-btn" id="writeBtn" onclick="openWrite()">+ 서울 정보 나누기</button>
+  <div id="adminBar"></div>
+  <div id="list"><div class="loading">불러오는 중...</div></div>
+</div>
+
+<div class="overlay" id="overlay" onclick="if(event.target===this)closeWrite()">
+  <div class="sheet">
+    <h2 id="wTitle">서울 정보 나누기</h2>
+    <div class="field"><label id="lCat">분류</label><select id="fCat"></select></div>
+    <div class="field"><label id="lTitle">제목</label><input id="fTitle" maxlength="100"></div>
+    <div class="field"><label id="lPlace">장소 (선택)</label><input id="fPlace" maxlength="100"></div>
+    <div class="field"><label id="lBody">내용</label><textarea id="fBody" maxlength="3000"></textarea><div class="hint" id="hBody"></div></div>
+    <div class="field"><label id="lName">이름 (보여질 이름)</label><input id="fName" maxlength="30"></div>
+    <div class="row"><button class="btn-cancel" id="bCancel" onclick="closeWrite()">취소</button><button class="btn-save" id="bSave" onclick="savePost()">보내기</button></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<nav class="bottom-nav">
+  <button class="nav-item" onclick="location.href='index.html'"><span>🏠</span><span data-n="home">홈</span></button>
+  <button class="nav-item" onclick="location.href='tutors.html'"><span>🔍</span><span data-n="tutors">튜터</span></button>
+  <button class="nav-item" onclick="location.href='curriculum.html'"><span>📖</span><span data-n="cur">커리큘럼</span></button>
+  <button class="nav-item active" onclick="location.href='blog.html'"><span>💬</span><span data-n="com">커뮤니티</span></button>
+  <button class="nav-item" onclick="location.href='mypage.html'"><span>👤</span><span data-n="my">마이페이지</span></button>
+</nav>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script>
+// 2026-11-09 서울 정보 나눔터 (Seoul Board)
+// 누구나 읽기 / 로그인한 사람만 글쓰기 / 관리자(tourjang@gmail.com) 승인 후에만 공개
+firebase.initializeApp({
+  apiKey: "AIzaSyD10IdHCDkCybMrkO5fewo0ksYFBmqwWro",
+  authDomain: "malmun-bca03.firebaseapp.com",
+  projectId: "malmun-bca03",
+  storageBucket: "malmun-bca03.firebasestorage.app",
+  messagingSenderId: "831462084669",
+  appId: "1:831462084669:web:003a844918b165d5b65a54"
+});
+const db = firebase.firestore();
+try{ db.settings({ experimentalForceLongPolling: true, experimentalAutoDetectLongPolling: false, merge: true }); }catch(e){}
+const auth = firebase.auth();
+const ADMIN = 'tourjang@gmail.com';
+
+const CATS = ['food','sights','transport','stay','tips','wyd'];
+const T = {
+  ko:{ back:'← 커뮤니티', title:'서울 정보 나눔터', sub:'서울의 맛집, 볼거리, 교통 꿀팁을 누구나 나눠요. 한국어 학습자와 한국 사람이 함께 만드는 서울 안내판이에요.', tag:'WYD Seoul 2027 순례자 환영', all:'전체', food:'맛집', sights:'볼거리', transport:'교통', stay:'숙소', tips:'꿀팁', wyd:'WYD 2027',
+    write:'+ 서울 정보 나누기', wTitle:'서울 정보 나누기', lCat:'분류', lTitle:'제목', lPlace:'장소 (선택)', lBody:'내용', hBody:'한국어, 영어 모두 좋아요. 관리자가 확인한 뒤 게시판에 올라가요.', lName:'이름 (보여질 이름)', cancel:'취소', save:'보내기',
+    phTitle:'예: 광장시장 빈대떡, 꼭 드셔 보세요', phPlace:'예: 종로구 광장시장', phBody:'어디인지, 무엇이 좋은지, 가는 방법이나 가격 등을 자유롭게 적어 주세요.',
+    empty:'아직 글이 없어요. 첫 정보를 나눠 주세요!', loading:'불러오는 중...', more:'더 보기', less:'접기', wait:'검토 중', mine:'내 글 (검토 중이라 나만 보여요)',
+    needLogin:'글을 쓰려면 로그인이 필요해요. 구글 계정으로 로그인할게요.', sent:'보냈어요! 관리자가 확인한 뒤 공개돼요.', fill:'제목과 내용을 적어 주세요.', fail:'보내지 못했어요. 잠시 뒤 다시 해 주세요.',
+    approve:'승인', del:'삭제', delAsk:'이 글을 삭제할까요?', adminBar:'관리자 모드 · 검토 대기 글 ', home:'홈', tutors:'튜터', cur:'커리큘럼', com:'커뮤니티', my:'마이페이지' },
+  en:{ back:'← Community', title:'Seoul Board', sub:'Share and find the best food, sights and travel tips in Seoul. A Seoul guide made together by Korean learners and locals.', tag:'Welcome, WYD Seoul 2027 pilgrims', all:'All', food:'Food', sights:'Sights', transport:'Getting around', stay:'Places to stay', tips:'Tips', wyd:'WYD 2027',
+    write:'+ Share a Seoul tip', wTitle:'Share a Seoul tip', lCat:'Category', lTitle:'Title', lPlace:'Place (optional)', lBody:'Your tip', hBody:'English or Korean is fine. We check every post before it goes up.', lName:'Your name (shown on the post)', cancel:'Cancel', save:'Send',
+    phTitle:'e.g. Try the mung bean pancakes at Gwangjang Market', phPlace:'e.g. Gwangjang Market, Jongno', phBody:'Where is it, what is good about it, how to get there, prices... anything that helps.',
+    empty:'No posts yet. Be the first to share a tip!', loading:'Loading...', more:'Read more', less:'Show less', wait:'Waiting for review', mine:'Your post (only you can see it until it is approved)',
+    needLogin:'Please log in to write. We will open Google login.', sent:'Sent! It will appear after a quick review.', fill:'Please write a title and your tip.', fail:'Could not send. Please try again.',
+    approve:'Approve', del:'Delete', delAsk:'Delete this post?', adminBar:'Admin mode · waiting for review: ', home:'Home', tutors:'Tutors', cur:'Curriculum', com:'Community', my:'My page' },
+  ja:{ back:'← コミュニティ', title:'ソウル情報掲示板', sub:'ソウルのグルメ、観光スポット、交通のコツをみんなでシェア。韓国語学習者と韓国の人が一緒に作るソウル案内板です。', tag:'WYD Seoul 2027 巡礼者歓迎', all:'すべて', food:'グルメ', sights:'観光', transport:'交通', stay:'宿泊', tips:'お役立ち', wyd:'WYD 2027',
+    write:'+ ソウル情報をシェア', wTitle:'ソウル情報をシェア', lCat:'カテゴリー', lTitle:'タイトル', lPlace:'場所 (任意)', lBody:'内容', hBody:'韓国語・英語・日本語どれでもOK。管理者の確認後に公開されます。', lName:'表示する名前', cancel:'キャンセル', save:'送信',
+    phTitle:'例: 広蔵市場のビンデトック', phPlace:'例: 鍾路区 広蔵市場', phBody:'場所、おすすめポイント、行き方、値段など自由に書いてください。',
+    empty:'まだ投稿がありません。最初の情報をシェアしてください!', loading:'読み込み中...', more:'もっと見る', less:'閉じる', wait:'確認待ち', mine:'あなたの投稿 (承認まで本人のみ表示)',
+    needLogin:'投稿にはログインが必要です。Googleでログインします。', sent:'送信しました!確認後に公開されます。', fill:'タイトルと内容を書いてください。', fail:'送信できませんでした。もう一度お試しください。',
+    approve:'承認', del:'削除', delAsk:'この投稿を削除しますか?', adminBar:'管理者モード · 確認待ち ', home:'ホーム', tutors:'チューター', cur:'カリキュラム', com:'コミュニティ', my:'マイページ' }
+};
+function L(){ try{ const l = new URLSearchParams(location.search).get('lang') || localStorage.getItem('malmun_lang') || 'ko'; return T[l] ? l : 'ko'; }catch(e){ return 'ko'; } }
+function t(k){ return T[L()][k] || T.ko[k] || k; }
+function esc(s){ const d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML; }
+function toast(m){ const el = document.getElementById('toast'); el.textContent = m; el.style.display = 'block'; clearTimeout(el._t); el._t = setTimeout(() => el.style.display = 'none', 3200); }
+
+let cat = 'all', posts = [], mine = [], pendingAll = [], isAdmin = false, user = null;
+
+function applyLang(){
+  const map = { tBack:'back', tTitle:'title', tSub:'sub', tTag:'tag', writeBtn:'write', wTitle:'wTitle', lCat:'lCat', lTitle:'lTitle', lPlace:'lPlace', lBody:'lBody', hBody:'hBody', lName:'lName', bCancel:'cancel', bSave:'save' };
+  Object.keys(map).forEach(id => { const el = document.getElementById(id); if(el) el.textContent = t(map[id]); });
+  document.getElementById('fTitle').placeholder = t('phTitle');
+  document.getElementById('fPlace').placeholder = t('phPlace');
+  document.getElementById('fBody').placeholder = t('phBody');
+  document.querySelectorAll('[data-n]').forEach(el => el.textContent = t(el.getAttribute('data-n')));
+  document.querySelectorAll('.langs button').forEach(b => b.classList.toggle('on', b.dataset.l === L()));
+  document.documentElement.lang = L();
+  document.getElementById('fCat').innerHTML = CATS.map(c => `<option value="${c}">${esc(t(c))}</option>`).join('');
+  renderCats(); render();
+}
+document.querySelectorAll('.langs button').forEach(b => b.onclick = () => {
+  try{ localStorage.setItem('malmun_lang', b.dataset.l); }catch(e){}
+  const u = new URL(location.href); u.searchParams.delete('lang'); history.replaceState(null, '', u);
+  applyLang();
+});
+
+function renderCats(){
+  document.getElementById('cats').innerHTML = ['all'].concat(CATS).map(c => `<button class="${c === cat ? 'on' : ''}" onclick="setCat('${c}')">${esc(t(c))}</button>`).join('');
+}
+function setCat(c){ cat = c; renderCats(); render(); }
+
+function dateText(p){ const s = p.createdAt && p.createdAt.seconds; if(!s) return ''; return new Date(s * 1000).toLocaleDateString(L() === 'en' ? 'en-US' : (L() === 'ja' ? 'ja-JP' : 'ko-KR')); }
+function card(p, kind){
+  const long = (p.body || '').length > 260;
+  return `<div class="card ${kind !== 'pub' ? 'pending' : ''}" id="c_${p.id}">
+    <div class="meta"><span class="cat">${esc(t(p.category) || p.category)}</span><span>${esc(p.name || 'Guest')}</span><span>${dateText(p)}</span>${kind !== 'pub' ? `<span class="badge-wait">${esc(t('wait'))}</span>` : ''}</div>
+    <h3>${esc(p.title)}</h3>
+    ${p.place ? `<p class="place">${esc(p.place)}</p>` : ''}
+    <p class="body ${long ? 'short' : ''}">${esc(p.body)}</p>
+    ${long ? `<button class="more" onclick="toggleMore(this)">${esc(t('more'))}</button>` : ''}
+    ${isAdmin ? `<div class="admin-row">${kind !== 'pub' ? `<button class="ok-btn" onclick="approve('${p.id}')">${esc(t('approve'))}</button>` : ''}<button class="del-btn" onclick="delPost('${p.id}')">${esc(t('del'))}</button></div>` : ''}
+  </div>`;
+}
+function toggleMore(btn){ const b = btn.previousElementSibling; const short = b.classList.toggle('short'); btn.textContent = short ? t('more') : t('less'); }
+
+function render(){
+  const box = document.getElementById('list');
+  const f = p => cat === 'all' || p.category === cat;
+  let html = '';
+  if(isAdmin){
+    document.getElementById('adminBar').innerHTML = `<div class="admin-bar">${esc(t('adminBar'))}${pendingAll.length}</div>`;
+    html += pendingAll.filter(f).map(p => card(p, 'wait')).join('');
+  }else if(mine.length){
+    html += mine.filter(f).map(p => card(p, 'mine')).join('');
+  }
+  const pub = posts.filter(f);
+  html += pub.map(p => card(p, 'pub')).join('');
+  box.innerHTML = html || `<div class="empty">${esc(t('empty'))}</div>`;
+}
+
+function sortNew(a, b){ return ((b.createdAt && b.createdAt.seconds) || 9e12) - ((a.createdAt && a.createdAt.seconds) || 9e12); }
+async function loadPublic(){
+  try{
+    const snap = await db.collection('boardPosts').where('approved', '==', true).get();
+    posts = snap.docs.map(d => Object.assign({ id: d.id }, d.data())).sort(sortNew);
+  }catch(e){ console.error(e); posts = []; }
+  render();
+}
+async function loadMine(){
+  mine = []; pendingAll = [];
+  if(!user) return render();
+  try{
+    if(isAdmin){
+      const s = await db.collection('boardPosts').where('approved', '==', false).get();
+      pendingAll = s.docs.map(d => Object.assign({ id: d.id }, d.data())).sort(sortNew);
+    }else{
+      const s = await db.collection('boardPosts').where('uid', '==', user.uid).get();
+      mine = s.docs.map(d => Object.assign({ id: d.id }, d.data())).filter(p => !p.approved).sort(sortNew);
+    }
+  }catch(e){ console.error(e); }
+  render();
+}
+
+auth.onAuthStateChanged(u => {
+  user = u;
+  isAdmin = !!u && u.emailVerified && (u.email || '').toLowerCase() === ADMIN;
+  if(u && !document.getElementById('fName').value) document.getElementById('fName').value = u.displayName || '';
+  loadMine();
+});
+
+async function openWrite(){
+  if(!auth.currentUser){
+    toast(t('needLogin'));
+    const p = new firebase.auth.GoogleAuthProvider(); p.setCustomParameters({ prompt: 'select_account' });
+    try{ await auth.signInWithPopup(p); }catch(e){ try{ await auth.signInWithRedirect(p); }catch(_){ } return; }
+  }
+  document.getElementById('overlay').classList.add('on');
+}
+function closeWrite(){ document.getElementById('overlay').classList.remove('on'); }
+
+async function savePost(){
+  const u = auth.currentUser; if(!u) return openWrite();
+  const title = document.getElementById('fTitle').value.trim();
+  const body = document.getElementById('fBody').value.trim();
+  if(!title || !body){ toast(t('fill')); return; }
+  const data = {
+    uid: u.uid,
+    name: (document.getElementById('fName').value.trim() || u.displayName || 'Guest').slice(0, 30),
+    category: document.getElementById('fCat').value,
+    title: title.slice(0, 100),
+    place: document.getElementById('fPlace').value.trim().slice(0, 100),
+    body: body.slice(0, 3000),
+    lang: L(),
+    approved: false,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+  const btn = document.getElementById('bSave'); btn.disabled = true;
+  try{
+    await db.collection('boardPosts').add(data);
+    ['fTitle','fPlace','fBody'].forEach(id => document.getElementById(id).value = '');
+    closeWrite(); toast(t('sent')); loadMine();
+  }catch(e){ console.error(e); toast(t('fail')); }
+  btn.disabled = false;
+}
+
+async function approve(id){
+  try{ await db.collection('boardPosts').doc(id).update({ approved: true, approvedAt: firebase.firestore.FieldValue.serverTimestamp() }); await loadPublic(); await loadMine(); }
+  catch(e){ console.error(e); toast(t('fail')); }
+}
+async function delPost(id){
+  if(!confirm(t('delAsk'))) return;
+  try{ await db.collection('boardPosts').doc(id).delete(); await loadPublic(); await loadMine(); }
+  catch(e){ console.error(e); toast(t('fail')); }
+}
+
+applyLang();
+loadPublic();
+</script>
+</body>
+</html>
