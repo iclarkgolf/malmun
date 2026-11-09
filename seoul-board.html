@@ -42,6 +42,28 @@
   .card .more{ background:none; border:none; color:var(--coral); font-weight:700; font-size:13px; padding:6px 0 0; cursor:pointer; }
   .card .tr{ display:inline-block; margin:6px 0 0 14px; font-size:13px; font-weight:700; color:var(--text-secondary); text-decoration:none; }
   .card .tr:hover{ color:var(--coral); }
+  /* 사진 · 지도 (2026-11-09) */
+  .pics{ display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin:10px 0 2px; }
+  .pics.n1{ grid-template-columns:1fr; } .pics.n2{ grid-template-columns:1fr 1fr; }
+  .pics img{ width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:10px; cursor:zoom-in; background:#eee; display:block; }
+  .pics.n1 img{ aspect-ratio:16/10; }
+  .card .mapbtn{ display:inline-block; margin:6px 0 0 14px; font-size:13px; font-weight:700; color:var(--text-secondary); background:none; border:none; padding:0; cursor:pointer; font-family:inherit; }
+  .card .mapbtn:hover{ color:var(--coral); }
+  .mapbox{ margin-top:10px; border-radius:12px; overflow:hidden; border:1px solid var(--card-border); }
+  .mapbox iframe{ width:100%; height:220px; border:0; display:block; }
+  .mapbox a{ display:block; text-align:center; font-size:13px; font-weight:700; padding:9px; color:var(--coral); background:#fff; text-decoration:none; }
+  .lightbox{ position:fixed; inset:0; background:rgba(0,0,0,.9); z-index:70; display:none; align-items:center; justify-content:center; padding:16px; }
+  .lightbox.on{ display:flex; } .lightbox img{ max-width:100%; max-height:100%; border-radius:8px; }
+  .up-grid{ display:flex; gap:8px; flex-wrap:wrap; }
+  .up-item{ position:relative; width:84px; height:84px; border-radius:10px; overflow:hidden; background:#eee; }
+  .up-item img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .up-item .x{ position:absolute; top:3px; right:3px; width:22px; height:22px; border-radius:50%; border:none; background:rgba(0,0,0,.6); color:#fff; font-size:14px; line-height:22px; padding:0; cursor:pointer; }
+  .up-item .bar{ position:absolute; left:0; bottom:0; height:4px; background:var(--accent); transition:width .2s; }
+  .up-item.err::after{ content:"!"; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(255,80,80,.55); color:#fff; font-weight:800; font-size:22px; }
+  .up-add{ width:84px; height:84px; border-radius:10px; border:2px dashed var(--card-border); background:#fff; color:var(--text-secondary); font-size:12px; font-weight:700; cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; font-family:inherit; }
+  .up-add b{ font-size:24px; line-height:1; }
+  .place-map{ margin-top:8px; border-radius:10px; overflow:hidden; border:1px solid var(--card-border); display:none; }
+  .place-map iframe{ width:100%; height:160px; border:0; display:block; }
   .pending{ border-color:var(--accent); background:#FFFDF7; }
   .badge-wait{ background:#FFE8B5; color:#7A4A00; font-weight:700; padding:2px 8px; border-radius:8px; }
   .admin-row{ display:flex; gap:8px; margin-top:10px; }
@@ -95,13 +117,15 @@
     <h2 id="wTitle">서울 정보 나누기</h2>
     <div class="field"><label id="lCat">분류</label><select id="fCat"></select></div>
     <div class="field"><label id="lTitle">제목</label><input id="fTitle" maxlength="100"></div>
-    <div class="field"><label id="lPlace">장소 (선택)</label><input id="fPlace" maxlength="100"></div>
+    <div class="field"><label id="lPlace">장소 (선택)</label><input id="fPlace" maxlength="100" oninput="placePreview()"><div class="hint" id="hPlace"></div><div class="place-map" id="placeMap"></div></div>
     <div class="field"><label id="lBody">내용</label><textarea id="fBody" maxlength="3000"></textarea><div class="hint" id="hBody"></div></div>
+    <div class="field"><label id="lPhotos">사진 (선택, 3장까지)</label><div class="up-grid" id="upGrid"></div><input type="file" id="fPhotos" accept="image/*" multiple hidden onchange="pickPhotos(this)"></div>
     <div class="field"><label id="lName">이름 (보여질 이름)</label><input id="fName" maxlength="30"></div>
     <div class="row"><button class="btn-cancel" id="bCancel" onclick="closeWrite()">취소</button><button class="btn-save" id="bSave" onclick="savePost()">보내기</button></div>
   </div>
 </div>
 <div class="toast" id="toast"></div>
+<div class="lightbox" id="lightbox" onclick="this.classList.remove('on')"><img id="lbImg" alt=""></div>
 
 <nav class="bottom-nav">
   <button class="nav-item" onclick="location.href='index.html'"><span>🏠</span><span data-n="home">홈</span></button>
@@ -114,6 +138,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
 <script>
 // 2026-11-09 서울 정보 나눔터 (Seoul Board)
 // 누구나 읽기 / 로그인한 사람만 글쓰기 / 관리자(tourjang@gmail.com) 승인 후에만 공개
@@ -128,6 +153,7 @@ firebase.initializeApp({
 const db = firebase.firestore();
 try{ db.settings({ experimentalForceLongPolling: true, experimentalAutoDetectLongPolling: false, merge: true }); }catch(e){}
 const auth = firebase.auth();
+const storage = firebase.storage();
 const ADMIN = 'tourjang@gmail.com';
 
 const CATS = ['food','sights','transport','stay','tips','wyd'];
@@ -137,19 +163,19 @@ const T = {
     phTitle:'예: 광장시장 빈대떡, 꼭 드셔 보세요', phPlace:'예: 종로구 광장시장', phBody:'어디인지, 무엇이 좋은지, 가는 방법이나 가격 등을 자유롭게 적어 주세요.',
     empty:'아직 글이 없어요. 첫 정보를 나눠 주세요!', loading:'불러오는 중...', more:'더 보기', less:'접기', wait:'검토 중', mine:'내 글 (검토 중이라 나만 보여요)',
     needLogin:'글을 쓰려면 로그인이 필요해요. 구글 계정으로 로그인할게요.', sent:'보냈어요! 관리자가 확인한 뒤 공개돼요.', fill:'제목과 내용을 적어 주세요.', fail:'보내지 못했어요. 잠시 뒤 다시 해 주세요.',
-    tr:'번역 보기', approve:'승인', del:'삭제', delAsk:'이 글을 삭제할까요?', adminBar:'관리자 모드 · 검토 대기 글 ', home:'홈', tutors:'튜터', cur:'커리큘럼', com:'커뮤니티', my:'마이페이지' },
+    lPhotos:'사진 (선택, 3장까지)', addPhoto:'사진 추가', hPlace:'장소를 적으면 구글 지도가 자동으로 붙어요.', map:'지도 보기', mapHide:'지도 닫기', openMap:'구글 지도에서 열기', upWait:'사진 올리는 중이에요. 잠깐만요...', upFail:'사진 하나를 올리지 못했어요. 빼고 다시 넣어 주세요.', badImg:'이 사진은 읽을 수 없어요. 다른 사진을 골라 주세요.', tr:'번역 보기', approve:'승인', del:'삭제', delAsk:'이 글을 삭제할까요?', adminBar:'관리자 모드 · 검토 대기 글 ', home:'홈', tutors:'튜터', cur:'커리큘럼', com:'커뮤니티', my:'마이페이지' },
   en:{ back:'← Community', title:'Seoul Board', sub:'Share and find the best food, sights and travel tips in Seoul. A Seoul guide made together by Korean learners and locals.', tag:'Welcome, WYD Seoul 2027 pilgrims', all:'All', food:'Food', sights:'Sights', transport:'Getting around', stay:'Places to stay', tips:'Tips', wyd:'WYD 2027',
     write:'+ Share a Seoul tip', wTitle:'Share a Seoul tip', lCat:'Category', lTitle:'Title', lPlace:'Place (optional)', lBody:'Your tip', hBody:'English or Korean is fine. We check every post before it goes up.', lName:'Your name (shown on the post)', cancel:'Cancel', save:'Send',
     phTitle:'e.g. Try the mung bean pancakes at Gwangjang Market', phPlace:'e.g. Gwangjang Market, Jongno', phBody:'Where is it, what is good about it, how to get there, prices... anything that helps.',
     empty:'No posts yet. Be the first to share a tip!', loading:'Loading...', more:'Read more', less:'Show less', wait:'Waiting for review', mine:'Your post (only you can see it until it is approved)',
     needLogin:'Please log in to write. We will open Google login.', sent:'Sent! It will appear after a quick review.', fill:'Please write a title and your tip.', fail:'Could not send. Please try again.',
-    tr:'Translate', approve:'Approve', del:'Delete', delAsk:'Delete this post?', adminBar:'Admin mode · waiting for review: ', home:'Home', tutors:'Tutors', cur:'Curriculum', com:'Community', my:'My page' },
+    lPhotos:'Photos (optional, up to 3)', addPhoto:'Add photo', hPlace:'Type a place and a Google map is added for you.', map:'Show map', mapHide:'Hide map', openMap:'Open in Google Maps', upWait:'Photos are still uploading. One moment...', upFail:'One photo did not upload. Please remove it and add it again.', badImg:'We could not read this photo. Please pick another one.', tr:'Translate', approve:'Approve', del:'Delete', delAsk:'Delete this post?', adminBar:'Admin mode · waiting for review: ', home:'Home', tutors:'Tutors', cur:'Curriculum', com:'Community', my:'My page' },
   ja:{ back:'← コミュニティ', title:'ソウル情報掲示板', sub:'ソウルのグルメ、観光スポット、交通のコツをみんなでシェア。韓国語学習者と韓国の人が一緒に作るソウル案内板です。', tag:'WYD Seoul 2027 巡礼者歓迎', all:'すべて', food:'グルメ', sights:'観光', transport:'交通', stay:'宿泊', tips:'お役立ち', wyd:'WYD 2027',
     write:'+ ソウル情報をシェア', wTitle:'ソウル情報をシェア', lCat:'カテゴリー', lTitle:'タイトル', lPlace:'場所 (任意)', lBody:'内容', hBody:'韓国語・英語・日本語どれでもOK。管理者の確認後に公開されます。', lName:'表示する名前', cancel:'キャンセル', save:'送信',
     phTitle:'例: 広蔵市場のビンデトック', phPlace:'例: 鍾路区 広蔵市場', phBody:'場所、おすすめポイント、行き方、値段など自由に書いてください。',
     empty:'まだ投稿がありません。最初の情報をシェアしてください!', loading:'読み込み中...', more:'もっと見る', less:'閉じる', wait:'確認待ち', mine:'あなたの投稿 (承認まで本人のみ表示)',
     needLogin:'投稿にはログインが必要です。Googleでログインします。', sent:'送信しました!確認後に公開されます。', fill:'タイトルと内容を書いてください。', fail:'送信できませんでした。もう一度お試しください。',
-    tr:'翻訳を見る', approve:'承認', del:'削除', delAsk:'この投稿を削除しますか?', adminBar:'管理者モード · 確認待ち ', home:'ホーム', tutors:'チューター', cur:'カリキュラム', com:'コミュニティ', my:'マイページ' }
+    lPhotos:'写真 (任意・3枚まで)', addPhoto:'写真を追加', hPlace:'場所を書くとGoogleマップが自動で付きます。', map:'地図を見る', mapHide:'地図を閉じる', openMap:'Googleマップで開く', upWait:'写真をアップロード中です。少々お待ちください...', upFail:'写真が1枚アップロードできませんでした。削除してもう一度追加してください。', badImg:'この写真は読み込めません。別の写真を選んでください。', tr:'翻訳を見る', approve:'承認', del:'削除', delAsk:'この投稿を削除しますか?', adminBar:'管理者モード · 確認待ち ', home:'ホーム', tutors:'チューター', cur:'カリキュラム', com:'コミュニティ', my:'マイページ' }
 };
 function L(){ try{ const l = new URLSearchParams(location.search).get('lang') || localStorage.getItem('malmun_lang') || 'ko'; return T[l] ? l : 'ko'; }catch(e){ return 'ko'; } }
 function t(k){ return T[L()][k] || T.ko[k] || k; }
@@ -159,7 +185,7 @@ function toast(m){ const el = document.getElementById('toast'); el.textContent =
 let cat = 'all', posts = [], mine = [], pendingAll = [], isAdmin = false, user = null;
 
 function applyLang(){
-  const map = { tBack:'back', tTitle:'title', tSub:'sub', tTag:'tag', writeBtn:'write', wTitle:'wTitle', lCat:'lCat', lTitle:'lTitle', lPlace:'lPlace', lBody:'lBody', hBody:'hBody', lName:'lName', bCancel:'cancel', bSave:'save' };
+  const map = { tBack:'back', tTitle:'title', tSub:'sub', tTag:'tag', writeBtn:'write', wTitle:'wTitle', lCat:'lCat', lTitle:'lTitle', lPlace:'lPlace', lBody:'lBody', hBody:'hBody', lName:'lName', bCancel:'cancel', bSave:'save', lPhotos:'lPhotos', hPlace:'hPlace' };
   Object.keys(map).forEach(id => { const el = document.getElementById(id); if(el) el.textContent = t(map[id]); });
   document.getElementById('fTitle').placeholder = t('phTitle');
   document.getElementById('fPlace').placeholder = t('phPlace');
@@ -168,7 +194,7 @@ function applyLang(){
   document.querySelectorAll('.langs button').forEach(b => b.classList.toggle('on', b.dataset.l === L()));
   document.documentElement.lang = L();
   document.getElementById('fCat').innerHTML = CATS.map(c => `<option value="${c}">${esc(t(c))}</option>`).join('');
-  renderCats(); render();
+  renderCats(); render(); renderUploads();
 }
 document.querySelectorAll('.langs button').forEach(b => b.onclick = () => {
   try{ localStorage.setItem('malmun_lang', b.dataset.l); }catch(e){}
@@ -189,7 +215,8 @@ function card(p, kind){
     <h3>${esc(p.title)}</h3>
     ${p.place ? `<p class="place">${esc(p.place)}</p>` : ''}
     <p class="body ${long ? 'short' : ''}">${esc(p.body)}</p>
-    ${long ? `<button class="more" onclick="toggleMore(this)">${esc(t('more'))}</button>` : ''}<a class="tr" href="${esc(trUrl(p))}" target="_blank" rel="noopener" style="${long ? '' : 'margin-left:0;'}">${esc(t('tr'))}</a>
+    ${picsHtml(p)}
+    ${long ? `<button class="more" onclick="toggleMore(this)">${esc(t('more'))}</button>` : ''}<a class="tr" href="${esc(trUrl(p))}" target="_blank" rel="noopener" style="${long ? '' : 'margin-left:0;'}">${esc(t('tr'))}</a>${p.place ? `<button class="mapbtn" onclick="toggleMap(this, '${p.id}')">${esc(t('map'))}</button><div class="mapbox" id="m_${p.id}" hidden></div>` : ''}
     ${isAdmin ? `<div class="admin-row">${kind !== 'pub' ? `<button class="ok-btn" onclick="approve('${p.id}')">${esc(t('approve'))}</button>` : ''}<button class="del-btn" onclick="delPost('${p.id}')">${esc(t('del'))}</button></div>` : ''}
   </div>`;
 }
@@ -272,12 +299,98 @@ async function savePost(){
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
   };
   const btn = document.getElementById('bSave'); btn.disabled = true;
+  if(ups.some(u => !u.url && !u.err)){ toast(t('upWait')); await Promise.all(ups.map(u => u.done)); }
+  if(ups.some(u => u.err)){ toast(t('upFail')); btn.disabled = false; return; }
+  const photos = ups.map(u => u.url).filter(u => PHOTO_OK.test(u)).slice(0, 3);
+  if(photos.length) data.photos = photos;
   try{
     await db.collection('boardPosts').add(data);
     ['fTitle','fPlace','fBody'].forEach(id => document.getElementById(id).value = '');
+    ups = []; renderUploads(); placePreview();
     closeWrite(); toast(t('sent')); loadMine();
   }catch(e){ console.error(e); toast(t('fail')); }
   btn.disabled = false;
+}
+
+
+// ───── 사진 · 지도 (2026-11-09) ─────
+// 사진: 고르는 즉시 휴대폰 안에서 작게 줄이고(긴 쪽 1280px) 바로 올리기 시작 → 글을 쓰는 동안 뒤에서 올라감
+// 지도: 구글 지도 퍼가기 (키 필요 없음). 목록에서는 [지도 보기]를 누를 때만 불러와서 화면이 무겁지 않게
+const PHOTO_OK = /^https:\/\/firebasestorage\.googleapis\.com\/v0\/b\/malmun-bca03\.firebasestorage\.app\/o\/board%2F[^"'<>\s]+$/;
+function picsHtml(p){
+  const ph = (Array.isArray(p.photos) ? p.photos : []).filter(u => PHOTO_OK.test(u)).slice(0, 3);
+  if(!ph.length) return '';
+  return `<div class="pics n${ph.length}">${ph.map(u => `<img src="${u}" loading="lazy" alt="" onclick="showPic(this.src)">`).join('')}</div>`;
+}
+function showPic(src){ document.getElementById('lbImg').src = src; document.getElementById('lightbox').classList.add('on'); }
+function mapLang(){ return L() === 'ja' ? 'ja' : (L() === 'en' ? 'en' : 'ko'); }
+function mapEmbed(q, h){ return `<iframe src="https://maps.google.com/maps?q=${encodeURIComponent(q)}&hl=${mapLang()}&z=15&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" style="height:${h}px" title="map"></iframe>`; }
+function mapLink(q){ return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q); }
+function toggleMap(btn, id){
+  const box = document.getElementById('m_' + id); if(!box) return;
+  const p = posts.concat(mine, pendingAll).find(x => x.id === id); if(!p || !p.place) return;
+  if(box.hidden){
+    if(!box.innerHTML) box.innerHTML = mapEmbed(p.place, 220) + `<a href="${mapLink(p.place)}" target="_blank" rel="noopener">${esc(t('openMap'))}</a>`;
+    box.hidden = false; btn.textContent = t('mapHide');
+  }else{ box.hidden = true; btn.textContent = t('map'); }
+}
+let placeTimer = null, placeShown = '';
+function placePreview(){
+  clearTimeout(placeTimer);
+  placeTimer = setTimeout(() => {
+    const q = document.getElementById('fPlace').value.trim(), box = document.getElementById('placeMap');
+    if(q.length < 2){ box.style.display = 'none'; box.innerHTML = ''; placeShown = ''; return; }
+    if(q === placeShown) return;
+    placeShown = q; box.innerHTML = mapEmbed(q, 160); box.style.display = 'block';
+  }, 900);
+}
+
+// 올릴 사진 목록: { key, thumb, url, pct, err, task }
+let ups = [];
+function renderUploads(){
+  const g = document.getElementById('upGrid'); if(!g) return;
+  g.innerHTML = ups.map(u => `<div class="up-item ${u.err ? 'err' : ''}"><img src="${u.thumb}" alt=""><div class="bar" style="width:${u.url ? 0 : u.pct}%"></div><button class="x" type="button" onclick="removeUp('${u.key}')">×</button></div>`).join('') +
+    (ups.length < 3 ? `<button class="up-add" type="button" onclick="document.getElementById('fPhotos').click()"><b>+</b>${esc(t('addPhoto'))}</button>` : '');
+}
+function removeUp(key){
+  const u = ups.find(x => x.key === key); if(!u) return;
+  try{ u.task && !u.url && u.task.cancel(); }catch(e){}
+  if(u.ref && u.url) u.ref.delete().catch(() => {});
+  ups = ups.filter(x => x.key !== key); renderUploads();
+}
+function shrink(file){
+  return new Promise((ok, bad) => {
+    const url = URL.createObjectURL(file), img = new Image();
+    img.onload = () => {
+      const max = 1280, r = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+      const w = Math.round(img.naturalWidth * r), h = Math.round(img.naturalHeight * r);
+      const c = document.createElement('canvas'); c.width = w; c.height = h;
+      const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, w, h); x.drawImage(img, 0, 0, w, h);
+      URL.revokeObjectURL(url);
+      c.toBlob(b => b ? ok(b) : bad(new Error('blob')), 'image/jpeg', 0.82);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); bad(new Error('decode')); };
+    img.src = url;
+  });
+}
+async function pickPhotos(input){
+  const files = [...input.files].slice(0, 3 - ups.length); input.value = '';
+  const u0 = auth.currentUser; if(!u0) return openWrite();
+  for(const f of files){
+    let blob;
+    try{ blob = await shrink(f); }catch(e){ toast(t('badImg')); continue; }
+    const key = Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+    const it = { key, thumb: URL.createObjectURL(blob), url: '', pct: 3, err: false };
+    ups.push(it); renderUploads();
+    it.ref = storage.ref('board/' + u0.uid + '/' + key + '.jpg');
+    it.task = it.ref.put(blob, { contentType: 'image/jpeg', cacheControl: 'public,max-age=31536000' });
+    it.done = new Promise(res => {
+      it.task.on('state_changed',
+        s => { it.pct = Math.max(3, Math.round(s.bytesTransferred / s.totalBytes * 100)); const b = document.querySelector(`.up-item:nth-child(${ups.indexOf(it) + 1}) .bar`); if(b) b.style.width = it.pct + '%'; },
+        e => { if(e && e.code === 'storage/canceled') return res(); console.error(e); it.err = true; renderUploads(); res(); },
+        async () => { try{ it.url = await it.ref.getDownloadURL(); }catch(e){ it.err = true; } renderUploads(); res(); });
+    });
+  }
 }
 
 async function approve(id){
@@ -286,7 +399,10 @@ async function approve(id){
 }
 async function delPost(id){
   if(!confirm(t('delAsk'))) return;
-  try{ await db.collection('boardPosts').doc(id).delete(); await loadPublic(); await loadMine(); }
+  const p = posts.concat(mine, pendingAll).find(x => x.id === id);
+  try{ await db.collection('boardPosts').doc(id).delete();
+    (p && Array.isArray(p.photos) ? p.photos : []).filter(u => PHOTO_OK.test(u)).forEach(u => { try{ storage.refFromURL(u).delete().catch(() => {}); }catch(e){} });
+    await loadPublic(); await loadMine(); }
   catch(e){ console.error(e); toast(t('fail')); }
 }
 
