@@ -40,6 +40,8 @@
   .card .body{ font-size:14px; line-height:1.75; white-space:pre-wrap; word-break:break-word; margin:0; }
   .card .body.short{ max-height:7.2em; overflow:hidden; }
   .card .more{ background:none; border:none; color:var(--coral); font-weight:700; font-size:13px; padding:6px 0 0; cursor:pointer; }
+  .card .tr{ display:inline-block; margin:6px 0 0 14px; font-size:13px; font-weight:700; color:var(--text-secondary); text-decoration:none; }
+  .card .tr:hover{ color:var(--coral); }
   .pending{ border-color:var(--accent); background:#FFFDF7; }
   .badge-wait{ background:#FFE8B5; color:#7A4A00; font-weight:700; padding:2px 8px; border-radius:8px; }
   .admin-row{ display:flex; gap:8px; margin-top:10px; }
@@ -135,19 +137,19 @@ const T = {
     phTitle:'예: 광장시장 빈대떡, 꼭 드셔 보세요', phPlace:'예: 종로구 광장시장', phBody:'어디인지, 무엇이 좋은지, 가는 방법이나 가격 등을 자유롭게 적어 주세요.',
     empty:'아직 글이 없어요. 첫 정보를 나눠 주세요!', loading:'불러오는 중...', more:'더 보기', less:'접기', wait:'검토 중', mine:'내 글 (검토 중이라 나만 보여요)',
     needLogin:'글을 쓰려면 로그인이 필요해요. 구글 계정으로 로그인할게요.', sent:'보냈어요! 관리자가 확인한 뒤 공개돼요.', fill:'제목과 내용을 적어 주세요.', fail:'보내지 못했어요. 잠시 뒤 다시 해 주세요.',
-    approve:'승인', del:'삭제', delAsk:'이 글을 삭제할까요?', adminBar:'관리자 모드 · 검토 대기 글 ', home:'홈', tutors:'튜터', cur:'커리큘럼', com:'커뮤니티', my:'마이페이지' },
+    tr:'번역 보기', approve:'승인', del:'삭제', delAsk:'이 글을 삭제할까요?', adminBar:'관리자 모드 · 검토 대기 글 ', home:'홈', tutors:'튜터', cur:'커리큘럼', com:'커뮤니티', my:'마이페이지' },
   en:{ back:'← Community', title:'Seoul Board', sub:'Share and find the best food, sights and travel tips in Seoul. A Seoul guide made together by Korean learners and locals.', tag:'Welcome, WYD Seoul 2027 pilgrims', all:'All', food:'Food', sights:'Sights', transport:'Getting around', stay:'Places to stay', tips:'Tips', wyd:'WYD 2027',
     write:'+ Share a Seoul tip', wTitle:'Share a Seoul tip', lCat:'Category', lTitle:'Title', lPlace:'Place (optional)', lBody:'Your tip', hBody:'English or Korean is fine. We check every post before it goes up.', lName:'Your name (shown on the post)', cancel:'Cancel', save:'Send',
     phTitle:'e.g. Try the mung bean pancakes at Gwangjang Market', phPlace:'e.g. Gwangjang Market, Jongno', phBody:'Where is it, what is good about it, how to get there, prices... anything that helps.',
     empty:'No posts yet. Be the first to share a tip!', loading:'Loading...', more:'Read more', less:'Show less', wait:'Waiting for review', mine:'Your post (only you can see it until it is approved)',
     needLogin:'Please log in to write. We will open Google login.', sent:'Sent! It will appear after a quick review.', fill:'Please write a title and your tip.', fail:'Could not send. Please try again.',
-    approve:'Approve', del:'Delete', delAsk:'Delete this post?', adminBar:'Admin mode · waiting for review: ', home:'Home', tutors:'Tutors', cur:'Curriculum', com:'Community', my:'My page' },
+    tr:'Translate', approve:'Approve', del:'Delete', delAsk:'Delete this post?', adminBar:'Admin mode · waiting for review: ', home:'Home', tutors:'Tutors', cur:'Curriculum', com:'Community', my:'My page' },
   ja:{ back:'← コミュニティ', title:'ソウル情報掲示板', sub:'ソウルのグルメ、観光スポット、交通のコツをみんなでシェア。韓国語学習者と韓国の人が一緒に作るソウル案内板です。', tag:'WYD Seoul 2027 巡礼者歓迎', all:'すべて', food:'グルメ', sights:'観光', transport:'交通', stay:'宿泊', tips:'お役立ち', wyd:'WYD 2027',
     write:'+ ソウル情報をシェア', wTitle:'ソウル情報をシェア', lCat:'カテゴリー', lTitle:'タイトル', lPlace:'場所 (任意)', lBody:'内容', hBody:'韓国語・英語・日本語どれでもOK。管理者の確認後に公開されます。', lName:'表示する名前', cancel:'キャンセル', save:'送信',
     phTitle:'例: 広蔵市場のビンデトック', phPlace:'例: 鍾路区 広蔵市場', phBody:'場所、おすすめポイント、行き方、値段など自由に書いてください。',
     empty:'まだ投稿がありません。最初の情報をシェアしてください!', loading:'読み込み中...', more:'もっと見る', less:'閉じる', wait:'確認待ち', mine:'あなたの投稿 (承認まで本人のみ表示)',
     needLogin:'投稿にはログインが必要です。Googleでログインします。', sent:'送信しました!確認後に公開されます。', fill:'タイトルと内容を書いてください。', fail:'送信できませんでした。もう一度お試しください。',
-    approve:'承認', del:'削除', delAsk:'この投稿を削除しますか?', adminBar:'管理者モード · 確認待ち ', home:'ホーム', tutors:'チューター', cur:'カリキュラム', com:'コミュニティ', my:'マイページ' }
+    tr:'翻訳を見る', approve:'承認', del:'削除', delAsk:'この投稿を削除しますか?', adminBar:'管理者モード · 確認待ち ', home:'ホーム', tutors:'チューター', cur:'カリキュラム', com:'コミュニティ', my:'マイページ' }
 };
 function L(){ try{ const l = new URLSearchParams(location.search).get('lang') || localStorage.getItem('malmun_lang') || 'ko'; return T[l] ? l : 'ko'; }catch(e){ return 'ko'; } }
 function t(k){ return T[L()][k] || T.ko[k] || k; }
@@ -187,9 +189,14 @@ function card(p, kind){
     <h3>${esc(p.title)}</h3>
     ${p.place ? `<p class="place">${esc(p.place)}</p>` : ''}
     <p class="body ${long ? 'short' : ''}">${esc(p.body)}</p>
-    ${long ? `<button class="more" onclick="toggleMore(this)">${esc(t('more'))}</button>` : ''}
+    ${long ? `<button class="more" onclick="toggleMore(this)">${esc(t('more'))}</button>` : ''}<a class="tr" href="${esc(trUrl(p))}" target="_blank" rel="noopener" style="${long ? '' : 'margin-left:0;'}">${esc(t('tr'))}</a>
     ${isAdmin ? `<div class="admin-row">${kind !== 'pub' ? `<button class="ok-btn" onclick="approve('${p.id}')">${esc(t('approve'))}</button>` : ''}<button class="del-btn" onclick="delPost('${p.id}')">${esc(t('del'))}</button></div>` : ''}
   </div>`;
+}
+// 번역 보기: 구글 번역을 새 창으로 열어, 지금 고른 언어로 글을 번역해 보여 줌
+function trUrl(p){
+  const txt = [p.title, p.place, p.body].filter(Boolean).join('\n\n').slice(0, 1800);
+  return 'https://translate.google.com/?sl=auto&tl=' + L() + '&op=translate&text=' + encodeURIComponent(txt);
 }
 function toggleMore(btn){ const b = btn.previousElementSibling; const short = b.classList.toggle('short'); btn.textContent = short ? t('more') : t('less'); }
 
