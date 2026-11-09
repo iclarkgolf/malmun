@@ -385,6 +385,47 @@
       section{ min-height:calc(100dvh - 70px); }
     }
   }
+
+/* ───── 2026-11-09 LIVE 대화창 (레딧 학습자 대화를 AI 안경 화면처럼) ───── */
+.live-hud{ position:relative; overflow:hidden; min-height:0; max-width:none; margin:0; border:0; background:radial-gradient(120% 140% at 15% 0%, #1b2d4a 0%, #0b1222 55%, #070b16 100%); padding:22px 16px 24px; }
+.live-hud::before{ content:""; position:absolute; inset:0; background-image:linear-gradient(rgba(120,220,255,.06) 1px, transparent 1px), linear-gradient(90deg, rgba(120,220,255,.06) 1px, transparent 1px); background-size:28px 28px; pointer-events:none; }
+.live-hud::after{ content:""; position:absolute; left:0; right:0; height:120px; top:-120px; background:linear-gradient(180deg, transparent, rgba(120,220,255,.08), transparent); animation:hudScan 6s linear infinite; pointer-events:none; }
+@keyframes hudScan{ to{ top:110%; } }
+.hud-lens{ position:relative; z-index:1; max-width:880px; margin:0 auto; padding:18px 20px 16px; border-radius:18px; background:linear-gradient(135deg, rgba(255,255,255,.10), rgba(255,255,255,.03)); border:1px solid rgba(120,220,255,.35); box-shadow:0 0 0 1px rgba(255,255,255,.04) inset, 0 20px 50px rgba(0,0,0,.45), 0 0 40px rgba(80,200,255,.12); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); color:#E6F6FF; }
+.hud-lens .cn{ position:absolute; width:16px; height:16px; border:2px solid #6FE3FF; opacity:.9; }
+.hud-lens .cn.tl{ top:-1px; left:-1px; border-right:none; border-bottom:none; border-radius:14px 0 0 0; }
+.hud-lens .cn.tr{ top:-1px; right:-1px; border-left:none; border-bottom:none; border-radius:0 14px 0 0; }
+.hud-lens .cn.bl{ bottom:-1px; left:-1px; border-right:none; border-top:none; border-radius:0 0 0 14px; }
+.hud-lens .cn.br{ bottom:-1px; right:-1px; border-left:none; border-top:none; border-radius:0 0 14px 0; }
+.hud-top{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; font:600 11px/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing:.12em; text-transform:uppercase; color:#8FDFFF; margin-bottom:12px; }
+.hud-live{ display:inline-flex; align-items:center; gap:6px; color:#FF6B6B; }
+.hud-live i{ width:8px; height:8px; border-radius:50%; background:#FF4D4D; box-shadow:0 0 10px #FF4D4D; animation:hudBlink 1.2s ease-in-out infinite; }
+@keyframes hudBlink{ 50%{ opacity:.25; } }
+.hud-topic{ margin-left:auto; color:#FFD27A; letter-spacing:.06em; text-transform:none; font-size:12px; }
+.hud-body{ min-height:132px; font:15px/1.65 ui-monospace, SFMono-Regular, Menlo, Consolas, "Apple SD Gothic Neo", "Noto Sans KR", monospace; }
+.hud-who{ color:#6FE3FF; font-size:12px; letter-spacing:.04em; margin:0 0 4px; }
+.hud-who.me{ color:#FFC56B; margin-top:12px; }
+.hud-txt{ margin:0; color:#F2FBFF; text-shadow:0 0 12px rgba(111,227,255,.25); word-break:break-word; }
+.hud-txt.me{ color:#FFE7BF; text-shadow:0 0 12px rgba(255,197,107,.25); }
+.hud-caret{ display:inline-block; width:8px; height:1.05em; vertical-align:-2px; background:#6FE3FF; margin-left:2px; animation:hudBlink .9s steps(1) infinite; }
+.hud-foot{ display:flex; align-items:center; gap:10px; margin-top:14px; padding-top:12px; border-top:1px dashed rgba(120,220,255,.25); }
+.hud-dots{ display:flex; gap:6px; }
+.hud-dots b{ width:6px; height:6px; border-radius:50%; background:rgba(143,223,255,.3); }
+.hud-dots b.on{ background:#6FE3FF; box-shadow:0 0 8px #6FE3FF; }
+.hud-go{ margin-left:auto; font:700 12px/1 ui-monospace, Menlo, Consolas, monospace; letter-spacing:.08em; color:#0B1222; background:#6FE3FF; padding:9px 14px; border-radius:999px; text-decoration:none; white-space:nowrap; }
+.hud-go:hover{ background:#9BEEFF; }
+
+.hud-hangul{ position:absolute; inset:0; pointer-events:none; }
+.hud-hangul span{ position:absolute; font-weight:800; color:rgba(111,227,255,.07); white-space:nowrap; animation:hudFloat 18s ease-in-out infinite alternate; }
+.hud-hangul span:nth-child(1){ top:6%; left:4%; font-size:44px; }
+.hud-hangul span:nth-child(2){ bottom:4%; right:3%; font-size:52px; animation-delay:-6s; }
+.hud-hangul span:nth-child(3){ top:12%; right:10%; font-size:30px; animation-delay:-3s; }
+.hud-hangul span:nth-child(4){ bottom:10%; left:8%; font-size:64px; color:rgba(255,197,107,.07); animation-delay:-9s; }
+.hud-hangul span:nth-child(5){ top:45%; left:-2%; font-size:26px; animation-delay:-12s; }
+.hud-hangul span:nth-child(6){ top:40%; right:-1%; font-size:28px; animation-delay:-15s; }
+@keyframes hudFloat{ to{ transform:translate(18px,-10px); } }
+@media (min-width:900px){ .live-hud{ padding:28px 24px 30px; } .hud-body{ font-size:16px; min-height:120px; } }
+@media (prefers-reduced-motion: reduce){ .hud-hangul span, .live-hud::after, .hud-live i, .hud-caret{ animation:none; } }
 </style>
 <script>
 (function(){
@@ -562,6 +603,17 @@
     </button>
   </div>
 </header>
+
+<!-- 2026-11-09 LIVE: 레딧에서 학습자들과 나눈 실제 대화 (블로그 글의 redditHighlights에서 자동으로 불러옴) -->
+<div class="live-hud" id="liveHud" role="region" style="display:none;" aria-label="Live conversations from Reddit">
+  <div class="hud-hangul" aria-hidden="true"><span>밥 먹었어요?</span><span>수고하셨습니다</span><span>괜찮아요</span><span>말문</span><span>안녕하세요</span><span>감사합니다</span></div>
+  <div class="hud-lens">
+    <span class="cn tl"></span><span class="cn tr"></span><span class="cn bl"></span><span class="cn br"></span>
+    <div class="hud-top"><span class="hud-live"><i></i>LIVE</span><span id="hudLabel">r/BeginnerKorean · 지금 학습자들과 나누는 대화</span><span class="hud-topic" id="hudTopic"></span></div>
+    <div class="hud-body" id="hudBody"></div>
+    <div class="hud-foot"><div class="hud-dots" id="hudDots"></div><a class="hud-go" id="hudGo" href="blog.html">대화 전체 보기 →</a></div>
+  </div>
+</div>
 
 <div class="hero-desktop">
   <svg class="deco-ring corner-tl" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="46" fill="none" stroke="var(--card-border)" stroke-width="1.5" stroke-dasharray="2 7"/><circle cx="50" cy="50" r="32" fill="none" stroke="var(--card-border)" stroke-width="1.5" stroke-dasharray="2 7"/></svg>
@@ -1266,6 +1318,62 @@ db.collection('tutors').get().then(snap => {
   console.error('튜터 정보 불러오기 실패:', err);
   ['heroMosaicDesktop','heroMosaicMobile'].forEach(id => { const el = document.getElementById(id); if(el) el.outerHTML = '<img class="hero-photo" src="pj-hero.jpg" alt="Malmun">'; });
 });
+
+// ───── 2026-11-09 LIVE 대화창: 블로그 글(blogPosts)의 redditHighlights를 모아 타자 치듯 번갈아 보여 줌 ─────
+// 데이터: { user, text, replyUser, reply } — Claude가 PJ가 보내 준 레딧 대화에서 골라 저장. 글자는 원문(영어) 그대로.
+var hudItems = [], hudIdx = 0, hudTimer = null, hudTyping = null;
+function hudL(key){
+  const L = curLangHome();
+  const T = {
+    label: { ko:'r/BeginnerKorean · 지금 학습자들과 나누는 대화', en:'r/BeginnerKorean · real talk with learners', ja:'r/BeginnerKorean · 学習者とのリアルな会話' },
+    go:    { ko:'대화 전체 보기 →', en:'See the whole thread →', ja:'会話をすべて見る →' }
+  };
+  return (T[key] || {})[L] || T[key].ko;
+}
+function hudType(el, text, speed, done){
+  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce){ el.textContent = text; done && done(); return; }
+  let i = 0; el.textContent = '';
+  const caret = document.createElement('span'); caret.className = 'hud-caret';
+  el.appendChild(caret);
+  (function step(){
+    if(i >= text.length){ caret.remove(); done && done(); return; }
+    const n = Math.max(1, Math.round(text.length / 160));  // 긴 글은 조금 빨리
+    caret.before(document.createTextNode(text.slice(i, i + n))); i += n;
+    hudTyping = setTimeout(step, speed);
+  })();
+}
+function hudShow(k){
+  if(!hudItems.length) return;
+  clearTimeout(hudTimer); clearTimeout(hudTyping);
+  hudIdx = (k + hudItems.length) % hudItems.length;
+  const it = hudItems[hudIdx];
+  document.getElementById('hudLabel').textContent = hudL('label');
+  document.getElementById('hudTopic').textContent = it.topic ? '# ' + it.topic : '';
+  const go = document.getElementById('hudGo');
+  go.textContent = hudL('go'); go.href = 'article.html?id=' + encodeURIComponent(it.postId);
+  document.getElementById('hudDots').innerHTML = hudItems.map((_, j) => `<b class="${j === hudIdx ? 'on' : ''}"></b>`).join('');
+  const body = document.getElementById('hudBody');
+  body.innerHTML = `<p class="hud-who">&gt; u/${escT(it.user)}</p><p class="hud-txt" id="hudT1"></p>` +
+    (it.reply ? `<p class="hud-who me">↳ u/${escT(it.replyUser || 'DearGroup2977')} · 말문</p><p class="hud-txt me" id="hudT2"></p>` : '');
+  hudType(document.getElementById('hudT1'), it.text, 22, () => {
+    const t2 = document.getElementById('hudT2');
+    const next = () => { hudTimer = setTimeout(() => hudShow(hudIdx + 1), 5200); };
+    if(t2) setTimeout(() => hudType(t2, it.reply, 22, next), 500); else next();
+  });
+}
+db.collection('blogPosts').where('published', '==', true).get().then(snap => {
+  snap.docs.forEach(d => {
+    const p = d.data();
+    (Array.isArray(p.redditHighlights) ? p.redditHighlights : []).forEach(h => {
+      if(h && h.user && h.text) hudItems.push({ postId: d.id, topic: p.redditTopic || '', user: String(h.user), text: String(h.text), replyUser: h.replyUser ? String(h.replyUser) : '', reply: h.reply ? String(h.reply) : '' });
+    });
+  });
+  if(!hudItems.length) return;
+  for(let i = hudItems.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [hudItems[i], hudItems[j]] = [hudItems[j], hudItems[i]]; }
+  document.getElementById('liveHud').style.display = '';
+  hudShow(0);
+}).catch(e => console.warn('live hud', e));
 
 function countUp(el, target, decimals, duration){
   if(!el) return;
