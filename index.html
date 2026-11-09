@@ -32,7 +32,7 @@
     --teal: #5DCAA5;
   }
   *{ box-sizing:border-box; }
-  html{ scroll-snap-type: y proximity; }
+  html{ scroll-snap-type: none; }  /* 2026-11-09: 칸 맞춤 없앰 — 미끄러지듯 자유롭게 */
   body{
     margin:0;
     background:var(--bg);
@@ -320,7 +320,7 @@
   .nav-item span{ font-size:11px; }
 
   @media (min-width:900px){
-    html{ scroll-snap-type: y mandatory; }
+    html{ scroll-snap-type: none; }  /* 2026-11-09: 칸 맞춤 없앰 (PC도 자유 스크롤) */
     .hero-desktop, section, footer{ scroll-snap-stop: always; }
     body{ padding-bottom:0; }
     .bottom-nav{ display:none; }
@@ -424,7 +424,7 @@
 .hud-hangul span:nth-child(5){ top:45%; left:-2%; font-size:26px; animation-delay:-12s; }
 .hud-hangul span:nth-child(6){ top:40%; right:-1%; font-size:28px; animation-delay:-15s; }
 @keyframes hudFloat{ to{ transform:translate(18px,-10px); } }
-@media (min-width:900px){ .live-hud{ padding:28px 24px 30px; } .hud-body{ font-size:16px; min-height:120px; } }
+@media (min-width:900px){ .live-hud{ padding:22px 24px 24px; scroll-snap-align:start; scroll-margin-top:70px; scroll-snap-stop:always; } .hud-body{ font-size:16px; min-height:120px; } }
 @media (prefers-reduced-motion: reduce){ .hud-hangul span, .live-hud::after, .hud-live i, .hud-caret{ animation:none; } }
 </style>
 <script>
