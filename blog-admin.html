@@ -118,6 +118,13 @@
     </div>
 
     <div class="field">
+      <label>Reddit 주소 (선택)</label>
+      <div class="hint" style="margin-bottom:6px;">처음 한 번만: 이 버튼을 크롬 북마크바로 끌어다 놓으세요 → <a href="javascript:(async()=&gt;{const L=location;if(!/reddit\.com$/.test(L.hostname)||!/\/comments\//.test(L.pathname)){alert(&#x27;레딧 글 화면에서 눌러 주세요.&#x27;);return;}const seen=new Set(),out=[];const add=p=&gt;{if(!p)return;const m=p.match(/\/r\/[^/]+\/comments\/[a-z0-9]+\/(?:[^/]+\/)?comment\/[a-z0-9]+/i);if(!m)return;const u=&#x27;https://www.reddit.com&#x27;+m[0]+&#x27;/&#x27;;if(!seen.has(u)){seen.add(u);out.push(u);}};document.querySelectorAll(&#x27;shreddit-comment&#x27;).forEach(c=&gt;add(c.getAttribute(&#x27;permalink&#x27;)));if(!out.length)document.querySelectorAll(&#x27;a[href*=&quot;/comment/&quot;]&#x27;).forEach(a=&gt;add(a.getAttribute(&#x27;href&#x27;)));const pm=L.pathname.match(/\/r\/[^/]+\/comments\/[a-z0-9]+/i);const post=&#x27;https://www.reddit.com&#x27;+pm[0]+&#x27;/&#x27;;const txt=[post].concat(out).join(&#x27;\n&#x27;);try{await navigator.clipboard.writeText(txt);alert(&#x27;글 1개 + 댓글 &#x27;+out.length+&#x27;개 주소를 복사했어요.\n말문 글쓰기 화면의 Reddit 칸에 붙여넣으세요.&#x27;);}catch(e){prompt(&#x27;아래 내용을 전체 복사(Ctrl+C)하세요&#x27;,txt);}})();" onclick="alert('이 버튼은 누르는 게 아니라 크롬 북마크바로 끌어다 놓는 거예요.');return false;" style="display:inline-block;background:#FF4500;color:#fff;font-weight:700;padding:4px 10px;border-radius:12px;text-decoration:none;">📋 레딧 댓글 복사</a></div>
+      <textarea id="f-reddit" style="min-height:90px;font-size:12px;" placeholder="레딧 글 화면에서 [📋 레딧 댓글 복사] 북마크를 누른 뒤 여기에 붙여넣으세요"></textarea>
+      <div class="hint">첫 줄은 레딧 글 주소, 그 아래는 보여 줄 댓글 주소들입니다. 보여 주기 싫은 댓글은 그 줄만 지우세요. 댓글이 늘면 다시 복사해서 통째로 바꿔 붙여넣으면 됩니다.</div>
+    </div>
+
+    <div class="field">
       <label><input type="checkbox" id="f-published" style="width:auto; margin-right:6px;"> 바로 게시하기 (끄면 임시저장)</label>
     </div>
 
@@ -215,6 +222,7 @@ function openModal(post){
   document.getElementById('f-excerpt').value = post ? post.excerpt || '' : '';
   document.getElementById('f-body').value = post ? post.body || '' : '';
   document.getElementById('f-published').checked = post ? !!post.published : false;
+  document.getElementById('f-reddit').value = post ? [post.redditUrl || ''].concat(post.redditComments || []).filter(Boolean).join('\n') : '';
   document.getElementById('f-thumb').value = post ? post.thumb || '' : '';
   const prev = document.getElementById('thumbPreview');
   if(post && post.thumb){ prev.src = post.thumb; prev.style.display='block'; } else { prev.style.display='none'; }
@@ -243,6 +251,16 @@ async function savePost(){
   const title = document.getElementById('f-title').value.trim();
   if(!title){ showToast('제목을 입력해주세요'); return; }
 
+  // Reddit 주소 정리: 글 주소 1개 + 댓글 주소 여러 개
+  const rdOk = u => /^https:\/\/(www\.)?reddit\.com\/r\/[A-Za-z0-9_]+\/comments\/[a-z0-9]+(\/[^\s"'<>]*)?$/i.test(u);
+  const rdLines = document.getElementById('f-reddit').value.split(/\s+/).map(s => s.trim().split('?')[0].replace(/^https:\/\/(old|new|m)\.reddit/, 'https://www.reddit')).filter(Boolean);
+  const rdBad = rdLines.filter(u => !rdOk(u));
+  if(rdBad.length){ showToast('레딧 주소가 아닌 줄이 있어요: ' + rdBad[0].slice(0, 40)); return; }
+  const isCom = u => /\/comment\/[a-z0-9]+/i.test(u);
+  let redditUrl = rdLines.find(u => !isCom(u)) || '';
+  const redditComments = [...new Set(rdLines.filter(isCom))];
+  if(!redditUrl && redditComments.length){ const m = redditComments[0].match(/^https:\/\/www\.reddit\.com\/r\/[^/]+\/comments\/[a-z0-9]+/i); redditUrl = m ? m[0] + '/' : ''; }
+
   showToast('저장 중...');
   let thumbUrl = document.getElementById('f-thumb').value;
 
@@ -260,7 +278,9 @@ async function savePost(){
       excerpt: document.getElementById('f-excerpt').value.trim(),
       body: document.getElementById('f-body').value,
       thumb: thumbUrl,
-      published: document.getElementById('f-published').checked
+      published: document.getElementById('f-published').checked,
+      redditUrl: redditUrl,
+      redditComments: redditComments
     };
 
     if(id){

@@ -39,6 +39,15 @@
   .nav-item{ flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; padding:6px 0; color:var(--text-muted); background:none; border:none; cursor:pointer; }
   .nav-item.active{ color:var(--accent); }
   .nav-item span{ font-size:11px; }
+
+  .rd-box{ margin-top:28px; background:var(--card); border:1px solid var(--card-border); border-radius:16px; padding:18px 14px; }
+  .rd-head{ display:flex; align-items:center; gap:8px; margin:0 4px 4px; }
+  .rd-head b{ font-size:16px; }
+  .rd-logo{ width:22px; height:22px; border-radius:50%; background:#FF4500; color:#fff; font-size:11px; font-weight:800; display:flex; align-items:center; justify-content:center; }
+  .rd-sub{ font-size:12px; color:var(--text-muted); margin:0 4px 12px; line-height:1.6; }
+  .rd-box blockquote.reddit-embed-bq{ margin:0 0 10px; }
+  .rd-box iframe{ max-width:100%; }
+  .rd-more{ display:block; text-align:center; margin-top:8px; font-size:13px; font-weight:700; color:#fff; background:#FF4500; padding:11px 18px; border-radius:50px; }
 </style>
 </head>
 <body>
@@ -100,15 +109,40 @@ async function loadArticle(){
       <p class="post-meta">✍️ 말문 · ${dt}</p>
       ${p.thumb ? `<div class="post-thumb"><img src="${p.thumb}" alt="${esc(p.title)}"></div>` : ''}
       <article class="post-body">${paragraphs}</article>
+      ${rdSection(p)}
       <div class="cta-box">
         <p>지금 무료 첫 수업을 예약해보세요</p>
         <a href="tutors.html">튜터 둘러보기</a>
       </div>
     `;
+    rdLoadWidget();
   }catch(e){
     console.error(e);
     content.innerHTML = '<div class="error">글을 불러오지 못했습니다</div>';
   }
+}
+// ───── Reddit 대화 (레딧 공식 퍼가기 카드) ─────
+// 관리자 글쓰기 화면의 "Reddit 주소" 칸에 넣은 글·댓글 주소를 레딧 공식 카드로 보여 줌.
+// 카드는 방문할 때마다 레딧에서 바로 불러오므로, 레딧에서 고치거나 지운 내용도 그대로 반영됨
+function rdOk(u){ return /^https:\/\/(www\.)?reddit\.com\/r\/[A-Za-z0-9_]+\/comments\/[a-z0-9]+(\/[^\s"'<>]*)?$/i.test(u||''); }
+function rdCard(u){ return `<blockquote class="reddit-embed-bq" data-embed-showtitle="false" data-embed-height="316"><a href="${esc(u)}">Reddit</a></blockquote>`; }
+function rdSection(p){
+  const post = rdOk(p.redditUrl) ? p.redditUrl : '';
+  const coms = (Array.isArray(p.redditComments) ? p.redditComments : []).filter(rdOk).slice(0, 40);
+  if(!post && !coms.length) return '';
+  return `<section class="rd-box">
+    <div class="rd-head"><span class="rd-logo">r/</span><b>Reddit에서 나눈 이야기</b></div>
+    <p class="rd-sub">이 글은 Reddit에도 올렸어요. 전 세계 학습자들과 나눈 대화를 함께 보세요.</p>
+    ${post ? rdCard(post) : ''}
+    ${coms.map(rdCard).join('')}
+    ${post ? `<a class="rd-more" href="${esc(post)}" target="_blank" rel="noopener">Reddit에서 대화에 참여하기 →</a>` : ''}
+  </section>`;
+}
+function rdLoadWidget(){
+  if(!document.querySelector('.rd-box blockquote.reddit-embed-bq')) return;
+  const s = document.createElement('script');
+  s.src = 'https://embed.reddit.com/widgets.js'; s.async = true; s.charset = 'UTF-8';
+  document.body.appendChild(s);
 }
 loadArticle();
 </script>
