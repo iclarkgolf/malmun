@@ -138,10 +138,10 @@ button[aria-label]:has(> svg:only-child){ padding:11px; margin:-11px; }
     <span style="display:block; font-size:16px; font-weight:700;" id="sbT">서울 정보 나눔터 →</span>
     <span style="display:block; font-size:13px; color:#B9E9FF; margin-top:4px;" id="sbS">서울의 맛집, 볼거리, 교통 꿀팁을 누구나 나누는 게시판</span>
   </a>
-  <script>(function(){var l='ko';try{l=localStorage.getItem('malmun_lang')||'ko';}catch(e){}var T={en:['Seoul Board →','Food, sights and tips for Seoul, shared by everyone'],ja:['ソウル情報掲示板 →','ソウルのグルメ・観光・交通情報をみんなでシェア']};if(T[l]){document.getElementById('sbT').textContent=T[l][0];document.getElementById('sbS').textContent=T[l][1];}})();</script>
+
 
   <!-- 2026-11-07: 검색엔진이 "빈 페이지(Soft 404)"로 보지 않도록 고정 소개글 -->
-  <p class="blog-intro" style="font-size:14px; color:#5F5E5A; line-height:1.75; margin:4px 0 18px; word-break:keep-all;">
+  <p class="blog-intro" id="blogIntro" style="font-size:14px; color:#5F5E5A; line-height:1.75; margin:4px 0 18px; word-break:keep-all;">
     말문 커뮤니티는 한국어를 배우는 사람과 말문 튜터들이 함께 만드는 공간이에요. 교과서에는 없는 진짜 한국어 표현,
     한국 사람들의 평범한 하루 — 아침 밥상, 동네 산책, 김장 같은 이야기 — 그리고 한국 여행과 한국 생활에 도움이 되는 글을 모았어요.
     궁금한 주제를 검색하거나 카테고리를 골라 둘러보세요.
@@ -319,6 +319,21 @@ const TRANSLATIONS = {
   ja: { "blog.title":"💬 マルムンコミュニティ", "nav.home":"ホーム","nav.tutors":"講師","nav.curriculum":"カリキュラム","nav.community":"コミュニティ","nav.mypage":"マイページ" }
 };
 function applyLang(lang){
+  // 2026-11-09: 서울 나눔터 카드와 맨 위 소개글도 언어에 맞게 바꿈 (한국어 원문은 HTML에 그대로 두어 검색엔진용으로 유지)
+  try{
+    const SB = { ko:['서울 정보 나눔터 →','서울의 맛집, 볼거리, 교통 꿀팁을 누구나 나누는 게시판'], en:['Seoul Board →','Food, sights and travel tips for Seoul, shared by everyone'], ja:['ソウル情報掲示板 →','ソウルのグルメ・観光・交通情報をみんなでシェア'] }[lang] || null;
+    const st = document.getElementById('sbT'), ss = document.getElementById('sbS');
+    if(SB && st && ss){ st.textContent = SB[0]; ss.textContent = SB[1]; }
+    const intro = document.getElementById('blogIntro');
+    if(intro){
+      if(!intro.dataset.ko) intro.dataset.ko = intro.innerHTML;
+      const IN = {
+        en: 'Malmun Community is a place made by Korean learners and Malmun tutors together. Here you will find real Korean that textbooks don\'t teach, everyday life in Korea, like breakfast, neighborhood walks and making kimchi, and tips for traveling and living in Korea. Search for a topic or pick a category to look around.',
+        ja: 'マルムン・コミュニティは、韓国語を学ぶ人とマルムンのチューターが一緒に作る場所です。教科書にない本当の韓国語、朝ごはんや近所の散歩、キムチ作りのような韓国の普通の毎日、そして韓国旅行や韓国生活に役立つ話を集めました。気になるテーマを検索するか、カテゴリーを選んで見てみてください。'
+      };
+      intro.innerHTML = IN[lang] || intro.dataset.ko;
+    }
+  }catch(e){}
   document.documentElement.lang = lang;
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
