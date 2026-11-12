@@ -101,6 +101,17 @@ async function loadArticle(){
     }
     const p = doc.data();
     document.title = p.title + ' | 말문 Malmun';
+    // 검색엔진용: 글마다 설명·대표 주소(canonical)·공유 정보를 따로 넣음
+    try{
+      const desc = (p.excerpt || (p.body||'').replace(/\s+/g,' ')).trim().slice(0,155);
+      const url = 'https://malmunkorean.com/article.html?id=' + id;
+      const setM = (attr, key, val) => { let m = document.head.querySelector('meta['+attr+'="'+key+'"]'); if(!m){ m = document.createElement('meta'); m.setAttribute(attr, key); document.head.appendChild(m); } m.setAttribute('content', val); };
+      setM('name','description', desc);
+      setM('property','og:title', p.title); setM('property','og:description', desc); setM('property','og:url', url); setM('property','og:type','article');
+      if(p.thumb) setM('property','og:image', p.thumb);
+      let c = document.head.querySelector('link[rel="canonical"]'); if(!c){ c = document.createElement('link'); c.rel='canonical'; document.head.appendChild(c); } c.href = url;
+      if(/[a-z]{3,}/i.test(p.title) && /^[\x00-\x7F]/.test((p.body||'').trim())) document.documentElement.lang = 'en';
+    }catch(e){ console.warn('seo', e); }
     const dt = p.createdAt ? new Date(p.createdAt.seconds*1000).toLocaleDateString('ko-KR') : '';
     const paragraphs = (p.body||'').split(/\n\s*\n/).filter(x=>x.trim()).map(t => `<p>${esc(t).replace(/\n/g,'<br>')}</p>`).join('');
 

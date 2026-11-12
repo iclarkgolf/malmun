@@ -353,7 +353,7 @@
 </url>
 <url>
 <loc>https://malmunkorean.com/blog.html</loc>
-<lastmod>2026-11-07</lastmod>
+<lastmod>2026-11-12</lastmod>
 <priority>0.7</priority>
 </url>
 <url>
@@ -550,4 +550,11 @@
 <xhtml:link rel="alternate" hreflang="x-default" href="https://malmunkorean.com/tutor-profile.html?id=IFRQD0zAiRCMYDYNhOkB&amp;lang=en"/>
 </url>
   <url><loc>https://malmunkorean.com/seoul-board.html</loc><lastmod>2026-11-09</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<!-- 블로그 글 (2026-11-12 추가: 새 글을 올리면 여기에 한 줄씩 추가) -->
+<url><loc>https://malmunkorean.com/article.html?id=jNg4ylv9SjIkGQmrivps</loc><lastmod>2026-11-08</lastmod><priority>0.8</priority></url>
+<url><loc>https://malmunkorean.com/article.html?id=tFC2fMxPA1M3e4abijce</loc><lastmod>2026-11-08</lastmod><priority>0.8</priority></url>
+<url><loc>https://malmunkorean.com/article.html?id=5lNJIUhXxtvNJcEmwKsO</loc><lastmod>2026-11-09</lastmod><priority>0.8</priority></url>
+<url><loc>https://malmunkorean.com/article.html?id=RM8MIWiGT9GQWPfMWyO0</loc><lastmod>2026-11-12</lastmod><priority>0.8</priority></url>
+<url><loc>https://malmunkorean.com/article.html?id=JYjqWHnCU6uOgSy9uiLz</loc><lastmod>2026-11-12</lastmod><priority>0.8</priority></url>
+<url><loc>https://malmunkorean.com/article.html?id=rRMjN7wR563sEuB4TEtN</loc><lastmod>2026-09-01</lastmod><priority>0.8</priority></url>
 </urlset>
