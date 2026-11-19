@@ -74,6 +74,38 @@
     <h1>말문 관리자 홈</h1>
     <p class="sub">사이트 전체 지도예요. 뭘 고쳤는지 기억 안 나셔도, 여기서 클릭 몇 번이면 원하는 화면을 바로 찾아가실 수 있어요.</p>
 
+    <!-- 2026-11-19 현황판: 방문자·외국인·레딧 유입·30초 문의·승인 대기 -->
+    <style>
+      .dash{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:0 0 12px; }
+      .dash .st{ background:#fff; border:1px solid var(--card-border); border-radius:12px; padding:12px 6px; text-align:center; cursor:pointer; }
+      .dash .st.hot{ border-color:var(--accent); background:#FFF3E0; }
+      .dash .n{ font-size:22px; font-weight:700; margin:0; }
+      .dash .l{ font-size:11.5px; color:var(--text-muted); margin:2px 0 0; }
+      .dbox{ background:#fff; border:1px solid var(--card-border); border-radius:14px; padding:12px 14px; margin:0 0 12px; }
+      .dbox h3{ font-size:14px; margin:0 0 8px; display:flex; justify-content:space-between; align-items:center; }
+      .dbox h3 small{ font-weight:400; color:var(--text-muted); font-size:11.5px; }
+      .drow{ font-size:12.5px; line-height:1.5; padding:7px 0; border-top:1px solid #F1EEE5; word-break:break-all; }
+      .drow:first-of-type{ border-top:none; }
+      .drow .fg{ color:#B4570B; font-weight:700; }
+      .drow button{ font-size:11.5px; border:1px solid var(--card-border); background:#fff; border-radius:8px; padding:3px 8px; margin:4px 4px 0 0; cursor:pointer; }
+      .drow .new{ display:inline-block; background:#EF9F27; color:#412402; font-size:10.5px; font-weight:700; border-radius:6px; padding:1px 6px; margin-right:4px; }
+      .dmore{ font-size:12px; color:var(--text-muted); text-align:center; padding-top:6px; cursor:pointer; }
+    </style>
+    <p class="section-label">오늘 현황 <span id="dashTime" style="font-weight:400;text-transform:none;"></span></p>
+    <div class="dash">
+      <div class="st" onclick="dashGo('visits')"><p class="n" id="dToday">-</p><p class="l">오늘 방문자</p></div>
+      <div class="st" onclick="dashGo('visits')"><p class="n" id="dForeign">-</p><p class="l">그중 외국인</p></div>
+      <div class="st" onclick="dashGo('visits')"><p class="n" id="dReddit">-</p><p class="l">오늘 레딧에서</p></div>
+      <div class="st" onclick="dashGo('visits')"><p class="n" id="dWeek">-</p><p class="l">최근 7일 방문</p></div>
+      <div class="st" onclick="dashGo('visits')"><p class="n" id="dTotal">-</p><p class="l">누적 방문자</p></div>
+      <div class="st" id="dQiBox" onclick="dashGo('qi')"><p class="n" id="dQi">-</p><p class="l">새 30초 문의</p></div>
+      <div class="st" id="dReqBox" onclick="location.href='tutor-bookings.html'"><p class="n" id="dReq">-</p><p class="l">무료대화·수강신청 대기</p></div>
+      <div class="st" id="dBoardBox" onclick="window.open('seoul-board.html','_blank')"><p class="n" id="dBoard">-</p><p class="l">나눔터 승인 대기</p></div>
+      <div class="st" id="dRevBox" onclick="location.href='review-admin.html'"><p class="n" id="dRev">-</p><p class="l">후기 승인 대기</p></div>
+    </div>
+    <div class="dbox" id="qiBox"><h3>30초 문의 <small>외국인이 남긴 연락처</small></h3><div id="qiList"><p class="drow">불러오는 중...</p></div></div>
+    <div class="dbox" id="visitBox"><h3>최근 방문 <small>개인 정보 없이 나라·유입 경로·본 페이지만</small></h3><div id="visitList"><p class="drow">불러오는 중...</p></div><div class="dmore" id="visitMore" style="display:none" onclick="dashMore()">더 보기</div></div>
+
     <p class="section-label">가장 자주 보는 곳</p>
     <div class="link-list">
       <a class="link-card" href="index.html" target="_blank">
@@ -350,6 +382,105 @@ if(false /* 2026-11-07: 구글 로그인 확인 후 자동 입장 */){
       err.innerHTML = '관리자 계정이 아니에요 (' + (u.email || '') + ')<br><a href="#" onclick="adminSignOut();return false;" style="text-decoration:underline;">다른 계정으로 로그인</a>';
       err.style.display = 'block';
     }
+  });
+})();
+</script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script>
+/* ───── 2026-11-19 관리자 현황판 ───── */
+(function(){
+  const TZ = { 'Asia/Seoul':'한국','Asia/Tokyo':'일본','Asia/Manila':'필리핀','Asia/Shanghai':'중국','Asia/Hong_Kong':'홍콩','Asia/Taipei':'대만','Asia/Singapore':'싱가포르','Asia/Bangkok':'태국','Asia/Ho_Chi_Minh':'베트남','Asia/Saigon':'베트남','Asia/Jakarta':'인도네시아','Asia/Kuala_Lumpur':'말레이시아','Asia/Kolkata':'인도','Asia/Calcutta':'인도','Asia/Dubai':'UAE',
+    'Europe/London':'영국','Europe/Paris':'프랑스','Europe/Berlin':'독일','Europe/Madrid':'스페인','Europe/Rome':'이탈리아','Europe/Amsterdam':'네덜란드','Europe/Warsaw':'폴란드','Europe/Stockholm':'스웨덴','Europe/Lisbon':'포르투갈','Europe/Dublin':'아일랜드','Europe/Vienna':'오스트리아','Europe/Zurich':'스위스','Europe/Brussels':'벨기에','Europe/Prague':'체코','Europe/Moscow':'러시아','Europe/Istanbul':'튀르키예',
+    'America/New_York':'미국 동부','America/Chicago':'미국 중부','America/Denver':'미국 산지','America/Phoenix':'미국 서부','America/Los_Angeles':'미국 서부','America/Anchorage':'미국 알래스카','Pacific/Honolulu':'미국 하와이','America/Toronto':'캐나다','America/Vancouver':'캐나다','America/Mexico_City':'멕시코','America/Sao_Paulo':'브라질','America/Argentina/Buenos_Aires':'아르헨티나','America/Bogota':'콜롬비아','America/Lima':'페루','America/Santiago':'칠레',
+    'Australia/Sydney':'호주','Australia/Melbourne':'호주','Australia/Brisbane':'호주','Australia/Perth':'호주','Pacific/Auckland':'뉴질랜드','Africa/Lagos':'나이지리아','Africa/Cairo':'이집트','Africa/Johannesburg':'남아공' };
+  const PG = { 'index.html':'홈','tutors.html':'튜터','pricing.html':'요금','curriculum.html':'커리큘럼','purpose.html':'소개','level-test.html':'레벨테스트','level-result.html':'레벨결과','free-talk.html':'무료대화','blog.html':'블로그','article.html':'블로그글','blog-1.html':'블로그글','seoul-board.html':'나눔터','login.html':'로그인','booking.html':'예약','mypage.html':'마이페이지','tutor-profile.html':'튜터프로필','review-submit.html':'후기쓰기','terms.html':'약관','privacy.html':'개인정보','refund.html':'환불','tutor-apply.html':'튜터지원' };
+  const LG = { ko:'한국어', en:'영어', ja:'일본어' };
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+  const country = tz => TZ[tz] || (tz ? tz.split('/').pop().replace(/_/g,' ') : '?');
+  const src = (ref, s) => { const r = (ref || '').toLowerCase(); if(s) return s; if(!r) return '직접'; if(r.includes('reddit')) return 'reddit'; if(r.includes('google')) return '구글'; if(r.includes('naver')) return '네이버'; if(r.includes('daum')) return '다음'; if(r.includes('bing')) return '빙'; if(r.includes('kakao')) return '카톡'; if(r.includes('instagram')) return '인스타'; if(r.includes('facebook')) return '페이스북'; return r.split('/')[0]; };
+  const krDay = ms => new Date(ms + 9 * 3600 * 1000).toISOString().slice(0, 10);
+  const when = ts => { const d = ts && ts.toDate ? ts.toDate() : null; if(!d) return '-'; const k = new Date(d.getTime() + 9 * 3600 * 1000); return (k.getUTCMonth()+1) + '/' + k.getUTCDate() + ' ' + String(k.getUTCHours()).padStart(2,'0') + ':' + String(k.getUTCMinutes()).padStart(2,'0'); };
+  const dur = s => { s = Number(s) || 0; return s < 60 ? s + '초' : Math.round(s / 60) + '분'; };
+  const isForeign = v => !(v.lang || '').toLowerCase().startsWith('ko');
+  let db, visits = [], shown = 20;
+
+  window.dashGo = function(w){ const el = document.getElementById(w === 'qi' ? 'qiBox' : 'visitBox'); if(el) el.scrollIntoView({ behavior:'smooth', block:'start' }); };
+  window.dashMore = function(){ shown += 30; drawVisits(); };
+
+  function drawVisits(){
+    const box = document.getElementById('visitList');
+    if(!visits.length){ box.innerHTML = '<p class="drow">아직 기록이 없어요. (2026-11-19부터 기록 시작)</p>'; return; }
+    box.innerHTML = visits.slice(0, shown).map(v => {
+      const f = isForeign(v);
+      const pages = (v.pages || []).map(p => PG[p] || p.replace('.html','')).join('→');
+      return `<div class="drow">${when(v.createdAt)} · <span class="${f ? 'fg' : ''}">${esc(country(v.tz))}</span> · ${esc(LG[v.siteLang] || v.siteLang || '')} · ${esc(src(v.ref, v.src))} · ${esc(pages)} · ${dur(v.secs)}${v.mobile ? ' · 폰' : ' · PC'}</div>`;
+    }).join('');
+    document.getElementById('visitMore').style.display = visits.length > shown ? 'block' : 'none';
+  }
+
+  async function loadVisits(){
+    const today = krDay(Date.now()), week = krDay(Date.now() - 6 * 86400000);
+    try{
+      const s = await db.collection('visits').orderBy('createdAt', 'desc').limit(400).get();
+      visits = s.docs.map(d => d.data());
+      const t = visits.filter(v => v.day === today);
+      document.getElementById('dToday').textContent = t.length;
+      document.getElementById('dForeign').textContent = t.filter(isForeign).length;
+      document.getElementById('dReddit').textContent = t.filter(v => src(v.ref, v.src) === 'reddit' || /reddit/i.test(v.src || '')).length;
+      document.getElementById('dWeek').textContent = visits.filter(v => v.day >= week).length;
+      try{ const c = await db.collection('visits').count().get(); document.getElementById('dTotal').textContent = c.data().count; }
+      catch(e){ document.getElementById('dTotal').textContent = visits.length; }
+      drawVisits();
+    }catch(e){ document.getElementById('visitList').innerHTML = '<p class="drow">방문 기록을 못 불러왔어요: ' + esc(e.code || e.message) + '</p>'; }
+  }
+
+  async function loadQi(){
+    const box = document.getElementById('qiList');
+    try{
+      const s = await db.collection('quickInquiries').orderBy('createdAt', 'desc').limit(60).get();
+      const list = s.docs.map(d => ({ id: d.id, ...d.data() }));
+      const nNew = list.filter(q => q.status === 'new').length;
+      document.getElementById('dQi').textContent = nNew;
+      document.getElementById('dQiBox').classList.toggle('hot', nNew > 0);
+      if(!list.length){ box.innerHTML = '<p class="drow">아직 문의가 없어요.</p>'; return; }
+      box.innerHTML = list.map(q => {
+        const c = q.contact || '', ty = q.contactType || '';
+        let link = '';
+        if(/email/i.test(ty) || c.includes('@')) link = `<a href="mailto:${esc(c)}" style="text-decoration:underline">${esc(c)}</a>`;
+        else if(/whatsapp/i.test(ty)) link = `<a href="https://wa.me/${esc(c.replace(/[^0-9]/g,''))}" target="_blank" style="text-decoration:underline">${esc(c)}</a>`;
+        else link = esc(c);
+        return `<div class="drow">${q.status === 'new' ? '<span class="new">새 문의</span>' : '<span style="color:#8A8880">연락함</span> '}${when(q.createdAt)} · ${esc(q.name)} · ${esc(ty)} ${link} · ${esc(LG[q.lang] || q.lang || '')} · ${esc(country(q.tz))}${q.message ? ' · ' + esc(q.message) : ''}<br>`
+          + (q.status === 'new' ? `<button onclick="qiDone('${q.id}')">연락함으로 표시</button>` : `<button onclick="qiUndo('${q.id}')">새 문의로 되돌리기</button>`)
+          + `<button onclick="qiDel('${q.id}')">삭제</button></div>`;
+      }).join('');
+    }catch(e){ box.innerHTML = '<p class="drow">문의를 못 불러왔어요: ' + esc(e.code || e.message) + '</p>'; }
+  }
+  window.qiDone = async id => { await db.collection('quickInquiries').doc(id).update({ status: 'done' }); loadQi(); };
+  window.qiUndo = async id => { await db.collection('quickInquiries').doc(id).update({ status: 'new' }); loadQi(); };
+  window.qiDel = async id => { if(!confirm('이 문의를 지울까요?')) return; await db.collection('quickInquiries').doc(id).delete(); loadQi(); };
+
+  async function loadWaiting(){
+    const set = (id, n) => { document.getElementById(id).textContent = n; document.getElementById(id + 'Box').classList.toggle('hot', n > 0); };
+    try{
+      const [a, b] = await Promise.all([
+        db.collection('freeTalkRequests').where('status', '==', 'pending').get(),
+        db.collection('enrollRequests').where('status', '==', 'pending').get()
+      ]);
+      set('dReq', a.size + b.size);
+    }catch(e){ document.getElementById('dReq').textContent = '?'; }
+    try{ set('dBoard', (await db.collection('boardPosts').where('approved', '==', false).get()).size); }catch(e){ document.getElementById('dBoard').textContent = '?'; }
+    try{ set('dRev', (await db.collection('reviews').where('published', '==', false).get()).size); }catch(e){ document.getElementById('dRev').textContent = '?'; }
+  }
+
+  let started = false;
+  firebase.auth().onAuthStateChanged(u => {
+    if(started || !u || (u.email || '').toLowerCase() !== 'tourjang@gmail.com') return;
+    started = true;
+    try{ localStorage.setItem('malmun_admin', '1'); }catch(e){}   // 이 브라우저는 방문자 수에서 빼기
+    db = firebase.firestore();
+    const k = new Date(Date.now() + 9 * 3600 * 1000);
+    document.getElementById('dashTime').textContent = '· ' + (k.getUTCMonth()+1) + '/' + k.getUTCDate() + ' ' + String(k.getUTCHours()).padStart(2,'0') + ':' + String(k.getUTCMinutes()).padStart(2,'0') + ' 기준';
+    loadVisits(); loadQi(); loadWaiting();
   });
 })();
 </script>

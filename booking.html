@@ -2,6 +2,22 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
+<script>
+/* 2026-11-19 처음 온 방문자 언어 자동 선택: 주소에 lang도 없고 고른 언어도 없으면 휴대폰·PC 언어를 보고 정함 (한국어면 한국어, 일본어면 일본어, 그 밖은 영어). 검색엔진 봇은 그대로 둠 */
+(function(){
+  try{
+    var p = new URLSearchParams(location.search);
+    if(p.get('lang')) return;
+    if(localStorage.getItem('malmun_lang')) return;
+    if(/bot|crawl|spider|slurp|yeti|daum|bingpreview|facebookexternalhit|lighthouse|headless/i.test(navigator.userAgent)) return;
+    var f = ((navigator.languages && navigator.languages[0]) || navigator.language || '').toLowerCase();
+    var l = f.indexOf('ko') === 0 ? 'ko' : (f.indexOf('ja') === 0 ? 'ja' : 'en');
+    localStorage.setItem('malmun_lang', l);
+    if(l !== 'ko' && false){ p.set('lang', l); location.replace(location.pathname + '?' + p.toString() + location.hash); }
+  }catch(e){}
+})();
+</script>
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow">
 <title>수업 예약 | 말문</title>
@@ -705,5 +721,124 @@ async function loadTutor(){
 loadTutor();
 </script>
 
+<!-- 2026-11-19 방문 기록 + 외국인용 30초 문의 (관리자 홈에서 확인) -->
+<script>
+(function(){
+  var SHOW_WIDGET = false;
+  var KEY = 'AIzaSyD10IdHCDkCybMrkO5fewo0ksYFBmqwWro';
+  var BASE = 'https://firestore.googleapis.com/v1/projects/malmun-bca03/databases/(default)/documents/';
+  var ALERT = 'https://script.google.com/macros/s/AKfycbz7EANVhq9AoUz-W7cFmXfyZUb0cWCIJG26Rx2TFVrUR7ehRDTRbyT1BdOANqQ7bCsiRQ/exec';
+  var isBot = /bot|crawl|spider|slurp|yeti|daum|bingpreview|facebookexternalhit|lighthouse|headless|pingdom|uptimerobot/i.test(navigator.userAgent);
+  var isAdmin = false; try{ isAdmin = localStorage.getItem('malmun_admin') === '1'; }catch(e){}
+  function siteLang(){ try{ return localStorage.getItem('malmun_lang') || new URLSearchParams(location.search).get('lang') || 'ko'; }catch(e){ return 'ko'; } }
+  function tz(){ try{ return Intl.DateTimeFormat().resolvedOptions().timeZone || ''; }catch(e){ return ''; } }
+  function S(v){ return { stringValue: String(v == null ? '' : v).slice(0, 1000) }; }
+  var page = (location.pathname.replace(/^\//, '') || 'index.html').slice(0, 60);
+
+  /* ── 방문 기록 ── */
+  var vid = null, pages = [], t0 = Date.now();
+  if(!isBot && !isAdmin){
+    try{
+      vid = sessionStorage.getItem('mm_vid');
+      pages = JSON.parse(sessionStorage.getItem('mm_pages') || '[]');
+      t0 = Number(sessionStorage.getItem('mm_t0')) || Date.now();
+    }catch(e){}
+    var fresh = !vid;
+    if(fresh){
+      vid = 'v' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+      t0 = Date.now();
+      try{ sessionStorage.setItem('mm_vid', vid); sessionStorage.setItem('mm_t0', String(t0)); }catch(e){}
+    }
+    if(pages[pages.length - 1] !== page && pages.length < 30) pages.push(page);
+    try{ sessionStorage.setItem('mm_pages', JSON.stringify(pages)); }catch(e){}
+    var secs = function(){ return Math.min(86400, Math.max(0, Math.round((Date.now() - t0) / 1000))); };
+    var arr = function(){ return { arrayValue: { values: pages.map(function(x){ return S(x); }) } }; };
+    if(fresh){
+      var ref = ''; try{ var r = document.referrer ? new URL(document.referrer) : null; if(r && r.hostname !== location.hostname) ref = (r.hostname + r.pathname).slice(0, 200); }catch(e){}
+      var q = new URLSearchParams(location.search);
+      var day = new Date(Date.now() + 9 * 3600 * 1000).toISOString().slice(0, 10);
+      var now = new Date().toISOString();
+      fetch(BASE + 'visits?documentId=' + vid + '&key=' + KEY, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fields: {
+        day: S(day), lang: S((navigator.language || '').slice(0, 20)), siteLang: S(siteLang()), tz: S(tz().slice(0, 60)),
+        ref: S(ref), src: S((q.get('utm_source') || q.get('ref') || '').slice(0, 60)), landing: S((page + location.search).slice(0, 200)),
+        pages: arr(), secs: { integerValue: '0' }, mobile: { booleanValue: /Mobi|Android|iPhone/i.test(navigator.userAgent) },
+        createdAt: { timestampValue: now }, lastAt: { timestampValue: now } } }) }).catch(function(){});
+    }else{
+      setTimeout(function(){ send(false); }, 800);
+    }
+    function send(beacon){
+      var url = BASE + 'visits/' + vid + '?key=' + KEY + '&updateMask.fieldPaths=pages&updateMask.fieldPaths=secs&updateMask.fieldPaths=lastAt&updateMask.fieldPaths=siteLang&currentDocument.exists=true';
+      try{ fetch(url, { method: 'PATCH', keepalive: !!beacon, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fields: { pages: arr(), secs: { integerValue: String(secs()) }, lastAt: { timestampValue: new Date().toISOString() }, siteLang: S(siteLang()) } }) }).catch(function(){}); }catch(e){}
+    }
+    var lastSent = 0;
+    function maybe(){ if(Date.now() - lastSent > 5000){ lastSent = Date.now(); send(true); } }
+    document.addEventListener('visibilitychange', function(){ if(document.visibilityState === 'hidden') maybe(); });
+    window.addEventListener('pagehide', maybe);
+  }
+
+  /* ── 30초 문의 (영어·일본어 화면에서만) ── */
+  if(!SHOW_WIDGET || isBot) return;
+  var T = {
+    en: { bub: 'Free Korean chat?', h: 'Try a free Korean chat', p: 'Leave your name and how to reach you. PJ will message you within a day.', name: 'Your name', ct: 'How should we contact you?', c: 'Email or phone / ID', m: 'What do you want to learn? (optional)', send: 'Send', ok: 'Thank you! We will contact you soon.', need: 'Please write your name and contact.', err: 'Sorry, it did not send. Please try again.' },
+    ja: { bub: '無料で韓国語トーク', h: '無料の韓国語トークを体験', p: 'お名前と連絡先を残してください。1日以内にPJからご連絡します。', name: 'お名前', ct: '連絡方法', c: 'メールまたは電話番号・ID', m: '学びたいこと（任意）', send: '送信', ok: 'ありがとうございます。すぐにご連絡します。', need: 'お名前と連絡先を入力してください。', err: '送信できませんでした。もう一度お試しください。' }
+  };
+  function L(){ var l = siteLang(); return T[l] ? l : null; }
+  var done = false, closedAt = 0;
+  try{ done = localStorage.getItem('mm_qi_done') === '1'; closedAt = Number(localStorage.getItem('mm_qi_closed')) || 0; }catch(e){}
+  if(done) return;
+  var css = document.createElement('style');
+  css.textContent = '#mmqi-b{position:fixed;right:14px;bottom:84px;z-index:9990;background:#EF9F27;color:#412402;border:none;border-radius:999px;padding:11px 16px;font:600 14px/1 -apple-system,BlinkMacSystemFont,sans-serif;box-shadow:0 4px 14px rgba(0,0,0,.18);cursor:pointer}'
+    + '@media(min-width:769px){#mmqi-b{bottom:22px}#mmqi-c{bottom:22px!important}}'
+    + '#mmqi-c{position:fixed;right:12px;bottom:84px;z-index:9991;width:min(330px,calc(100vw - 24px));background:#fff;border:1px solid #E8E4D8;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.2);padding:16px;font:14px/1.5 -apple-system,BlinkMacSystemFont,sans-serif;color:#2C2C2A;display:none}'
+    + '#mmqi-c h4{margin:0 26px 4px 0;font-size:16px}#mmqi-c p{margin:0 0 10px;font-size:13px;color:#5F5E5A}'
+    + '#mmqi-c input,#mmqi-c select,#mmqi-c textarea{width:100%;box-sizing:border-box;border:1px solid #E8E4D8;border-radius:10px;padding:10px;font-size:15px;margin:0 0 8px;font-family:inherit;background:#fff}'
+    + '#mmqi-c textarea{height:60px;resize:none}#mmqi-c .go{width:100%;border:none;border-radius:10px;padding:12px;background:#EF9F27;color:#412402;font-weight:700;font-size:15px;cursor:pointer}'
+    + '#mmqi-c .x{position:absolute;right:10px;top:8px;border:none;background:none;font-size:22px;color:#8A8880;cursor:pointer}#mmqi-c .msg{font-size:13px;margin-top:6px;color:#D85A30}';
+  document.head.appendChild(css);
+  var b = document.createElement('button'); b.id = 'mmqi-b'; b.type = 'button';
+  var c = document.createElement('div'); c.id = 'mmqi-c';
+  function draw(){
+    var l = L(); if(!l){ b.style.display = 'none'; c.style.display = 'none'; return; }
+    var t = T[l]; b.textContent = t.bub;
+    c.innerHTML = '<button class="x" type="button" aria-label="close">×</button><h4>' + t.h + '</h4><p>' + t.p + '</p>'
+      + '<input id="mmqi-n" maxlength="60" placeholder="' + t.name + '">'
+      + '<select id="mmqi-t" aria-label="' + t.ct + '"><option>Email</option><option>WhatsApp</option><option>KakaoTalk</option><option>Instagram</option><option>LINE</option></select>'
+      + '<input id="mmqi-v" maxlength="100" placeholder="' + t.c + '">'
+      + '<textarea id="mmqi-m" maxlength="1000" placeholder="' + t.m + '"></textarea>'
+      + '<button class="go" type="button">' + t.send + '</button><div class="msg"></div>';
+    c.querySelector('.x').onclick = function(){ c.style.display = 'none'; b.style.display = ''; try{ localStorage.setItem('mm_qi_closed', String(Date.now())); }catch(e){} };
+    c.querySelector('.go').onclick = submit;
+  }
+  function open(){ draw(); if(!L()) return; c.style.display = 'block'; b.style.display = 'none'; }
+  b.onclick = open;
+  function submit(){
+    var l = L() || 'en', t = T[l];
+    var n = c.querySelector('#mmqi-n').value.trim(), ty = c.querySelector('#mmqi-t').value, v = c.querySelector('#mmqi-v').value.trim(), m = c.querySelector('#mmqi-m').value.trim();
+    var msg = c.querySelector('.msg');
+    if(!n || v.length < 3){ msg.textContent = t.need; return; }
+    var go = c.querySelector('.go'); go.disabled = true;
+    fetch(BASE + 'quickInquiries?key=' + KEY, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fields: {
+      name: S(n.slice(0, 60)), contact: S(v.slice(0, 100)), contactType: S(ty), message: S(m.slice(0, 1000)), lang: S(l), page: S(page), tz: S(tz().slice(0, 60)),
+      ref: S((document.referrer || '').slice(0, 200)), vid: S(vid || ''), status: S('new'), createdAt: { timestampValue: new Date().toISOString() } } }) })
+    .then(function(r){
+      if(!r.ok) throw new Error('save');
+      try{ fetch(ALERT, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({
+        studentName: n, studentEmail: ty + ': ' + v, tutorName: 'PJ', dayLabel: '[30초 문의 · ' + (l === 'ja' ? '일본어' : '영어') + ' 화면] ' + (m || '내용 없음'), time: tz() + ' · ' + page,
+        price: 0, isFreeOrientation: true, joinUrl: 'https://malmunkorean.com/admin.html' }) }); }catch(e){}
+      try{ localStorage.setItem('mm_qi_done', '1'); }catch(e){}
+      c.innerHTML = '<h4 style="margin:6px 0">' + t.ok + '</h4>';
+      setTimeout(function(){ c.style.display = 'none'; }, 4000);
+    }).catch(function(){ go.disabled = false; msg.textContent = t.err; });
+  }
+  function start(){
+    document.body.appendChild(b); document.body.appendChild(c); draw();
+    var week = 7 * 24 * 3600 * 1000;
+    var auto = false; try{ auto = !sessionStorage.getItem('mm_qi_auto') && (Date.now() - closedAt > week); }catch(e){}
+    if(auto){ setTimeout(function(){ if(L() && c.style.display !== 'block'){ try{ sessionStorage.setItem('mm_qi_auto', '1'); }catch(e){} open(); } }, 20000); }
+    document.addEventListener('click', function(e){ if(e.target && e.target.closest && (e.target.closest('.lang-option') || e.target.closest('[data-l]'))){ setTimeout(function(){ if(c.style.display !== 'block') draw(); }, 50); } }, true);
+  }
+  if(document.body) start(); else document.addEventListener('DOMContentLoaded', start);
+})();
+</script>
 </body>
 </html>
