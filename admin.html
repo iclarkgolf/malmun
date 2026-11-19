@@ -402,34 +402,37 @@ if(false /* 2026-11-07: 구글 로그인 확인 후 자동 입장 */){
   const when = ts => { const d = ts && ts.toDate ? ts.toDate() : null; if(!d) return '-'; const k = new Date(d.getTime() + 9 * 3600 * 1000); return (k.getUTCMonth()+1) + '/' + k.getUTCDate() + ' ' + String(k.getUTCHours()).padStart(2,'0') + ':' + String(k.getUTCMinutes()).padStart(2,'0'); };
   const dur = s => { s = Number(s) || 0; return s < 60 ? s + '초' : Math.round(s / 60) + '분'; };
   const isForeign = v => !(v.lang || '').toLowerCase().startsWith('ko');
-  let db, visits = [], shown = 20;
+  // 2026-11-19 자동 방문(점검 프로그램·미리보기 봇) 걸러내기: 시간대가 UTC이거나 비어 있으면 사람이 아님
+  const isBotVisit = v => { const z = (v.tz || '').trim(); return !z || /^(UTC|Etc\/|GMT)/i.test(z); };
+  let db, visits = [], shown = 20, botCount = 0;
 
   window.dashGo = function(w){ const el = document.getElementById(w === 'qi' ? 'qiBox' : 'visitBox'); if(el) el.scrollIntoView({ behavior:'smooth', block:'start' }); };
   window.dashMore = function(){ shown += 30; drawVisits(); };
 
   function drawVisits(){
     const box = document.getElementById('visitList');
-    if(!visits.length){ box.innerHTML = '<p class="drow">아직 기록이 없어요. (2026-11-19부터 기록 시작)</p>'; return; }
+    const botNote = botCount ? `<p class="drow" style="color:#8A8880">자동 방문(점검 프로그램 등) ${botCount}건은 숫자와 목록에서 뺐어요.</p>` : '';
+    if(!visits.length){ box.innerHTML = '<p class="drow">아직 사람 방문 기록이 없어요. (2026-11-19부터 기록 시작)</p>' + botNote; return; }
     box.innerHTML = visits.slice(0, shown).map(v => {
       const f = isForeign(v);
       const pages = (v.pages || []).map(p => PG[p] || p.replace('.html','')).join('→');
       return `<div class="drow">${when(v.createdAt)} · <span class="${f ? 'fg' : ''}">${esc(country(v.tz))}</span> · ${esc(LG[v.siteLang] || v.siteLang || '')} · ${esc(src(v.ref, v.src))} · ${esc(pages)} · ${dur(v.secs)}${v.mobile ? ' · 폰' : ' · PC'}</div>`;
-    }).join('');
+    }).join('') + botNote;
     document.getElementById('visitMore').style.display = visits.length > shown ? 'block' : 'none';
   }
 
   async function loadVisits(){
     const today = krDay(Date.now()), week = krDay(Date.now() - 6 * 86400000);
     try{
-      const s = await db.collection('visits').orderBy('createdAt', 'desc').limit(400).get();
+      const s = await db.collection('visits').orderBy('createdAt', 'desc').limit(3000).get();
       visits = s.docs.map(d => d.data());
+      const all = visits; visits = all.filter(v => !isBotVisit(v)); botCount = all.length - visits.length;
       const t = visits.filter(v => v.day === today);
       document.getElementById('dToday').textContent = t.length;
       document.getElementById('dForeign').textContent = t.filter(isForeign).length;
       document.getElementById('dReddit').textContent = t.filter(v => src(v.ref, v.src) === 'reddit' || /reddit/i.test(v.src || '')).length;
       document.getElementById('dWeek').textContent = visits.filter(v => v.day >= week).length;
-      try{ const c = await db.collection('visits').count().get(); document.getElementById('dTotal').textContent = c.data().count; }
-      catch(e){ document.getElementById('dTotal').textContent = visits.length; }
+      document.getElementById('dTotal').textContent = visits.length;
       drawVisits();
     }catch(e){ document.getElementById('visitList').innerHTML = '<p class="drow">방문 기록을 못 불러왔어요: ' + esc(e.code || e.message) + '</p>'; }
   }
