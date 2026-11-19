@@ -442,6 +442,22 @@
 @keyframes hudFloat{ to{ transform:translate(18px,-10px); } }
 @media (min-width:900px){ .live-hud{ padding:22px 24px 24px; scroll-snap-align:start; scroll-margin-top:70px; scroll-snap-stop:always; } .hud-body{ font-size:16px; min-height:120px; } }
 @media (prefers-reduced-motion: reduce){ .hud-hangul span, .live-hud::after, .hud-live i, .hud-caret{ animation:none; } }
+/* 2026-11-19 LIVE 창 높이 줄이기: 아이클락골프 LIVE 창과 같은 크기로 맞춤 (위 원래 값은 그대로 두고 여기서 덮어씀) */
+.live-hud{ padding:10px 12px 12px; }
+.hud-lens{ padding:10px 16px 9px; border-radius:16px; }
+.hud-top{ margin-bottom:5px; }
+.hud-body{ min-height:50px; }
+.hud-who{ margin:0 0 2px; }
+.hud-who.me{ margin-top:6px; }
+.hud-foot{ margin-top:6px; padding-top:7px; }
+.hud-go{ padding:7px 13px; letter-spacing:.06em; }
+.hud-hangul span:nth-child(1){ top:4%; left:3%; font-size:30px; }
+.hud-hangul span:nth-child(2){ bottom:4%; right:3%; font-size:34px; }
+.hud-hangul span:nth-child(3){ top:12%; right:8%; font-size:26px; }
+.hud-hangul span:nth-child(4){ bottom:6%; left:6%; font-size:38px; }
+.hud-hangul span:nth-child(5), .hud-hangul span:nth-child(6){ font-size:22px; }
+@media (max-width:600px){ .hud-top{ flex-wrap:nowrap; letter-spacing:.06em; } #hudLabel{ display:none; } .hud-topic{ font-size:11px; } .hud-lens{ padding:9px 13px 8px; } }
+@media (min-width:900px){ .live-hud{ padding:14px 24px 16px; } .hud-body{ font-size:16px; min-height:28px; } }
 </style>
 <script>
 (function(){
