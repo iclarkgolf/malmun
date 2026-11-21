@@ -1579,7 +1579,8 @@ function countUpText(el, target, formatFn, duration){
   css.textContent = ''
   + '#mmw{position:fixed;inset:0;z-index:100000;display:flex;align-items:center;justify-content:center;overflow:hidden;color:#f3ead7;font-family:Nunito,"Noto Sans KR",sans-serif;background:radial-gradient(120% 90% at 50% 110%,#1a1430 0%,#0a0d1a 45%,#05070d 100%);transition:opacity 1s}'
   + '#mmw *{box-sizing:border-box;margin:0;padding:0}'
-  + '#mmw .g{position:absolute;font-family:"Noto Sans KR",sans-serif;color:rgba(214,183,120,.07);user-select:none;animation:mmwf 18s ease-in-out infinite}'
+  + '#mmw .g{position:absolute;font-family:"Noto Sans KR",sans-serif;color:rgba(232,201,138,.16);user-select:none;animation:mmwf 18s ease-in-out infinite}'
+  + '#mmw .pre{position:absolute;inset:4vh 4vw 20vh;writing-mode:vertical-rl;font-family:"Noto Sans KR",sans-serif;font-weight:700;font-size:clamp(20px,3.2vw,34px);line-height:2;letter-spacing:.35em;color:rgba(232,201,138,.13);overflow:hidden;user-select:none;pointer-events:none;text-align:start}'
   + '@keyframes mmwf{0%,100%{transform:translateY(0)}50%{transform:translateY(-24px)}}'
   + '#mmw .sky{position:absolute;left:0;right:0;bottom:0;height:22vh;opacity:.35}'
   + '#mmw .lines{position:relative;width:min(640px,88vw);text-align:center;transition:opacity 1.2s}'
@@ -1635,8 +1636,12 @@ function countUpText(el, target, formatFn, duration){
     + '<div class="meta"><span>' + date + '</span><span><b>Malmun Tutors</b></span></div>'
     + '<button class="go" type="button" id="mmwGo">들어가세요<small>COME IN</small></button></div>'
     + '<button class="skip" type="button" id="mmwSkip">skip</button>';
+  // 바탕글: 세종대왕 훈민정음 서문 (현대어 풀이)
+  var pre = document.createElement('div'); pre.className = 'pre';
+  pre.textContent = '나라의 말이 중국과 달라 한자와 서로 잘 통하지 아니하므로 어리석은 백성이 말하고 싶은 것이 있어도 마침내 제 뜻을 펴지 못하는 사람이 많다 내가 이를 불쌍히 여겨 새로 스물여덟 글자를 만드니 사람마다 쉽게 익혀 날마다 쓰는 데 편하게 하고자 할 따름이다 세종';
+  w.insertBefore(pre, w.firstChild);
   var G = '말문한국어서울안녕반가워요친구시작';
-  for(var i = 0; i < 22; i++){ var s = document.createElement('span'); s.className = 'g'; s.textContent = G[i % G.length];
+  for(var i = 0; i < 14; i++){ var s = document.createElement('span'); s.className = 'g'; s.textContent = G[i % G.length];
     s.style.left = Math.random() * 100 + '%'; s.style.top = Math.random() * 80 + '%'; s.style.fontSize = (24 + Math.random() * 64) + 'px';
     s.style.animationDelay = (-Math.random() * 18) + 's'; w.insertBefore(s, w.firstChild); }
   var timers = [], prevOverflow = '';
