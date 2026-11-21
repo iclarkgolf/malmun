@@ -1557,5 +1557,98 @@ function countUpText(el, target, formatFn, duration){
   if(document.body) start(); else document.addEventListener('DOMContentLoaded', start);
 })();
 </script>
+<!-- 2026-11-21 처음 온 외국인에게 한 번만 보여 주는 환영식 + 창립 멤버 증서 (주소 끝에 ?welcome=1 을 붙이면 언제든 다시 볼 수 있음) -->
+<script>
+(function(){
+  var force = /[?&]welcome=1/.test(location.search);
+  var isBot = /bot|crawl|spider|slurp|yeti|daum|bingpreview|facebookexternalhit|lighthouse|headless|pingdom|uptimerobot/i.test(navigator.userAgent);
+  var seen = false, korean = false;
+  try{ seen = localStorage.getItem('mm_welcomed') === '1'; }catch(e){}
+  try{ korean = /^ko/i.test(navigator.language || '') && (localStorage.getItem('malmun_lang') || 'ko') === 'ko'; }catch(e){}
+  if(!force && (isBot || seen || korean)) return;
+  var LINES = [
+    [['Welcome to Malmun.','big'],['We are honest with you.',''],['We just started.','']],
+    [['We do not have any students yet.',''],['You can be our first student.','em']],
+    [['You are taking the first step with us.',''],['So we will treat you as a founding member.','em']],
+    [['Our tutors live in Seoul.',''],['They will teach you real Korean.',''],["Let's grow together.",'big']]
+  ];
+  var fl = document.createElement('link'); fl.rel = 'stylesheet';
+  fl.href = 'https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;800&family=Noto+Sans+KR:wght@500;700&display=swap';
+  document.head.appendChild(fl);
+  var css = document.createElement('style');
+  css.textContent = ''
+  + '#mmw{position:fixed;inset:0;z-index:100000;display:flex;align-items:center;justify-content:center;overflow:hidden;color:#f3ead7;font-family:Nunito,"Noto Sans KR",sans-serif;background:radial-gradient(120% 90% at 50% 110%,#1a1430 0%,#0a0d1a 45%,#05070d 100%);transition:opacity 1s}'
+  + '#mmw *{box-sizing:border-box;margin:0;padding:0}'
+  + '#mmw .g{position:absolute;font-family:"Noto Sans KR",sans-serif;color:rgba(214,183,120,.07);user-select:none;animation:mmwf 18s ease-in-out infinite}'
+  + '@keyframes mmwf{0%,100%{transform:translateY(0)}50%{transform:translateY(-24px)}}'
+  + '#mmw .sky{position:absolute;left:0;right:0;bottom:0;height:22vh;opacity:.35}'
+  + '#mmw .lines{position:relative;width:min(640px,88vw);text-align:center;transition:opacity 1.2s}'
+  + '#mmw .lines.fade{opacity:0}'
+  + '#mmw .line{font-size:clamp(18px,3vw,26px);font-weight:500;line-height:1.55;opacity:0;transform:translateY(10px);transition:opacity 1.1s,transform 1.1s;min-height:1.55em}'
+  + '#mmw .line.on{opacity:1;transform:none}'
+  + '#mmw .line.big{font-size:clamp(28px,5.4vw,46px);font-weight:800;color:#e8c98a;margin-bottom:12px}'
+  + '#mmw .line.em{color:#e8c98a;font-weight:700}'
+  + '#mmw .cert{position:absolute;width:min(460px,88vw);max-height:94vh;overflow:auto;padding:34px 26px 26px;text-align:center;opacity:0;transform:scale(.94);transition:opacity 1.4s,transform 1.4s;pointer-events:none;background:linear-gradient(160deg,#fbf6ea,#efe3c8);color:#2a2418;border-radius:6px;box-shadow:0 30px 80px rgba(0,0,0,.6),0 0 0 1px #c9a45c inset,0 0 0 8px #fbf6ea inset,0 0 0 9px #c9a45c inset}'
+  + '#mmw .cert.on{opacity:1;transform:none;pointer-events:auto}'
+  + '#mmw .sm{font-size:12px;letter-spacing:4px;text-transform:uppercase;color:#8a6d33}'
+  + '#mmw .tt{font-size:30px;font-weight:800;margin:10px 0 2px}'
+  + '#mmw .ko{font-family:"Noto Sans KR",sans-serif;font-size:15px;color:#5b4a2a}'
+  + '#mmw .cls{font-size:34px;font-weight:800;color:#7a5a1e;margin:8px 0 2px}'
+  + '#mmw .rule{height:1px;background:linear-gradient(90deg,transparent,#c9a45c,transparent);margin:16px 0}'
+  + '#mmw .ph{font-size:12px;letter-spacing:3px;text-transform:uppercase;color:#8a6d33;margin-bottom:8px}'
+  + '#mmw .pk{display:flex;gap:10px;align-items:flex-start;text-align:left;font-size:15px;line-height:1.4;margin:7px 4px}'
+  + '#mmw .pk b{flex:0 0 24px;height:24px;border-radius:50%;background:#7a5a1e;color:#fbf6ea;font-size:13px;display:flex;align-items:center;justify-content:center}'
+  + '#mmw .meta{display:flex;justify-content:space-between;font-size:14px;color:#5b4a2a}'
+  + '#mmw .seal{position:absolute;right:10px;top:10px;width:64px;height:64px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#c0392b,#7d1c13);color:#fbe9d0;display:flex;align-items:center;justify-content:center;font-family:"Noto Sans KR",sans-serif;font-size:18px;font-weight:700;box-shadow:0 6px 16px rgba(0,0,0,.35);transform:rotate(-12deg)}'
+  + '#mmw .go{margin-top:20px;display:inline-block;padding:12px 34px;border-radius:100px;background:#1f2a44;color:#f3ead7;font-family:"Noto Sans KR",sans-serif;font-size:17px;font-weight:700;border:none;cursor:pointer}'
+  + '#mmw .go small{display:block;font-family:Nunito,sans-serif;font-size:12px;font-weight:600;opacity:.75;letter-spacing:2px}'
+  + '#mmw .skip{position:absolute;right:16px;bottom:14px;font-size:13px;color:rgba(243,234,215,.4);cursor:pointer;background:none;border:none;font-family:inherit}';
+  document.head.appendChild(css);
+  var d = new Date(), date = d.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+  var w = document.createElement('div'); w.id = 'mmw'; w.setAttribute('role', 'dialog'); w.setAttribute('aria-label', 'Welcome');
+  w.innerHTML = '<svg class="sky" viewBox="0 0 1200 200" preserveAspectRatio="none"><path fill="#0f1326" d="M0 200V150h60v-30h40v30h50V90h30v-20h20v20h30v60h70v-40h50v40h40V60h12V30h6v30h12v90h60v-50h80v50h50v-30h40v30h70V110h50v40h60V80h30v70h80v-40h60v40h40v-20h60v70z"/></svg>'
+    + '<div class="lines" id="mmwL"></div>'
+    + '<div class="cert" id="mmwC"><div class="seal">말문</div><div class="sm">Malmun Korean · Seoul</div><div class="tt">Founding Member</div><div class="ko">창립 멤버</div>'
+    + '<div class="cls">Class of ' + d.getFullYear() + '</div><div class="rule"></div><div class="ph">Your founding member gifts</div>'
+    + '<p class="pk"><b>1</b>When you visit Korea, we will plan your trip.</p>'
+    + '<p class="pk"><b>2</b>If you want, we will meet you at the airport and guide you for a day.</p>'
+    + '<p class="pk"><b>3</b>You will get points for every friend you bring.</p>'
+    + '<div class="rule"></div><div class="meta"><span>' + date + '</span><span><b>Malmun Tutors</b></span></div>'
+    + '<button class="go" type="button" id="mmwGo">들어가세요<small>COME IN</small></button></div>'
+    + '<button class="skip" type="button" id="mmwSkip">skip</button>';
+  var G = '말문한국어서울안녕반가워요친구시작';
+  for(var i = 0; i < 22; i++){ var s = document.createElement('span'); s.className = 'g'; s.textContent = G[i % G.length];
+    s.style.left = Math.random() * 100 + '%'; s.style.top = Math.random() * 80 + '%'; s.style.fontSize = (24 + Math.random() * 64) + 'px';
+    s.style.animationDelay = (-Math.random() * 18) + 's'; w.insertBefore(s, w.firstChild); }
+  var timers = [], prevOverflow = '';
+  function clear(){ timers.forEach(clearTimeout); timers = []; }
+  function showCert(){ clear(); document.getElementById('mmwL').className = 'lines fade';
+    document.getElementById('mmwSkip').style.display = 'none';
+    timers.push(setTimeout(function(){ document.getElementById('mmwC').className = 'cert on'; }, 500)); }
+  function close(){ clear(); try{ localStorage.setItem('mm_welcomed', '1'); }catch(e){}
+    w.style.opacity = '0'; setTimeout(function(){ w.remove(); document.documentElement.style.overflow = prevOverflow; }, 1000); }
+  function run(){
+    var box = document.getElementById('mmwL'), t = 500;
+    LINES.forEach(function(g){
+      timers.push(setTimeout(function(){
+        box.className = 'lines'; box.innerHTML = '';
+        g.forEach(function(L, j){ var p = document.createElement('p'); p.className = 'line ' + L[1]; p.textContent = L[0]; box.appendChild(p);
+          timers.push(setTimeout(function(){ p.classList.add('on'); }, 300 + j * 1300)); });
+      }, t));
+      t += 600 + g.length * 1300 + 1600;
+      timers.push(setTimeout(function(){ box.className = 'lines fade'; }, t - 900));
+    });
+    timers.push(setTimeout(showCert, t));
+  }
+  function start(){
+    document.body.appendChild(w);
+    prevOverflow = document.documentElement.style.overflow; document.documentElement.style.overflow = 'hidden';
+    document.getElementById('mmwGo').onclick = close;
+    document.getElementById('mmwSkip').onclick = showCert;
+    run();
+  }
+  if(document.body) start(); else document.addEventListener('DOMContentLoaded', start);
+})();
+</script>
 </body>
 </html>
