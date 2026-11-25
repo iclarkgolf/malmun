@@ -2,6 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
+<script>/* 2026-11-25 레딧에서 왔는지 언어 자동 이동 전에 먼저 기억해 둠 (맨 아래 환영 띠가 씀) */try{var _rf=document.referrer?new URL(document.referrer).hostname:"";if(/(^|\.)reddit\.com$|redd\.it$/i.test(_rf))sessionStorage.setItem("mm_from_reddit","1");}catch(e){}</script>
 <script>
 /* 2026-11-19 처음 온 방문자 언어 자동 선택: 주소에 lang도 없고 고른 언어도 없으면 휴대폰·PC 언어를 보고 정함 (한국어면 한국어, 일본어면 일본어, 그 밖은 영어). 검색엔진 봇은 그대로 둠 */
 (function(){
@@ -1691,6 +1692,24 @@ function countUpText(el, target, formatFn, duration){
     run();
   }
   if(document.body) start(); else document.addEventListener('DOMContentLoaded', start);
+})();
+</script>
+<!-- 2026-11-25 레딧에서 온 방문자에게 맨 위 환영 띠 → 영어 입구 페이지(hello.html)로 안내 (다른 화면은 건드리지 않음) -->
+<script>
+(function(){
+  try{
+    var r = document.referrer || '', q = new URLSearchParams(location.search);
+    var fromReddit = /(^|\.)reddit\.com|redd\.it/i.test((function(){ try{ return new URL(r).hostname; }catch(e){ return ''; } })()) || /reddit/i.test(q.get('utm_source') || q.get('ref') || '');
+    if(fromReddit) sessionStorage.setItem('mm_from_reddit', '1');
+    if(sessionStorage.getItem('mm_from_reddit') !== '1' || sessionStorage.getItem('mm_reddit_bar_closed') === '1') return;
+    var bar = document.createElement('div');
+    bar.style.cssText = 'position:relative;z-index:9995;background:#EF9F27;color:#412402;font:600 14px/1.45 -apple-system,BlinkMacSystemFont,sans-serif;padding:11px 40px 11px 14px;text-align:center;word-break:keep-all';
+    bar.innerHTML = 'Hi, Reddit friend! You found Sunami\'s Korean posts. <a href="hello.html" style="color:#412402;font-weight:800;text-decoration:underline">Start here &rarr;</a>'
+      + '<button type="button" aria-label="close" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);border:none;background:none;font-size:22px;line-height:1;color:#412402;cursor:pointer">&times;</button>';
+    bar.querySelector('button').onclick = function(){ bar.remove(); try{ sessionStorage.setItem('mm_reddit_bar_closed', '1'); }catch(e){} };
+    var put = function(){ document.body.insertBefore(bar, document.body.firstChild); };
+    if(document.body) put(); else document.addEventListener('DOMContentLoaded', put);
+  }catch(e){}
 })();
 </script>
 </body>
