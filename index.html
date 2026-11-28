@@ -715,6 +715,64 @@
   </div>
   </div>
 
+  <!-- 2026-11-25 방문자 의견 받기 칸: 갓 연 사이트라 한국인·외국인 누구에게나 솔직한 한마디를 부탁 (quickInquiries에 저장 → 관리자 홈 30초 문의 칸·메일 알림) -->
+  <div id="mmAsk" style="max-width:720px;margin:18px auto 6px;padding:0 16px;">
+    <div style="background:#FFF6E6;border:2px solid #EF9F27;border-radius:18px;padding:20px 18px;box-shadow:0 6px 18px rgba(239,159,39,.18);word-break:keep-all;">
+      <div id="mmAskBody"></div>
+      <button type="button" id="mmAskOpen" style="margin-top:12px;border:none;background:#EF9F27;color:#412402;font-weight:800;font-size:15px;border-radius:999px;padding:11px 20px;cursor:pointer;font-family:inherit;"></button>
+      <div id="mmAskForm" style="display:none;margin-top:12px;">
+        <textarea id="mmAskM" maxlength="1000" style="width:100%;box-sizing:border-box;height:84px;border:1px solid #E3C48A;border-radius:10px;padding:10px;font-size:16px;font-family:inherit;resize:none;"></textarea>
+        <input id="mmAskC" maxlength="100" style="width:100%;box-sizing:border-box;margin-top:6px;border:1px solid #E3C48A;border-radius:10px;padding:10px;font-size:16px;font-family:inherit;">
+        <button type="button" id="mmAskSend" style="margin-top:8px;border:none;background:#2C2C2A;color:#fff;font-weight:700;font-size:15px;border-radius:10px;padding:11px 20px;cursor:pointer;font-family:inherit;"></button>
+        <div id="mmAskMsg" style="font-size:13.5px;margin-top:6px;color:#B4381F;"></div>
+      </div>
+    </div>
+  </div>
+  <script>
+  (function(){
+    var lang = 'ko'; try{ lang = localStorage.getItem('malmun_lang') || new URLSearchParams(location.search).get('lang') || 'ko'; }catch(e){}
+    var ko = lang === 'ko';
+    var T = ko ? {
+      body: '<p style="font-weight:800;font-size:18px;margin:0 0 8px;color:#2C2C2A;">안녕하세요, 말문입니다.</p>'
+        + '<p style="margin:0 0 8px;font-size:15px;line-height:1.65;color:#3d3a33;">말문은 이제 막 문을 연 사이트예요. 아직 서툰 곳도 많고, 고칠 곳도 많습니다.</p>'
+        + '<p style="margin:0 0 8px;font-size:15px;line-height:1.65;color:#3d3a33;">한국 분이든 외국 분이든 들어와 보시고 느낀 점을 솔직하게 말씀해 주세요. "이건 불편해요", "이런 게 있으면 좋겠어요" 한마디면 충분합니다.</p>'
+        + '<p style="margin:0;font-size:15px;line-height:1.65;color:#3d3a33;">여러분의 말 한마디가 말문을 키웁니다. 고맙습니다. <b>수나미 드림</b></p>',
+      open: '한마디 남기기', ph: '불편한 점, 바라는 점, 무엇이든 좋아요', phc: '이메일이나 연락처 (답을 원하시면, 선택)', send: '보내기',
+      short: '몇 글자만 적어 주세요.', fail: '보내지 못했어요. 다시 눌러 주세요.', ok: '고맙습니다! 잘 받았어요. 꼭 읽고 반영할게요.'
+    } : {
+      body: '<p style="font-weight:800;font-size:18px;margin:0 0 8px;color:#2C2C2A;">Hi, welcome to Malmun.</p>'
+        + '<p style="margin:0 0 8px;font-size:15px;line-height:1.65;color:#3d3a33;">We just opened this site. Many things are still new to us, and we have a lot to fix.</p>'
+        + '<p style="margin:0 0 8px;font-size:15px;line-height:1.65;color:#3d3a33;">Korean or not, please look around and tell us what you honestly think. One line is enough, like "This part is hard to use" or "I want this here."</p>'
+        + '<p style="margin:0;font-size:15px;line-height:1.65;color:#3d3a33;">Your words help Malmun grow. Thank you. <b>Sunami</b></p>',
+      open: 'Leave a line', ph: 'What is hard to use, what you want, anything', phc: 'Email or contact (optional, if you want a reply)', send: 'Send',
+      short: 'Please write a few words.', fail: 'Sorry, it did not send. Please try again.', ok: 'Thank you! We got it. We will read it and use it.'
+    };
+    document.getElementById('mmAskBody').innerHTML = T.body;
+    var openB = document.getElementById('mmAskOpen'); openB.textContent = T.open;
+    document.getElementById('mmAskM').placeholder = T.ph;
+    document.getElementById('mmAskC').placeholder = T.phc;
+    var sendB = document.getElementById('mmAskSend'); sendB.textContent = T.send;
+    openB.onclick = function(){ openB.style.display = 'none'; document.getElementById('mmAskForm').style.display = 'block'; document.getElementById('mmAskM').focus(); };
+    sendB.onclick = function(){
+      var m = document.getElementById('mmAskM').value.trim(), c = document.getElementById('mmAskC').value.trim(), msg = document.getElementById('mmAskMsg');
+      if(m.length < 3){ msg.textContent = T.short; return; }
+      sendB.disabled = true; msg.textContent = '';
+      var S = function(v){ return { stringValue: String(v == null ? '' : v).slice(0, 1000) }; };
+      var tz = ''; try{ tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; }catch(e){}
+      var vid = ''; try{ vid = sessionStorage.getItem('mm_vid') || ''; }catch(e){}
+      fetch('https://firestore.googleapis.com/v1/projects/malmun-bca03/databases/(default)/documents/quickInquiries?key=AIzaSyD10IdHCDkCybMrkO5fewo0ksYFBmqwWro', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fields: {
+        name: S(ko ? '방문자 의견' : 'Visitor idea'), contact: S(c || 'no contact'), contactType: S('Email'), message: S('[방문자 의견] ' + m), lang: S(lang), page: S('index.html'), tz: S(tz.slice(0, 60)),
+        ref: S((document.referrer || '').slice(0, 200)), vid: S(vid), status: S('new'), createdAt: { timestampValue: new Date().toISOString() } } }) })
+      .then(function(r){
+        if(!r.ok) throw new Error('save');
+        try{ fetch('https://script.google.com/macros/s/AKfycbz7EANVhq9AoUz-W7cFmXfyZUb0cWCIJG26Rx2TFVrUR7ehRDTRbyT1BdOANqQ7bCsiRQ/exec', { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({
+          studentName: ko ? '방문자 의견' : 'Visitor idea', studentEmail: c || 'no contact', tutorName: 'PJ', dayLabel: '[방문자 의견 · 홈] ' + m, time: tz + ' · index.html', price: 0, isFreeOrientation: true, joinUrl: 'https://malmunkorean.com/admin.html' }) }); }catch(e){}
+        document.getElementById('mmAskForm').innerHTML = '<p style="font-weight:800;color:#1D7A55;margin:6px 0 0;">' + T.ok + '</p>';
+      }).catch(function(){ sendB.disabled = false; msg.textContent = T.fail; });
+    };
+  })();
+  </script>
+
   <section class="brand-story">
     <img src="pj-story.jpg" alt="말문 브랜드 일러스트레이션">
     <div>

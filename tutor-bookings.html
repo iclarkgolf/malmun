@@ -969,5 +969,22 @@ async function cancelEnroll(id, btnEl){
   });
 })();
 </script>
+<!-- 2026-11-25 관리자 화면 맨 위 고정 띠: 어느 관리 화면에서든 한 번에 관리자 홈·사이트 홈으로 나감 -->
+<script>
+(function(){
+  try{
+    var here = location.pathname.split('/').pop() || '';
+    var isHome = here === 'admin.html' || here === 'admin';
+    var bar = document.createElement('div');
+    bar.id = 'mmAdminBar';
+    bar.style.cssText = 'position:sticky;top:0;z-index:9998;display:flex;align-items:center;gap:8px;padding:9px 12px;background:#2C2C2A;color:#fff;font:600 14px/1 -apple-system,BlinkMacSystemFont,sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.15)';
+    var btn = 'display:inline-block;padding:8px 12px;border-radius:999px;text-decoration:none;font-weight:700;font-size:13.5px;';
+    bar.innerHTML = (isHome ? '<span style="flex:1">말문 관리자</span>' : '<a href="admin.html" style="' + btn + 'background:#fff;color:#2C2C2A">← 관리자 홈</a><span style="flex:1"></span>')
+      + '<a href="index.html" style="' + btn + 'background:#EF9F27;color:#412402">🏠 사이트 홈</a>';
+    var put = function(){ if(!document.getElementById('mmAdminBar')) document.body.insertBefore(bar, document.body.firstChild); };
+    if(document.body) put(); else document.addEventListener('DOMContentLoaded', put);
+  }catch(e){}
+})();
+</script>
 </body>
 </html>
