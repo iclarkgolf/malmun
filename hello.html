@@ -54,6 +54,10 @@ try{ if(!localStorage.getItem('malmun_lang')) localStorage.setItem('malmun_lang'
   .jump small{ display:block; font-weight:600; font-size:12px; opacity:.85; margin-top:2px; }
 
   /* 2. 레딧 글 */
+  .talk{ background:var(--green-soft); border:1.5px solid var(--green); }
+  .talk p{ margin:0 0 8px; }
+  .talk a.go{ display:block; margin-top:12px; text-align:center; background:var(--green); color:#fff; font-weight:800; font-size:16px; text-decoration:none; border-radius:14px; padding:14px 12px; }
+  .talk small{ display:block; margin-top:8px; text-align:center; font-size:12.5px; color:var(--text2); }
   .posts a.post{ display:block; text-decoration:none; padding:13px 0; border-top:1px solid var(--line); }
   .posts a.post:first-of-type{ border-top:none; padding-top:2px; }
   .posts .t{ font-weight:700; font-size:15.5px; line-height:1.4; }
@@ -135,6 +139,18 @@ try{ if(!localStorage.getItem('malmun_lang')) localStorage.setItem('malmun_lang'
       <div>I make my own kimchi at home. If you learn with me, you learn real Korean life too, not only words.</div>
     </div>
     <a class="jump" href="#join">Become a founding member, it's free<small>No card. No payment. Just say hello.</small></a>
+  </section>
+
+
+  <!-- 2026-11-28 무료 짧은 대화 (횟수 제한 없음) -->
+  <section id="freeTalk">
+    <div class="card talk">
+      <h2>Talk with me for free</h2>
+      <p>Reading is good. Talking is better.</p>
+      <p>Pick a day and a time. We meet on video for about 15 minutes. We just talk in easy Korean. You can come back any time. There is no limit.</p>
+      <a class="go" href="free-talk.html?lang=en">Ask for a free talk</a>
+      <small>It costs nothing. You only need a Google account.</small>
+    </div>
   </section>
 
   <!-- 2. 레딧에서 본 그 글 -->
@@ -244,6 +260,7 @@ try{ if(!localStorage.getItem('malmun_lang')) localStorage.setItem('malmun_lang'
   <!-- 6. 더 둘러보기 -->
   <section>
     <div class="card links">
+      <a href="free-talk.html?lang=en">Free talk with Sunami <span>→</span></a>
       <a href="level-test.html?lang=en">Free Korean level test <span>→</span></a>
       <a href="tutors.html?lang=en">Meet our tutors <span>→</span></a>
       <a href="blog.html">All posts <span>→</span></a>
